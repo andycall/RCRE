@@ -1,0 +1,15 @@
+span::selection {
+    color: inherit;
+}
+
+.rcre-text-disabled {
+    color: #b8b8b8;
+    background-color: #eee;
+    border-color: #dbdbdb;
+    opacity: 1;
+    cursor: not-allowed;
+}
+
+.rcre-text {
+    padding: 0 10px;
+}

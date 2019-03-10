@@ -1,0 +1,8 @@
+.rcre-abstract-container {
+    overflow: auto;
+    padding: 0 10px;
+}
+
+.err-text {
+    color: red;
+}

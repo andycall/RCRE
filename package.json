@@ -1,0 +1,56 @@
+{
+    "name": "rcre",
+    "version": "0.1.0",
+    "description": "A out of box application framework designed for CMS development.",
+    "main": "dist/index.js",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/andycall/RCRE.git"
+    },
+    "keywords": [
+        "application",
+        "framework",
+        "CMS"
+    ],
+    "private": true,
+    "workspaces": [
+        "packages/*"
+    ],
+    "author": "andycall",
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/andycall/RCRE/issues"
+    },
+    "homepage": "https://github.com/andycall/RCRE#readme",
+    "devDependencies": {
+        "@types/acorn": "^4.0.5",
+        "@types/lodash": "^4.14.122",
+        "@types/lru-cache": "^5.1.0",
+        "@types/node": "^11.11.0",
+        "@types/qs": "^6.5.2",
+        "@types/react": "^16.8.7",
+        "@types/react-dom": "^16.8.2",
+        "rollup-plugin-postcss": "^2.0.3",
+        "rollup-plugin-typescript2": "^0.19.3"
+    },
+    "scripts": {
+        "build": "rollup -c ./scripts/rollup/rollup.config.js"
+    },
+    "dependencies": {
+        "@types/react-redux": "^7.0.3",
+        "acorn": "^5.3.0",
+        "axios": "^0.16.2",
+        "chalk": "^2.4.1",
+        "classnames": "^2.2.5",
+        "lodash": "^4.17.4",
+        "lru-cache": "5.1.1",
+        "moment": "^2.20.1",
+        "qs": "^6.5.2",
+        "react": ">=16",
+        "react-dom": ">=16",
+        "react-redux": "^5.0.7",
+        "redux": "^3.7.2",
+        "rollup": "^1.6.0",
+        "typescript": "^3.3.3333"
+    }
+}

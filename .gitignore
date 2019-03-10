@@ -1,0 +1,12 @@
+.idea/
+
+# dependencies
+node_modules
+
+# testing
+/coverage
+/coverage/*
+
+packages/rcre/dist
+
+.DS_Store
