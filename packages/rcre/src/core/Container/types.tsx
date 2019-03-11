@@ -381,6 +381,8 @@ export type runTimeType = {
     $prev?: any;
 };
 
+export type RunTimeType = runTimeType;
+
 /**
  * 获取ExpressionString 嵌入的上下文
  * @param {BasicContainerPropsInterface} props
