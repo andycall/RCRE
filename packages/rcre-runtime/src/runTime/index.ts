@@ -47,8 +47,6 @@ export function runInContext(code: string, context: Object) {
         throw new TypeError('code must be a evaluable string');
     }
 
-
-
     if (!runTimeCache.has(code)) {
         runTimeCache.set(code, new LRUCache({
             max: 50
