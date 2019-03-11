@@ -1,6 +1,6 @@
 {
     "name": "rcre",
-    "version": "0.19.151",
+    "version": "0.19.152",
     "main": "./dist/index.js",
     "typings": "./dist/src/index.d.ts",
     "repository": "https://github.com/andycall/RCRE",
@@ -23,7 +23,7 @@
         "moment": "^2.20.1",
         "prop-types": "^15.7.2",
         "qs": "^6.5.2",
-        "rcre-runtime": "^0.1.1",
+        "rcre-runtime": "^0.1.2",
         "react": ">=16",
         "react-dom": ">=16",
         "react-redux": "^5.0.7",
