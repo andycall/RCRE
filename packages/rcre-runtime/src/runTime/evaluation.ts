@@ -1,7 +1,6 @@
 import {parse} from 'acorn';
 import * as ESTree from 'estree';
 import {Expression, Statement} from 'estree';
-import * as _ from 'lodash';
 import {execBinaryExpression} from './expression/binarayExpression';
 import {execMemberExpression} from './expression/memberExpression';
 import {execConditionExpression} from './expression/conditionalExpression';
@@ -12,32 +11,9 @@ import {execUnaryExpression} from './expression/unaryExpression';
 import {execLogicalExpression} from './expression/logicalExpression';
 import {execCallExpression} from './expression/callExpression';
 import {execNewExpression} from './expression/newExpression';
+import {Global} from "./index";
 
 const ASTCache: Map<string, ESTree.Program> = new Map();
-
-export const Global = {
-    Object: Object,
-    Array: Array,
-    String: String,
-    Number: Number,
-    RegExp: RegExp,
-    Boolean: Boolean,
-    Date: Date,
-    Math: Math,
-    alert: alert,
-    confirm: confirm,
-    prompt: prompt,
-    parseInt: parseInt,
-    parseFloat: parseFloat,
-    encodeURI: encodeURI,
-    decodeURI: decodeURI,
-    encodeURIComponent: encodeURIComponent,
-    decodeURIComponent: decodeURIComponent,
-    document: document,
-    JSON: JSON,
-    _: _,
-    console: console
-};
 
 function execStatement(statement: Statement, context: Object) {
     switch (statement.type) {

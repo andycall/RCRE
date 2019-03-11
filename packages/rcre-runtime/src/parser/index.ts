@@ -1,7 +1,6 @@
 import {Walker} from './walker';
-import {runInContext} from '../runTime/index';
+import {runInContext} from '../runTime';
 import {isNil, isPlainObject} from 'lodash';
-import {RunTimeType} from "rcre";
 import {safeStringify} from "../util";
 
 const tokenMap: Map<string, TokenItem[]> = new Map();
@@ -21,7 +20,7 @@ export type TokenItem = {
  * @param {runTimeType} context
  * @returns {any}
  */
-export function execExpressString(str: any, context: RunTimeType) {
+export function execExpressString(str: any, context: object) {
     if (typeof str !== 'string') {
         return null;
     }

@@ -1,11 +1,35 @@
-import {memoize, isPlainObject} from 'lodash';
+import {isPlainObject} from 'lodash';
 import {evaluation} from './evaluation';
 import LRUCache from 'lru-cache';
-import {filter} from 'rcre';
+import * as _ from "lodash";
 
 const runTimeCache: LRUCache<string, LRUCache<Object, any>> = new LRUCache({
     max: 300
 });
+
+export const Global = {
+    Object: Object,
+    Array: Array,
+    String: String,
+    Number: Number,
+    RegExp: RegExp,
+    Boolean: Boolean,
+    Date: Date,
+    Math: Math,
+    alert: alert,
+    confirm: confirm,
+    prompt: prompt,
+    parseInt: parseInt,
+    parseFloat: parseFloat,
+    encodeURI: encodeURI,
+    decodeURI: decodeURI,
+    encodeURIComponent: encodeURIComponent,
+    decodeURIComponent: decodeURIComponent,
+    document: document,
+    JSON: JSON,
+    _: _,
+    console: console
+};
 
 /**
  * 安全运行沙箱
@@ -23,7 +47,7 @@ export function runInContext(code: string, context: Object) {
         throw new TypeError('code must be a evaluable string');
     }
 
-    injectFilterIntoContext(context);
+
 
     if (!runTimeCache.has(code)) {
         runTimeCache.set(code, new LRUCache({
@@ -44,12 +68,3 @@ export function runInContext(code: string, context: Object) {
         return contextCache.get(context);
     }
 }
-
-/**
- * 把RCRE的filter函数变量注入到context中
- *
- * @param {Object} context
- */
-export const injectFilterIntoContext: (context: object) => void = memoize((context: Object) => {
-    Object.assign(context, filter.store);
-});

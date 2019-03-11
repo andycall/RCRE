@@ -1,11 +1,16 @@
 import {IContainerState} from '../Container/reducer';
 import {isObjectLike, each, isPlainObject, clone} from 'lodash';
-import {compileExpressionString, evalInContext, isExpression, parseExpressionString} from '../util/vm';
-import {parseExpressionToken} from '../../language/parser/index';
-import {injectFilterIntoContext} from '../../language/runTime/index';
+import {
+    compileExpressionString,
+    evalInContext,
+    injectFilterIntoContext,
+    isExpression,
+    parseExpressionString
+} from '../util/vm';
 import {BindItem} from '../Container/AbstractContainer';
 import {setWith, deleteWith} from '../util/util';
 import {getRuntimeContext} from '../Container';
+import {parseExpressionToken} from "rcre-runtime/src";
 
 export interface ContainerNodeOptions {
     /**

@@ -22,7 +22,6 @@
         "jsx": "react",
         "allowSyntheticDefaultImports": true,
         "baseUrl": "./src",
-        "outDir": "../../",
         "declaration": true
     },
     "exclude": [

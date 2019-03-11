@@ -29,16 +29,16 @@ const packages = {
             file: path.join(workspace, 'rcre-runtime/dist/index.js'),
             format: 'cjs'
         },
-        tsconfig: path.join(workspace, 'rcre-runtime/tsconfig-build.json')
+        tsconfig: path.join(workspace, './rcre-runtime/tsconfig.json')
     },
-    // rcre: {
-    //     input: path.join(workspace, 'rcre/src/index.tsx'),
-    //     output: {
-    //         file: path.join(workspace, 'rcre/dist/index.js'),
-    //         format: 'cjs'
-    //     },
-    //     tsconfig: path.join(workspace, 'rcre/tsconfig-build.json'),
-    // }
+    rcre: {
+        input: path.join(workspace, './rcre/src/index.tsx'),
+        output: {
+            file: path.join(workspace, './rcre/dist/index.js'),
+            format: 'cjs'
+        },
+        tsconfig: path.join(workspace, './rcre/tsconfig.json'),
+    }
 };
 
 function buildConfig() {
@@ -46,18 +46,20 @@ function buildConfig() {
 
     Object.keys(packages).forEach(name => {
         output[name] = {
-            input: packages[name].input,
-            output: packages[name].output,
-            plugins: [
-                typescript({
-                    tsconfig: packages[name].plugins,
-                    clean: true
-                }),
-                postcss({
-                    extract: true
-                })
-            ],
-            external: external
+            inputOptions: {
+                input: packages[name].input,
+                plugins: [
+                    typescript({
+                        clean: true,
+                        tsconfig: packages[name].tsconfig
+                    }),
+                    postcss({
+                        extract: true
+                    })
+                ],
+                external: external
+            },
+            outputOptions: packages[name].output
         };
     });
 

@@ -1,9 +1,8 @@
 import * as _ from 'lodash';
-import {isExpressionString, execExpressString, reportError} from '../../language/parser/index';
+import {execExpressString, isExpressionString, reportError, Global} from 'rcre-runtime';
 import {runTimeType} from '../Container/types';
-import {injectFilterIntoContext} from '../../language/runTime';
-import {Global} from '../../language/runTime/evaluation';
 import {normalizedPathString} from './util';
+import {filter} from "./filter";
 
 export type compilePairType<S> = {
     [s: string]: S
@@ -171,8 +170,9 @@ export function safeStringify(obj: Object) {
 }
 
 export function parseExpressionString(str: any, context: runTimeType) {
+    injectFilterIntoContext(context);
     if (process.env.NODE_ENV === 'test' && typeof str === 'function') {
-        injectFilterIntoContext(context);
+
         Object.assign(context, Global);
         try {
             return str(context);
@@ -184,3 +184,13 @@ export function parseExpressionString(str: any, context: runTimeType) {
 
     return execExpressString(str, context);
 }
+
+
+/**
+ * 把RCRE的filter函数变量注入到context中
+ *
+ * @param {Object} context
+ */
+export const injectFilterIntoContext: (context: object) => void = _.memoize((context: Object) => {
+    Object.assign(context, filter.store);
+});
