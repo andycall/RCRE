@@ -27,6 +27,7 @@ import {dataProviderEvent} from './core/Events/dataProviderEvent';
 export * from './types';
 export * from './core/util/util';
 export * from './services/api';
+export * from './core/Container/types';
 export * from './core/Events';
 export * from './core/Page';
 export * from './core/Events/dataProviderEvent';
@@ -34,7 +35,6 @@ export * from './core/DataCustomer/index';
 export * from './core/util/componentLoader';
 export * from './services/log';
 export * from './core/util/stringToPath';
-export * from './language/parser/index';
 export * from './data/events';
 
 export * from './data/reducers';

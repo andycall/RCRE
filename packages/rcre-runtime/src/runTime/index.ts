@@ -1,7 +1,7 @@
 import {memoize, isPlainObject} from 'lodash';
 import {evaluation} from './evaluation';
 import LRUCache from 'lru-cache';
-import {filter} from '../../core/util/filter';
+import {filter} from 'rcre';
 
 const runTimeCache: LRUCache<string, LRUCache<Object, any>> = new LRUCache({
     max: 300

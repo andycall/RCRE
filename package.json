@@ -30,11 +30,12 @@
         "@types/qs": "^6.5.2",
         "@types/react": "^16.8.7",
         "@types/react-dom": "^16.8.2",
+        "lerna": "^3.13.1",
         "rollup-plugin-postcss": "^2.0.3",
         "rollup-plugin-typescript2": "^0.19.3"
     },
     "scripts": {
-        "build": "rollup -c ./scripts/rollup/rollup.config.js"
+        "build": "node scripts/rollup/build.js"
     },
     "dependencies": {
         "@types/react-redux": "^7.0.3",

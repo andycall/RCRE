@@ -1,0 +1,20 @@
+{
+    "name": "rcre-runtime",
+    "version": "0.1.0",
+    "description": "rcre expression runTime",
+    "main": "dist/index.js",
+    "typings": "dist/src/index.d.ts",
+    "scripts": {
+        "test": "npm test"
+    },
+    "keywords": [
+        "rcre"
+    ],
+    "dependencies": {
+        "rcre": "^0.19.150",
+        "acorn": "^5.3.0",
+        "lru-cache": "5.1.1"
+    },
+    "author": "andycall",
+    "license": "MIT"
+}
