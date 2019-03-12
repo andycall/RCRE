@@ -10,7 +10,7 @@ import {
 import {BindItem} from '../Container/AbstractContainer';
 import {setWith, deleteWith} from '../util/util';
 import {getRuntimeContext} from '../Container';
-import {parseExpressionToken} from "rcre-runtime/src";
+import {parseExpressionToken} from 'rcre-runtime';
 
 export interface ContainerNodeOptions {
     /**
