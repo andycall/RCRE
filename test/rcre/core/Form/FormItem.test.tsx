@@ -1,0 +1,1539 @@
+import React from 'react';
+import {mount} from 'enzyme';
+import {clearStore, filter, Render, store, FuncCustomerArgs, waitForDataProviderComplete} from 'rcre';
+import {RCRETestUtil} from 'rcre-test-tools';
+import moxios from 'moxios';
+import axios from 'axios';
+import {CoreKind} from '../../../../packages/rcre/src/types';
+
+// jest.mock('rcre/services/api');
+
+describe('FormItem', () => {
+    beforeEach(() => {
+        moxios.install(axios);
+        clearStore();
+    });
+
+    afterEach(() => {
+        moxios.uninstall(axios);
+    });
+
+    it('basicForm', () => {
+        return new Promise((resolve, reject) => {
+            let basicConfig = {
+                body: [
+                    {
+                        'type': 'container',
+                        'model': 'form',
+                        'dataCustomer': {
+                            'customers': [{
+                                'mode': 'submit',
+                                'name': 'submitForm',
+                                'config': {
+                                    'url': '/api/mock/submit',
+                                    'method': 'GET',
+                                    'data': '#ES{$trigger.submitForm}'
+                                }
+                            }, {
+                                'name': 'asyncCallback',
+                                'func': '#ES{asyncCallback}'
+                            }],
+                            'groups': [{
+                                'name': 'asyncSubmit',
+                                'steps': ['submitForm', 'asyncCallback']
+                            }]
+                        },
+                        'data': {
+                            'username': 'andycallandycal',
+                            'max': 20
+                        },
+                        'children': [
+                            {
+                                'type': 'form',
+                                'name': 'basicForm',
+                                'clearAfterSubmit': true,
+                                'trigger': [
+                                    {
+                                        'event': 'onSubmit',
+                                        'targetCustomer': 'asyncSubmit',
+                                        'params': {
+                                            'username': '#ES{$args.username}'
+                                        }
+                                    }
+                                ],
+                                'children': [
+                                    {
+                                        'type': 'formItem',
+                                        'label': '姓名',
+                                        'required': true,
+                                        'rules': [{
+                                            'maxLength': '#ES{$data.max}',
+                                            'message': '长度不能超过#ES{$data.max}个字符'
+                                        }, {
+                                            'required': true,
+                                            'message': '姓名是必填属性'
+                                        }],
+                                        'control': {
+                                            'type': 'input',
+                                            'name': 'username',
+                                            'placeholder': '请输入姓名',
+                                            className: 'test-username'
+                                        },
+                                        'extra': 'Extra Text'
+                                    },
+                                    {
+                                        'type': 'formItem',
+                                        'label': '单价',
+                                        'required': true,
+                                        'rules': [{
+                                            'max': 0,
+                                            'message': '不能大于0'
+                                        }],
+                                        'control': {
+                                            'type': 'input',
+                                            'inputType': 'number',
+                                            'name': 'price'
+                                        }
+                                    },
+                                    {
+                                        'type': 'formItem',
+                                        'label': '动态控制验证',
+                                        'control': {
+                                            'type': 'input',
+                                            'name': 'max'
+                                        }
+                                    },
+                                    {
+                                        'type': 'formItem',
+                                        'wrapperCol': {
+                                            'offset': 4
+                                        },
+                                        'control': {
+                                            'type': 'button',
+                                            'htmlType': 'submit',
+                                            'buttonType': 'primary',
+                                            'text': '提交',
+                                            'disabled': '#ES{!$form.valid}'
+                                        }
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            };
+            let component = (
+                <Render code={JSON.stringify(basicConfig)}/>
+            );
+            let wrapper = mount(component);
+            let username = wrapper.find('.ant-input').at(0);
+            let price = wrapper.find('.ant-input').at(1);
+            let max = wrapper.find('.ant-input').at(2);
+
+            username.simulate('change', {
+                target: {
+                    value: 'andycall'
+                }
+            });
+            let state = store.getState();
+            expect(state.container.form.username).toBe('andycall');
+            expect(state.form.basicForm.control.username.valid).toBe(true);
+
+            username.simulate('change', {
+                target: {
+                    value: ''
+                }
+            });
+
+            username.simulate('blur', {});
+            state = store.getState();
+            expect(state.form.basicForm.valid).toBe(false);
+
+            price.simulate('change', {
+                target: {
+                    value: 10
+                }
+            });
+
+            state = store.getState();
+            let formControl = state.form.basicForm.control;
+            let priceControl = formControl.price;
+            expect(priceControl.valid).toBe(false);
+            expect(priceControl.status).toBe('error');
+            expect(priceControl.errorMsg).toBe('不能大于0');
+
+            price.simulate('change', {
+                target: {
+                    value: -10
+                }
+            });
+
+            state = store.getState();
+
+            expect(state.form.basicForm.control.price.valid).toBe(true);
+
+            const str = 'abfdeijwidjwijdwijdoqwijdqiodjqiwojdwoqijdqw';
+            username.simulate('change', {
+                target: {
+                    value: str
+                }
+            });
+            state = store.getState();
+            expect(state.container.form.username).toBe(str);
+            expect(state.form.basicForm.control.username.valid).toBe(false);
+            expect(state.form.basicForm.control.username.errorMsg).toBe('长度不能超过20个字符');
+
+            max.simulate('change', {
+                target: {
+                    value: str.length + 1
+                }
+            });
+            state = store.getState();
+            expect(state.form.basicForm.control.username.valid).toBe(true);
+
+            function asyncCallback($args: FuncCustomerArgs<any>) {
+                let params = $args.params;
+                try {
+                    expect(params.username).toBe('abfdeijwidjwijdwijdoqwijdqiodjqiwojdwoqijdqw');
+                    resolve();
+                } catch (e) {
+                    reject(e);
+                }
+            }
+
+            filter.setFilter('asyncCallback', asyncCallback);
+
+            let form = wrapper.find('form').at(0);
+            form.simulate('submit', {});
+
+            moxios.wait(async () => {
+                let submitRequest = moxios.requests.mostRecent();
+
+                expect(JSON.parse(submitRequest.config.data)).toEqual({
+                    username: 'abfdeijwidjwijdwijdoqwijdqiodjqiwojdwoqijdqw'
+                });
+
+                await submitRequest.respondWith({
+                    status: 200,
+                    response: {
+                        errno: 0
+                    }
+                });
+            });
+        });
+    });
+
+    describe('unexpected form config', () => {
+        afterEach(() => {
+            clearStore();
+        });
+
+        it('formItem is not in Form component', () => {
+            let config = {
+                body: [{
+                    type: 'formItem',
+                    control: {
+                        type: 'input',
+                        name: 'name'
+                    }
+                }]
+            };
+            let wrapper = mount(
+                <Render code={JSON.stringify(config)}/>
+            );
+            expect(wrapper.html()).toBe('<div class="page-container"><div class="page-body"><div></div></div></div>');
+            wrapper.unmount();
+        });
+
+        it('formItem should have control', () => {
+            let config = {
+                body: [{
+                    type: 'form',
+                    name: 'test',
+                    children: [{
+                        type: 'formItem'
+                    }]
+                }]
+            };
+
+            let wrapper = mount(
+                <Render code={JSON.stringify(config)}/>
+            );
+            expect(wrapper.text()).toBe('form component should be under container component');
+            wrapper.unmount();
+        });
+
+        it('formItem required in outside', () => {
+            let config = {
+                body: [{
+                    type: 'container',
+                    model: 'testFormContainer',
+                    children: [
+                        {
+                            type: 'form',
+                            name: 'testForm',
+                            children: [{
+                                type: 'formItem',
+                                required: true,
+                                control: {
+                                    type: 'input',
+                                    name: 'username'
+                                }
+                            }]
+                        }
+                    ]
+                }]
+            };
+
+            let wrapper = mount(<Render code={JSON.stringify(config)}/>);
+            let state = store.getState();
+            let form = state.form.testForm;
+            expect(form.valid).toBe(false);
+            expect(form.control.username.valid).toBe(false);
+            expect(form.control.username.required).toBe(true);
+            wrapper.unmount();
+        });
+
+        it('formItem required in rules', () => {
+            let config = {
+                body: [{
+                    type: 'container',
+                    model: 'testFormContainer',
+                    children: [
+                        {
+                            type: 'form',
+                            name: 'nestTestForm',
+                            children: [{
+                                type: 'formItem',
+                                rules: [{
+                                    required: true,
+                                    message: '内容必填'
+                                }],
+                                control: {
+                                    type: 'input',
+                                    name: 'username'
+                                }
+                            }]
+                        }
+                    ]
+                }]
+            };
+
+            let wrapper = mount(<Render code={JSON.stringify(config)}/>);
+            let state = store.getState();
+            let form = state.form.nestTestForm;
+            expect(form.valid).toBe(false);
+            expect(form.control.username.valid).toBe(false);
+            expect(form.control.username.required).toBe(true);
+
+            let username = wrapper.find('input').at(0);
+            username.simulate('blur', {});
+            state = store.getState();
+
+            expect(state.form.nestTestForm.control.username.errorMsg).toBe('内容必填');
+            wrapper.unmount();
+        });
+    });
+
+    it('sync FormItem Value in parent Container', async () => {
+        const FORM_NAME = 'testForm';
+        let config = {
+            body: [{
+                type: 'container',
+                model: 'rootContainer',
+                children: [
+                    {
+                        type: 'button',
+                        text: 'setValue',
+                        trigger: [{
+                            event: 'onClick',
+                            targetCustomer: '$this',
+                            params: {
+                                username: 'andycall'
+                            }
+                        }]
+                    },
+                    {
+                        type: 'container',
+                        model: 'formContainer',
+                        props: {
+                            username: '#ES{$parent.username}'
+                        },
+                        export: {
+                            username: '#ES{$data.username}'
+                        },
+                        children: [
+                            {
+                                type: 'form',
+                                name: FORM_NAME,
+                                children: [
+                                    {
+                                        type: 'formItem',
+                                        required: true,
+                                        control: {
+                                            type: 'input',
+                                            name: 'username'
+                                        }
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            }]
+        };
+
+        let util = new RCRETestUtil(config);
+        util.setContainer('rootContainer');
+        let button = util.getComponentByType('button');
+        await util.simulate(button, 'onClick');
+        let state = util.getState();
+        expect(state.form[FORM_NAME].valid).toBe(true);
+        expect(state.form[FORM_NAME].control.username.valid).toBe(true);
+    });
+
+    it('sync FormItem Value in parent Container using dataProvider', () => {
+        return new Promise((resolve, reject) => {
+            const FORM_NAME = 'testForm';
+            let config = {
+                body: [{
+                    type: 'container',
+                    model: 'rootContainer',
+                    dataProvider: [{
+                        mode: 'ajax',
+                        config: {
+                            url: '/api/mock/submit',
+                            method: 'GET',
+                            data: {
+                                username: '1'
+                            }
+                        },
+                        namespace: 'submitData',
+                        responseRewrite: {
+                            username: '#ES{$output.data.username}'
+                        }
+                    }],
+                    children: [
+                        {
+                            type: 'container',
+                            model: 'formContainer',
+                            props: {
+                                username: '#ES{$parent.username}'
+                            },
+                            export: {
+                                username: '#ES{$data.username}'
+                            },
+                            children: [
+                                {
+                                    type: 'form',
+                                    name: FORM_NAME,
+                                    children: [
+                                        {
+                                            type: 'formItem',
+                                            required: true,
+                                            control: {
+                                                type: 'input',
+                                                name: 'username'
+                                            }
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }]
+            };
+
+            mount(<Render code={JSON.stringify(config)}/>);
+
+            let state = store.getState();
+            expect(state.form.testForm.valid).toBe(false);
+
+            moxios.wait(async () => {
+                let request = moxios.requests.mostRecent();
+                let requestData = request.config.data;
+
+                expect(JSON.parse(requestData).username).toBe('1');
+
+                await request.respondWith({
+                    status: 200,
+                    response: {
+                        errno: 0,
+                        errmsg: 'ok',
+                        data: {
+                            username: 'andycall'
+                        }
+                    }
+                });
+
+                state = store.getState();
+
+                expect(state.container.rootContainer.username).toBe('andycall');
+                expect(state.container.formContainer.username).toBe('andycall');
+
+                expect(state.form.testForm.valid).toBe(true);
+
+                resolve();
+            });
+        });
+    });
+
+    it('dynamicForm', () => {
+        let config = {
+            'body': [{
+                'type': 'container',
+                'model': 'dynamicForm',
+                'data': {
+                    'dForm': [{
+                        'username': 'andycall',
+                        'password': '1234'
+                    }, {
+                        'username': 'yhtree',
+                        'password': '4567'
+                    }]
+                },
+                'children': [
+                    {
+                        'type': 'form',
+                        'name': 'dynamicForm',
+                        'children': [
+                            {
+                                'type': 'dynamicForm',
+                                'name': 'dForm',
+                                'items': [
+                                    {
+                                        'type': 'formItem',
+                                        'label': 'username',
+                                        'required': true,
+                                        'rules': [{'minLength': 5}],
+                                        'control': {
+                                            'type': 'input',
+                                            'name': 'username'
+                                        }
+                                    },
+                                    {
+                                        'type': 'formItem',
+                                        'label': 'password',
+                                        'control': {
+                                            'type': 'input',
+                                            'name': 'password'
+                                        }
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        'type': 'text',
+                        'text': '#ES{$data.dForm}'
+                    }
+                ]
+            }]
+        };
+
+        let wrapper = mount(<Render code={JSON.stringify(config)}/>);
+        let state = store.getState();
+        let dynamicForm = state.container.dynamicForm;
+
+        expect(dynamicForm.dForm[0].username).toBe('andycall');
+        expect(dynamicForm.dForm[0].password).toBe('1234');
+
+        let firstUserName = wrapper.find('input').at(0);
+        firstUserName.simulate('change', {
+            target: {
+                value: 'test'
+            }
+        });
+
+        let close = wrapper.find('i').at(0);
+
+        state = store.getState();
+        expect(state.container.dynamicForm.dForm[0].username).toBe('test');
+
+        close.simulate('click', {});
+
+        state = store.getState();
+        expect(state.container.dynamicForm.dForm.length).toBe(1);
+        expect(state.container.dynamicForm.dForm[0].username).toBe('yhtree');
+    });
+
+    it('formItem is valid when change to disabled', async () => {
+        let config = {
+            body: [{
+                type: 'container',
+                model: 'disabledContainer',
+                data: {
+                    disabled: false
+                },
+                children: [{
+                    type: 'form',
+                    name: 'disabledForm',
+                    children: [
+                        {
+                            type: 'formItem',
+                            required: true,
+                            rules: [
+                                {
+                                    minLength: 10
+                                }
+                            ],
+                            control: {
+                                type: 'input',
+                                name: 'username',
+                                disabled: '#ES{$data.disabled}'
+                            }
+                        },
+                        {
+                            type: 'button',
+                            text: 'text',
+                            trigger: [{
+                                event: 'onClick',
+                                targetCustomer: '$this',
+                                params: {
+                                    disabled: true
+                                }
+                            }]
+                        },
+                        {
+                            type: 'button',
+                            text: 'text',
+                            trigger: [{
+                                event: 'onClick',
+                                targetCustomer: '$this',
+                                params: {
+                                    disabled: false
+                                }
+                            }]
+                        }
+                    ]
+                }]
+            }]
+        };
+
+        let util = new RCRETestUtil(config);
+        util.setContainer('disabledContainer');
+        let input = util.getComponentByType('input');
+        util.setData(input, 'aaa');
+
+        let state = util.getState();
+        expect(state.form.disabledForm.valid).toBe(false);
+        expect(state.form.disabledForm.control.username.valid).toBe(false);
+
+        let button = util.getComponentByType('button');
+        await util.simulate(button, 'onClick');
+
+        state = util.getState();
+        expect(state.form.disabledForm.valid).toBe(true);
+        expect(state.form.disabledForm.control.username.valid).toBe(true);
+
+        let enableButton = util.getComponentByType('button', 1);
+        await util.simulate(enableButton, 'onClick');
+
+        state = util.getState();
+        expect(state.form.disabledForm.valid).toBe(false);
+        expect(state.form.disabledForm.control.username.valid).toBe(false);
+    });
+
+    it('formItem with hidden or show should not be mounted', () => {
+        let config = {
+            body: [{
+                type: 'container',
+                model: 'showHiddenTest',
+                data: {
+                    hideInput: true
+                },
+                children: [{
+                    type: 'form',
+                    name: 'hiddenTestForm',
+                    children: [
+                        {
+                            type: 'formItem',
+                            required: true,
+                            label: 'UserName',
+                            control: {
+                                type: 'input',
+                                name: 'username',
+                                hidden: '#ES{$data.hideInput}'
+                            }
+                        },
+                        {
+                            type: 'formItem',
+                            required: true,
+                            label: 'Password',
+                            control: {
+                                type: 'input',
+                                name: 'password'
+                            }
+                        }
+                    ]
+                }]
+            }]
+        };
+
+        let component = <Render code={JSON.stringify(config)}/>;
+        mount(component);
+        let state = store.getState();
+        expect(state.container.showHiddenTest.hideInput).toBe(true);
+        expect(state.form.hiddenTestForm.control.username).toBe(undefined);
+        expect(state.form.hiddenTestForm.control.password.valid).toBe(false);
+    });
+
+    it('change formItem required will trigger validate', () => {
+        let config = {
+            body: [{
+                type: 'container',
+                model: 'requiredForm',
+                children: [
+                    {
+                        type: 'form',
+                        name: 'requiredForm',
+                        children: [
+                            {
+                                type: 'formItem',
+                                required: '#ES{!$data.password}',
+                                control: {
+                                    type: 'input',
+                                    name: 'username'
+                                }
+                            },
+                            {
+                                type: 'formItem',
+                                required: '#ES{!$data.username}',
+                                control: {
+                                    type: 'input',
+                                    name: 'password'
+                                }
+                            }
+                        ]
+                    }
+                ]
+            }]
+        };
+
+        let component = <Render code={JSON.stringify(config)}/>;
+        let wrapper = mount(component);
+
+        let userName = wrapper.find('input').at(0);
+        let password = wrapper.find('input').at(1);
+
+        let state = store.getState();
+        expect(state.form.requiredForm.control.username.valid).toBe(false);
+        expect(state.form.requiredForm.control.username.required).toBe(true);
+        expect(state.form.requiredForm.control.password.valid).toBe(false);
+        expect(state.form.requiredForm.control.password.required).toBe(true);
+        expect(state.form.requiredForm.valid).toBe(false);
+
+        userName.simulate('change', {
+            target: {
+                value: 'helloworld'
+            }
+        });
+        password.simulate('change', {
+            target: {
+                value: ''
+            }
+        });
+
+        state = store.getState();
+        expect(state.form.requiredForm.control.username.valid).toBe(true);
+        expect(state.form.requiredForm.control.username.required).toBe(true);
+        expect(state.form.requiredForm.control.password.valid).toBe(true);
+        expect(state.form.requiredForm.control.password.required).toBe(false);
+        expect(state.form.requiredForm.valid).toBe(true);
+
+        userName.simulate('change', {
+            target: {
+                value: ''
+            }
+        });
+
+        password.simulate('change', {
+            target: {
+                value: 'helloworld'
+            }
+        });
+
+        state = store.getState();
+        expect(state.form.requiredForm.control.username.valid).toBe(true);
+        expect(state.form.requiredForm.control.username.required).toBe(false);
+        expect(state.form.requiredForm.control.password.valid).toBe(true);
+        expect(state.form.requiredForm.control.password.required).toBe(true);
+        expect(state.form.requiredForm.valid).toBe(true);
+    });
+
+    it('formItem init value validate', () => {
+        let config = {
+            body: [{
+                type: 'container',
+                model: 'initFormValidate',
+                data: {
+                    userName: 'lx',
+                    age: 27,
+                    gender: null,
+                    localPerson: true,
+                    edu: [],
+                    interest: {}
+                },
+                children: [
+                    {
+                        type: 'form',
+                        name: 'initFormValidate',
+                        children: [
+                            {
+                                type: 'formItem',
+                                required: true,
+                                control: {
+                                    type: 'input',
+                                    name: 'userName'
+                                }
+                            },
+                            {
+                                type: 'formItem',
+                                required: true,
+                                control: {
+                                    type: 'input',
+                                    name: 'age'
+                                }
+                            },
+                            {
+                                type: 'formItem',
+                                required: true,
+                                control: {
+                                    type: 'input',
+                                    name: 'gender'
+                                }
+                            },
+                            {
+                                type: 'formItem',
+                                required: true,
+                                control: {
+                                    type: 'input',
+                                    name: 'localPerson'
+                                }
+                            },
+                            {
+                                type: 'formItem',
+                                required: true,
+                                control: {
+                                    type: 'input',
+                                    name: 'edu'
+                                }
+                            },
+                            {
+                                type: 'formItem',
+                                required: true,
+                                control: {
+                                    type: 'input',
+                                    name: 'interest'
+                                }
+                            }
+                        ]
+                    }
+                ]
+            }]
+        };
+
+        let component = <Render code={JSON.stringify(config)}/>;
+        let wrapper = mount(component);
+
+        let userName = wrapper.find('input').at(0);
+        let age = wrapper.find('input').at(1);
+
+        let state = store.getState();
+
+        expect(state.container.initFormValidate.userName).toBe('lx');
+        expect(state.form.initFormValidate.control.userName.valid).toBe(true);
+        expect(state.form.initFormValidate.control.age.valid).toBe(true);
+        expect(state.form.initFormValidate.control.gender.valid).toBe(false);
+        expect(state.form.initFormValidate.control.localPerson.valid).toBe(true);
+        expect(state.form.initFormValidate.control.edu.valid).toBe(false);
+        expect(state.form.initFormValidate.control.interest.valid).toBe(false);
+
+        userName.simulate('change', {
+            target: {
+                value: ''
+            }
+        });
+
+        age.simulate('change', {
+            target: {
+                value: 0
+            }
+        });
+
+        state = store.getState();
+        expect(state.form.initFormValidate.control.userName.valid).toBe(false);
+        expect(state.form.initFormValidate.control.age.valid).toBe(true);
+        expect(state.form.initFormValidate.valid).toBe(false);
+    });
+
+    it('formItem updateCount', () => {
+        let config = {
+            body: [{
+                type: 'container',
+                model: 'formUpdateCount',
+                data: {
+                    userName: 'lx',
+                    age: '123',
+                    age2: '123',
+                    gender: 'male',
+                    gender2: 'female',
+                    edu: '123',
+                    interest: '123'
+                },
+                children: [
+                    {
+                        type: 'form',
+                        name: 'initFormValidate',
+                        children: [
+                            {
+                                type: 'formItem',
+                                rules: [{
+                                    maxLength: '#ES{$data.max}',
+                                    message: '长度不能超过#ES{$data.max}个字符'
+                                }, {
+                                    required: true,
+                                    message: '姓名是必填属性'
+                                }],
+                                required: true,
+                                control: {
+                                    type: 'input',
+                                    name: 'userName'
+                                }
+                            },
+                            {
+                                type: 'formItem',
+                                rules: [{
+                                    maxLength: '#ES{$data.max1}',
+                                    message: '长度不能超过#ES{$data.max1}个字符'
+                                }],
+                                required: true,
+                                control: {
+                                    type: 'input',
+                                    name: 'age'
+                                }
+                            },
+                            {
+                                type: 'formItem',
+                                rules: [{
+                                    maxLength: '#ES{$data.max}',
+                                    message: '长度不能超过#ES{$data.max}个字符'
+                                }, {
+                                    required: true,
+                                    message: '姓名是必填属性'
+                                }],
+                                required: true,
+                                control: {
+                                    type: 'input',
+                                    name: 'gender'
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        type: 'form',
+                        name: 'initFormValidate2',
+                        children: [
+                            {
+                                type: 'formItem',
+                                required: true,
+                                rules: [{
+                                    maxLength: '#ES{$data.max}',
+                                    message: '长度不能超过#ES{$data.max}个字符'
+                                }, {
+                                    required: true,
+                                    message: '姓名是必填属性'
+                                }],
+                                control: {
+                                    type: 'input',
+                                    name: 'userName2'
+                                }
+                            },
+                            {
+                                type: 'formItem',
+                                required: true,
+                                rules: [{
+                                    maxLength: '#ES{$data.max}',
+                                    message: '长度不能超过#ES{$data.max}个字符'
+                                }, {
+                                    required: true,
+                                    message: '姓名是必填属性'
+                                }],
+                                control: {
+                                    type: 'input',
+                                    name: 'age2'
+                                }
+                            },
+                            {
+                                type: 'formItem',
+                                required: true,
+                                rules: [{
+                                    maxLength: '#ES{$data.max}',
+                                    message: '长度不能超过#ES{$data.max}个字符'
+                                }, {
+                                    required: true,
+                                    message: '姓名是必填属性'
+                                }],
+                                control: {
+                                    type: 'input',
+                                    name: 'gender2'
+                                }
+                            }
+                        ]
+                    }
+                ]
+            }]
+        };
+
+        let component = <Render code={JSON.stringify(config)}/>;
+        let wrapper = mount(component);
+
+        // 同页面下的两个表单
+        let firstForm = wrapper.find('RCREForm').at(0).find('RCREFormItem');
+        let secondForm = wrapper.find('RCREForm').at(1).find('RCREFormItem');
+
+        let firstFormFirstItemInstance: any = firstForm.at(0).instance();
+        let firstFormSecondItemInstance: any = firstForm.at(1).instance();
+        let firstFormThirdItemInstance: any = firstForm.at(2).instance();
+
+        let secondFormFirstItemInstance: any = secondForm.at(0).instance();
+        let secondFormSecondItemInstance: any = secondForm.at(1).instance();
+        let secondFormThirdItemInstance: any = secondForm.at(2).instance();
+
+        let initFirstFormFirstItemCount = firstFormFirstItemInstance.TEST_UPDATECOUNT;
+        let initFirstFormSecondItemCount = firstFormSecondItemInstance.TEST_UPDATECOUNT;
+        let initFirstFormThirdItemCount = firstFormThirdItemInstance.TEST_UPDATECOUNT;
+
+        let initSecondformfirstitemcount = secondFormFirstItemInstance.TEST_UPDATECOUNT;
+        let initSecondFormSecondItemCount = secondFormSecondItemInstance.TEST_UPDATECOUNT;
+        let initSecondFormThirdItemCount = secondFormThirdItemInstance.TEST_UPDATECOUNT;
+        // 当更改第一个form中的一个输入框时
+        let firstFormFirstInput = firstForm.at(0).find('input').at(0);
+        firstFormFirstInput.simulate('change', {
+            target: {
+                value: 'helloworld'
+            }
+        });
+        expect(firstFormFirstItemInstance.TEST_UPDATECOUNT).toBe(initFirstFormFirstItemCount + 1);
+        expect(firstFormSecondItemInstance.TEST_UPDATECOUNT).toBe(initFirstFormSecondItemCount);
+        expect(firstFormThirdItemInstance.TEST_UPDATECOUNT).toBe(initFirstFormThirdItemCount);
+
+        expect(secondFormFirstItemInstance.TEST_UPDATECOUNT).toBe(initSecondformfirstitemcount);
+        expect(secondFormSecondItemInstance.TEST_UPDATECOUNT).toBe(initSecondFormSecondItemCount);
+        expect(secondFormThirdItemInstance.TEST_UPDATECOUNT).toBe(initSecondFormThirdItemCount);
+
+        // 当更改第一个form中的二个输入框时
+        let firstFormSecondInput = wrapper.find('RCREForm').at(0).find('input').at(1);
+        firstFormSecondInput.simulate('change', {
+            target: {
+                value: '10'
+            }
+        });
+        expect(firstFormFirstItemInstance.TEST_UPDATECOUNT).toBe(initFirstFormFirstItemCount + 1);
+        expect(firstFormSecondItemInstance.TEST_UPDATECOUNT).toBe(initFirstFormSecondItemCount + 1);
+        expect(firstFormThirdItemInstance.TEST_UPDATECOUNT).toBe(initFirstFormThirdItemCount);
+
+        expect(secondFormFirstItemInstance.TEST_UPDATECOUNT).toBe(initSecondformfirstitemcount);
+        expect(secondFormSecondItemInstance.TEST_UPDATECOUNT).toBe(initSecondFormSecondItemCount);
+        expect(secondFormThirdItemInstance.TEST_UPDATECOUNT).toBe(initSecondFormThirdItemCount);
+
+        // 当更改第二个form中的一个输入框时
+        let secondFormFirstInput = secondForm.at(0).find('input').at(0);
+        secondFormFirstInput.simulate('change', {
+            target: {
+                value: 'helloworld'
+            }
+        });
+        expect(firstFormFirstItemInstance.TEST_UPDATECOUNT).toBe(initFirstFormFirstItemCount + 1);
+        expect(firstFormSecondItemInstance.TEST_UPDATECOUNT).toBe(initFirstFormSecondItemCount + 1);
+        expect(firstFormThirdItemInstance.TEST_UPDATECOUNT).toBe(initFirstFormThirdItemCount);
+
+        expect(secondFormFirstItemInstance.TEST_UPDATECOUNT).toBe(initSecondformfirstitemcount + 1);
+        expect(secondFormSecondItemInstance.TEST_UPDATECOUNT).toBe(initSecondFormSecondItemCount);
+        expect(secondFormThirdItemInstance.TEST_UPDATECOUNT).toBe(initSecondFormThirdItemCount);
+
+        // 当更改第二个form中的二个输入框时
+        let secondFormSecondInput = wrapper.find('RCREForm').at(1).find('input').at(1);
+        secondFormSecondInput.simulate('change', {
+            target: {
+                value: '10'
+            }
+        });
+        expect(firstFormFirstItemInstance.TEST_UPDATECOUNT).toBe(initFirstFormFirstItemCount + 1);
+        expect(firstFormSecondItemInstance.TEST_UPDATECOUNT).toBe(initFirstFormSecondItemCount + 1);
+        expect(firstFormThirdItemInstance.TEST_UPDATECOUNT).toBe(initFirstFormThirdItemCount);
+
+        expect(secondFormFirstItemInstance.TEST_UPDATECOUNT).toBe(initSecondformfirstitemcount + 1);
+        expect(secondFormSecondItemInstance.TEST_UPDATECOUNT).toBe(initSecondFormSecondItemCount + 1);
+        expect(secondFormThirdItemInstance.TEST_UPDATECOUNT).toBe(initSecondFormThirdItemCount);
+    });
+
+    it('formItem with name is ES expression', () => {
+        let config = {
+            body: [{
+                type: 'container',
+                model: 'formUpdateCount',
+                data: {
+                    userName: 'lx',
+                    age: 27,
+                    localPerson: '123',
+                },
+                children: [
+                    {
+                        type: 'form',
+                        name: 'initFormValidate',
+                        children: [
+                            {
+                                type: 'formItem',
+                                required: true,
+                                rules: [{
+                                    maxLength: '#ES{$data.max}',
+                                    message: '长度不能超过#ES{$data.max}个字符'
+                                }, {
+                                    required: true,
+                                    message: '姓名是必填属性'
+                                }],
+                                control: {
+                                    type: 'input',
+                                    name: 'localPerson'
+                                }
+                            },
+                            {
+                                type: 'formItem',
+                                rules: [{
+                                    maxLength: '#ES{$data.max}',
+                                    message: '长度不能超过#ES{$data.max}个字符'
+                                }, {
+                                    required: true,
+                                    message: '姓名是必填属性'
+                                }],
+                                required: true,
+                                control: {
+                                    type: 'input',
+                                    name: 'userName'
+                                }
+                            },
+                            {
+                                type: 'formItem',
+                                rules: [{
+                                    maxLength: '#ES{$data.max}',
+                                    message: '长度不能超过#ES{$data.max}个字符'
+                                }, {
+                                    required: true,
+                                    message: '姓名是必填属性'
+                                }],
+                                required: true,
+                                control: {
+                                    type: 'input',
+                                    name: '#ES{$data.age}'
+                                }
+                            }
+                        ]
+                    }
+                ]
+            }]
+        };
+
+        let component = <Render code={JSON.stringify(config)}/>;
+        let wrapper = mount(component);
+
+        // 同页面下的两个表单
+        let form = wrapper.find('RCREForm').at(0).find('RCREFormItem');
+
+        let formFirstItemInstance: any = form.at(0).instance();
+        let formSecondItemInstance: any = form.at(1).instance();
+        let formThirdItemInstance: any = form.at(2).instance();
+
+        // 不更改时 默认渲染次数
+        let initFirstItemCount = formFirstItemInstance.TEST_UPDATECOUNT;
+        let initSecondItemCount = formSecondItemInstance.TEST_UPDATECOUNT;
+        let initThirdItemCount = formThirdItemInstance.TEST_UPDATECOUNT;
+        expect(formFirstItemInstance.TEST_UPDATECOUNT).toBe(initFirstItemCount);
+        expect(formSecondItemInstance.TEST_UPDATECOUNT).toBe(initSecondItemCount);
+        expect(formThirdItemInstance.TEST_UPDATECOUNT).toBe(initThirdItemCount);
+        // 当更改第一个form中的一个输入框时
+        let firstFormFirstInput = form.at(0).find('input').at(0);
+        firstFormFirstInput.simulate('change', {
+            target: {
+                value: 'helloworld'
+            }
+        });
+        expect(formFirstItemInstance.TEST_UPDATECOUNT).toBe(initFirstItemCount + 1);
+        expect(formSecondItemInstance.TEST_UPDATECOUNT).toBe(initSecondItemCount);
+        expect(formThirdItemInstance.TEST_UPDATECOUNT).toBe(initThirdItemCount + 2);
+
+        // 当更改第一个form中的二个输入框时
+        let firstFormSecondInput = wrapper.find('RCREForm').at(0).find('input').at(1);
+        firstFormSecondInput.simulate('change', {
+            target: {
+                value: '10'
+            }
+        });
+        expect(formFirstItemInstance.TEST_UPDATECOUNT).toBe(initFirstItemCount + 1);
+        expect(formSecondItemInstance.TEST_UPDATECOUNT).toBe(initSecondItemCount + 1);
+        expect(formThirdItemInstance.TEST_UPDATECOUNT).toBe(initThirdItemCount + 4);
+
+        // 当更改第一个form中的三个输入框时
+        let firstFormThirdInput = wrapper.find('RCREForm').at(0).find('input').at(2);
+        firstFormThirdInput.simulate('change', {
+            target: {
+                value: '10'
+            }
+        });
+        expect(formFirstItemInstance.TEST_UPDATECOUNT).toBe(initFirstItemCount + 1);
+        expect(formSecondItemInstance.TEST_UPDATECOUNT).toBe(initSecondItemCount + 1);
+        expect(formThirdItemInstance.TEST_UPDATECOUNT).toBe(initThirdItemCount + 6);
+    });
+
+    it('form with component not in formItem', () => {
+        let config = {
+            body: [
+                {
+                    type: 'container',
+                    model: 'loadingExample',
+                    data: {
+                        test: 'tst',
+                        testModal: 't123',
+                        placeholder: 'test'
+                    },
+                    children: [
+                        {
+                            type: 'form',
+                            name: 'testForm',
+                            children: [
+                                {
+                                    type: 'input',
+                                    name: 'test'
+                                },
+                                {
+                                    type: 'formItem',
+                                    control: {
+                                        type: 'input',
+                                        placeholder: '#ES{$data.placeholder}',
+                                        name: 'testModal'
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        };
+
+        let component = <Render code={JSON.stringify(config)}/>;
+        let wrapper = mount(component);
+
+        let input = wrapper.find('RCREForm').at(0).find('input');
+        let firstInput = input.at(0);
+        let secondInput = input.at(0);
+        firstInput.simulate('change', {
+            target: {
+                value: 'first'
+            }
+        });
+        expect(firstInput.html()).toBe('<input name="test" type="text" class="ant-input" value="first">');
+
+        secondInput.simulate('change', {
+            target: {
+                value: 'second'
+            }
+        });
+        expect(firstInput.html()).toBe('<input name="test" type="text" class="ant-input" value="second">');
+    });
+
+    // it('upload error update', async () => {
+    //     return new Promise((resolve, reject) => {
+    //         let config = {
+    //             body: [
+    //                 {
+    //                     type: 'container',
+    //                     model: 'TextForm',
+    //                     children: [
+    //                         {
+    //                             type: 'form',
+    //                             name: 'textForm',
+    //                             children: [
+    //                                 {
+    //                                     type: 'formItem',
+    //                                     required: true,
+    //                                     hasFeedBack: false,
+    //                                     control: {
+    //                                         type: 'upload',
+    //                                         name: 'upload',
+    //                                         action: 'http://127.0.0.1:8844/api/mock/gdUploadImgError',
+    //                                         responsePattern: '#ES{$output.errno === 0}',
+    //                                         responseErrMsg: '#ES{$output.errmsg}',
+    //                                         listType: 'picture-card',
+    //                                         uploadExt: ['.jpg', '.png'],
+    //                                         uploadSize: 100000
+    //                                     }
+    //                                 },
+    //                                 {
+    //                                     type: 'button',
+    //                                     text: '提交',
+    //                                     htmlType: 'submit',
+    //                                     disabled: '#ES{!$form.valid}'
+    //                                 }
+    //                             ]
+    //                         }
+    //                     ]
+    //                 }
+    //             ]
+    //         };
+    //
+    //         let component = <Render code={JSON.stringify(config)}/>;
+    //         let wrapper = mount(component);
+    //         const fileList = [{
+    //             uid: -1,
+    //             name: 'xxx.png',
+    //             status: 'done',
+    //             size: 100,
+    //             url: 'https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png',
+    //             thumbUrl: 'https://zos.alipayobjects.com/rmsportal/IQKRngzUuFzJzGzRJXUs.png',
+    //         }];
+    //
+    //         let upload = wrapper.find('input').at(0);
+    //
+    //         upload.simulate('change', {
+    //             target: {
+    //                 files: fileList
+    //             },
+    //         });
+    //
+    //         setTimeout(() => {
+    //             wrapper.update();
+    //             let uploadTxt = wrapper.find('.ant-form-explain').at(0);
+    //             expect(uploadTxt.html()).toBe('<div class="ant-form-explain">error</div>');
+    //             resolve();
+    //         }, 300);
+    //     });
+    //
+    // });
+
+    it('FormItem rules pattern', () => {
+        let config = {
+            body: [{
+                type: 'container',
+                model: 'demo',
+                children: [
+                    {
+                        type: 'form',
+                        name: 'demoForm',
+                        children: [{
+                            type: CoreKind.formItem,
+                            rules: [{
+                                pattern: /^\d+$/,
+                                message: 'ABC'
+                            }],
+                            control: {
+                                type: 'input',
+                                name: 'username'
+                            }
+                        }]
+                    }
+                ]
+            }]
+        };
+
+        let test = new RCRETestUtil(config);
+        test.setContainer('demo');
+
+        let username = test.getComponentByName('username');
+        test.setData(username, 'abc');
+
+        let formStatus = test.getFormItemState('demoForm', 'username');
+        expect(formStatus.valid).toBe(false);
+
+        test.setData(username, '1');
+        formStatus = test.getFormItemState('demoForm', 'username');
+        expect(formStatus.valid).toBe(true);
+
+        test.setData(username, 111);
+        formStatus = test.getFormItemState('demoForm', 'username');
+        expect(formStatus.valid).toBe(true);
+
+        test.setData(username, {});
+        formStatus = test.getFormItemState('demoForm', 'username');
+        expect(formStatus.valid).toBe(false);
+    });
+
+    it('FormItem contains filterRule to be verified at initialization time', () => {
+        let config = {
+            body: [{
+                type: 'container',
+                model: 'demo',
+                children: [{
+                    type: 'form',
+                    name: 'form',
+                    children: [{
+                        type: 'formItem',
+                        filterRule: '#ES{$args.value === "A" ? true : false}',
+                        filterErrMsg: 'got something wrong',
+                        control: {
+                            type: 'input',
+                            name: 'username'
+                        }
+                    }]
+                }]
+            }]
+        };
+
+        let test = new RCRETestUtil(config);
+        test.setContainer('demo');
+        let formStatus = test.getFormItemState('form', 'username');
+        expect(formStatus.valid).toBe(false);
+        expect(formStatus).toMatchSnapshot();
+    });
+
+    it('Container component updates will also trigger FormItem revalidation', () => {
+        filter.setFilter('isUserValid', (username: any) => {
+            if (!username) {
+                return false;
+            }
+
+            let keys = Object.keys(username);
+            console.log(keys.some(key => !!username[key]));
+            if (keys.some(key => !!username[key])) {
+                return true;
+            }
+
+            return false;
+        });
+
+        let config = {
+            body: [{
+                type: 'container',
+                model: 'demo',
+                children: [{
+                    type: 'form',
+                    name: 'form2',
+                    children: [{
+                        type: 'foreach',
+                        dataSource: [1, 2, 3, 4, 5],
+                        control: {
+                            type: 'formItem',
+                            filterRule: '#ES{isUserValid($data.username)}',
+                            filterErrMsg: 'got something wrong',
+                            control: {
+                                type: 'input',
+                                name: 'username.#ES{$index}'
+                            }
+                        }
+                    }]
+                }]
+            }]
+        };
+
+        let test = new RCRETestUtil(config);
+        test.setContainer('demo');
+        let form = test.getState().form.form2;
+        expect(form.valid).toBe(false);
+        expect(form.control).toMatchSnapshot();
+
+        let firstUserName = test.getComponentByName('username.0');
+        test.setData(firstUserName, '123456');
+
+        form = test.getState().form.form2;
+        expect(form.valid).toBe(true);
+        expect(form.control).toMatchSnapshot();
+    });
+
+    it('FormItem validate should be triggered after component mounted', async () => {
+        let config = {
+            body: [{
+                type: 'container',
+                model: 'demo',
+                data: {
+                    dataSource: [{
+                        rowKey: 'A',
+                        id: '1'
+                    }, {
+                        rowKey: 'B',
+                        id: '2'
+                    }]
+                },
+                children: [{
+                    type: 'form',
+                    name: 'basicForm',
+                    children: [
+                        {
+                            type: 'foreach',
+                            dataSource: '#ES{$data.dataSource}',
+                            rowKey: '#ES{$item.rowKey + $item.id}',
+                            control: {
+                                type: 'formItem',
+                                required: true,
+                                apiRule: {
+                                    url: 'http://localhost:8844/api/mock/formValidate',
+                                    method: 'GET',
+                                    data: {
+                                        name: '#ES{$args.value}'
+                                    },
+                                    condition: '#ES{$item.rowKey === "B"}',
+                                    validate: '#ES{$output.errno === 0}',
+                                    export: {
+                                        'C': 'RESPONE'
+                                    }
+                                },
+                                control: {
+                                    type: 'input',
+                                    name: '#ES{$item.rowKey}',
+                                    defaultValue: '#ES{$item.rowKey}'
+                                }
+                            }
+                        },
+                        {
+                            type: 'button',
+                            text: 'update',
+                            trigger: [{
+                                event: 'onClick',
+                                targetCustomer: '$this',
+                                params: {
+                                    dataSource: [{
+                                        rowKey: 'B',
+                                        id: '22'
+                                    }, {
+                                        rowKey: 'C',
+                                        id: '33'
+                                    }]
+                                }
+                            }, {
+                                event: 'onClick',
+                                targetCustomer: '$this',
+                                params: {
+                                    C: '',
+                                    B: ''
+                                }
+                            }]
+                        }
+                    ]
+                }]
+            }]
+        };
+
+        moxios.uninstall(axios);
+
+        let test = new RCRETestUtil(config);
+        test.setContainer('demo');
+
+        await waitForDataProviderComplete();
+
+        let A = test.getComponentByName('A');
+        test.setData(A, 'test');
+        let B = test.getComponentByName('B');
+        test.setData(B, 'BBB');
+
+        await waitForDataProviderComplete();
+
+        let button = test.getComponentByType('button');
+        await test.simulate(button, 'onClick');
+
+        let C = test.getComponentByName('C');
+        test.setData(C, 'CCC');
+
+        await waitForDataProviderComplete();
+
+        let state = test.getContainerState();
+        expect(state.C).toBe('CCC');
+    });
+});

@@ -1,8 +1,7 @@
 {
-    "name": "rcre",
+    "name": "rcre-project",
     "version": "0.1.0",
     "description": "A out of box application framework designed for CMS development.",
-    "main": "dist/index.js",
     "repository": {
         "type": "git",
         "url": "git+https://github.com/andycall/RCRE.git"
@@ -24,18 +23,29 @@
     "homepage": "https://github.com/andycall/RCRE#readme",
     "devDependencies": {
         "@types/acorn": "^4.0.5",
+        "@types/enzyme-adapter-react-16": "^1.0.5",
+        "@types/jest": "^24.0.11",
+        "@types/js-beautify": "^1.8.0",
         "@types/lodash": "^4.14.122",
         "@types/lru-cache": "^5.1.0",
+        "@types/moxios": "^0.4.8",
         "@types/node": "^11.11.0",
         "@types/qs": "^6.5.2",
         "@types/react": "^16.8.7",
         "@types/react-dom": "^16.8.2",
+        "enzyme": "^3.9.0",
+        "enzyme-adapter-react-16": "^1.10.0",
+        "jest": "^23.6.0",
+        "js-beautify": "^1.9.0",
         "lerna": "^3.13.1",
+        "moxios": "^0.4.0",
         "rollup-plugin-postcss": "^2.0.3",
-        "rollup-plugin-typescript2": "^0.19.3"
+        "rollup-plugin-typescript2": "^0.19.3",
+        "ts-jest": "^23.10.4"
     },
     "scripts": {
-        "build": "node scripts/rollup/build.js"
+        "build": "node scripts/rollup/build.js",
+        "test": "jest --env=jsdom -c ./jest.config.json"
     },
     "dependencies": {
         "@types/react-redux": "^7.0.3",

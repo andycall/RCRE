@@ -19,7 +19,10 @@ const external = [
     'url',
     'moment',
     'lru-cache',
-    'acorn'
+    'acorn',
+    'rcre-runtime',
+    'rcre',
+    'rcre-test-tools'
 ];
 
 const packages = {
@@ -31,6 +34,14 @@ const packages = {
         },
         tsconfig: path.join(workspace, './rcre-runtime/tsconfig.json')
     },
+    'rcre-runtime-syntax-transform': {
+        input: path.join(workspace, 'rcre-runtime-syntax-transform/src/index.ts'),
+        output: {
+            file: path.join(workspace, 'rcre-runtime-syntax-transform/dist/index.js'),
+            format: 'cjs'
+        },
+        tsconfig: path.join(workspace, './rcre-runtime-syntax-transform/tsconfig.json')
+    },
     rcre: {
         input: path.join(workspace, './rcre/src/index.tsx'),
         output: {
@@ -38,6 +49,15 @@ const packages = {
             format: 'cjs'
         },
         tsconfig: path.join(workspace, './rcre/tsconfig.json'),
+    },
+    'rcre-test-tools': {
+        input: path.join(workspace, 'rcre-test-tools/src/index.tsx'),
+        output: {
+            file: path.join(workspace, 'rcre-test-tools/dist/index.js'),
+            format: 'cjs'
+        },
+        tsconfig: path.join(workspace, 'rcre-test-tools/tsconfig.json'
+            )
     }
 };
 

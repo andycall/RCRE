@@ -1,0 +1,33 @@
+{
+    "setupTestFrameworkScriptFile": "<rootDir>/test/setupTests.ts",
+    "coverageDirectory": "<rootDir>/coverage",
+    "moduleFileExtensions": [
+        "ts",
+        "tsx",
+        "js",
+        "jsx",
+        "json"
+    ],
+    "testMatch": [
+        "<rootDir>/test/**/__tests__/**/*.ts?(x)",
+        "<rootDir>/test/**/?(*.)(spec|test).ts?(x)"
+    ],
+    "testEnvironment": "node",
+    "testURL": "http://localhost",
+    "transform": {
+        "\\.(css|less|sass|scss)$": "<rootDir>/__mocks__/styleMock.js",
+        "\\.tsx?$": "ts-jest"
+    },
+    "transformIgnorePatterns": [
+        "[/\\\\]node_modules[/\\\\].+\\.(js|jsx|ts|tsx)$"
+    ],
+    "moduleNameMapper": {
+        "^rcre$": "<rootDir>/packages/rcre/src/index.tsx",
+        "^rcre-runtime$": "<rootDir>/packages/rcre-runtime/src/index.ts",
+        "^rcre-test-tools$": "<rootDir>/packages/rcre-test-tools/src/index.tsx",
+        "^rcre-runtime-syntax-transform$": "<rootDir>/packages/rcre-runtime-syntax-transform/src/index.ts"
+    },
+    "globals": {
+        "__VERSION__": "0.1.0"
+    }
+}

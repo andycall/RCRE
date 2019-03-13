@@ -1,0 +1,69 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`AutomaticRobot Containers can still be embedded in the Steps 1`] = `
+Object {
+  "__TMP_MODEL__DO_NO_USE_IT": Object {},
+  "child": Object {
+    "child-username": "1234",
+  },
+  "demo": Object {
+    "anotherUserName": "1234",
+    "passUserName": "1234",
+    "username": "1234",
+  },
+}
+`;
+
+exports[`AutomaticRobot event steps 1`] = `
+Object {
+  "container": Object {
+    "__TMP_MODEL__DO_NO_USE_IT": Object {},
+    "demo": Object {
+      "anotherUserName": "4567",
+      "passUserName": "4567",
+      "username": "1234",
+    },
+  },
+  "form": Object {
+    "test": Object {
+      "clearAfterSubmit": false,
+      "control": Object {
+        "password": Object {
+          "formItemName": "password",
+          "formName": "test",
+          "required": true,
+          "rules": Array [
+            Object {
+              "minLength": 2,
+            },
+          ],
+          "valid": false,
+        },
+        "username": Object {
+          "errorMsg": "",
+          "formItemName": "username",
+          "formName": "test",
+          "required": true,
+          "rules": undefined,
+          "status": "success",
+          "valid": true,
+        },
+      },
+      "layout": "horizontal",
+      "name": "test",
+      "valid": false,
+      "validateFirst": false,
+    },
+  },
+  "trigger": Object {
+    "demo": Object {
+      "$SELF_PASS_CUSTOMER": Object {
+        "anotherUserName": "4567",
+      },
+      "testCustomer": Object {
+        "passUserName": "4567",
+      },
+    },
+  },
+}
+`;

@@ -1,0 +1,15 @@
+{
+    "name": "rcre-runtime-syntax-transform",
+    "version": "0.1.21",
+    "description": "rcre test transform",
+    "main": "dist/index.js",
+    "typings": "dist/index.d.ts",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "dependencies": {
+        "rcre-runtime": "^0.1.2"
+    },
+    "license": "MIT",
+    "gitHead": "3cccf68d4c841aebe60ca2663fd523952591c859"
+}

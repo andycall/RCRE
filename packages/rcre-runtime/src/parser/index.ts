@@ -3,6 +3,8 @@ import {runInContext} from '../runTime';
 import {isNil, isPlainObject} from 'lodash';
 import {safeStringify} from "../util";
 
+export * from './walker';
+
 const tokenMap: Map<string, TokenItem[]> = new Map();
 
 export type TokenItem = {

@@ -3,6 +3,8 @@ import {evaluation} from './evaluation';
 import LRUCache from 'lru-cache';
 import * as _ from "lodash";
 
+export * from './evaluation';
+
 const runTimeCache: LRUCache<string, LRUCache<Object, any>> = new LRUCache({
     max: 300
 });
