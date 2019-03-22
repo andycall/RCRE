@@ -22,7 +22,8 @@ const external = [
     'acorn',
     'rcre-runtime',
     'rcre',
-    'rcre-test-tools'
+    'rcre-test-tools',
+    'typescript'
 ];
 
 const packages = {
