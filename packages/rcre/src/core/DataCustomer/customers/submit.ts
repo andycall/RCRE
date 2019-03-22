@@ -1,6 +1,6 @@
 import {CustomerParams} from '../index';
 import {compileExpressionString, isExpression, parseExpressionString} from '../../util/vm';
-import {request} from '../../../services/api';
+import {request} from '../../Service/api';
 import * as _ from 'lodash';
 import {store} from '../../../index';
 import {actionCreators} from '../../Container/action';

@@ -2,7 +2,6 @@ import * as React from 'react';
 import * as _ from 'lodash';
 import {BasicContainerPropsInterface, BasicConfig, getRuntimeContext} from '../Container/types';
 import '../Container/AbstractContainer';
-import Form from '../Form/Form';
 import {RCRETrigger} from '../Trigger';
 import {componentLoader} from './componentLoader';
 import {isExpression, parseExpressionString} from './vm';
@@ -43,16 +42,6 @@ export function createChild<Config extends BasicConfig, T extends BasicConfig, P
     }
 
     let children: React.ReactNode = React.createElement(component, childProps, childElements);
-
-    if (info.type === 'form') {
-        children = (
-            <Form
-                {...childProps}
-            >
-                {children}
-            </Form>
-        );
-    }
 
     if (info.trigger) {
         children = (

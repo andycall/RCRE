@@ -1,0 +1,31 @@
+{
+    "errno": 0,
+    "data": [
+        {
+            "label": "A",
+            "value": "a",
+            "children": [
+                {
+                    "label": "B",
+                    "value": "b",
+                    "children": [
+                        {
+                            "label": "C",
+                            "value": "c"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "label": "123",
+            "value": "123",
+            "children": [
+                {
+                    "label": "456",
+                    "value": "456"
+                }
+            ]
+        }
+    ]
+}

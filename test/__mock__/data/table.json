@@ -1,0 +1,130 @@
+{
+    "head": [
+        {
+            "dataIndex": "stdatetime",
+            "title": "时刻"
+        },
+        {
+            "dataIndex": "value",
+            "title": "当日值"
+        },
+        {
+            "dataIndex": "day2day",
+            "title": "日环比"
+        },
+        {
+            "dataIndex": "day2week",
+            "title": "周同比"
+        },
+        {
+            "dataIndex": "total",
+            "title": "当日值累计"
+        }
+    ],
+    "body": [
+        {
+            "stdatetime": "23:45:00",
+            "value": 1530870,
+            "day2day": 1403485,
+            "day2week": 1435203,
+            "total": 145702652,
+            "id": 1
+        },
+        {
+            "stdatetime": "23:30:00",
+            "value": 1718509,
+            "day2day": 1600291,
+            "day2week": 1628057,
+            "total": 144171782,
+            "id": 2
+        },
+        {
+            "stdatetime": "23:15:00",
+            "value": 1903553,
+            "day2day": 1792581,
+            "day2week": 1832274,
+            "total": 142453273,
+            "id": 3
+        },
+        {
+            "stdatetime": "23:00:00",
+            "value": 2200251,
+            "day2day": 1966918,
+            "day2week": 2028260,
+            "total": 140549720,
+            "id": 4
+        },
+        {
+            "stdatetime": "22:45:00",
+            "value": 2399402,
+            "day2day": 2125217,
+            "day2week": 2230313,
+            "total": 138349469,
+            "id": 5
+        },
+        {
+            "stdatetime": "22:30:00",
+            "value": 2618642,
+            "day2day": 2294294,
+            "day2week": 2421474,
+            "total": 135950067,
+            "id": 6
+        },
+        {
+            "stdatetime": "22:30:00",
+            "value": 2618642,
+            "day2day": 2294294,
+            "day2week": 2421474,
+            "total": 135950067,
+            "id": 7
+        },
+        {
+            "stdatetime": "23:45:00",
+            "value": 1530870,
+            "day2day": 1403485,
+            "day2week": 1435203,
+            "total": 145702652,
+            "id": 8
+        },
+        {
+            "stdatetime": "23:30:00",
+            "value": 1718509,
+            "day2day": 1600291,
+            "day2week": 1628057,
+            "total": 144171782,
+            "id": 9
+        },
+        {
+            "stdatetime": "23:15:00",
+            "value": 1903553,
+            "day2day": 1792581,
+            "day2week": 1832274,
+            "total": 142453273,
+            "id": 10
+        },
+        {
+            "stdatetime": "23:00:00",
+            "value": 2200251,
+            "day2day": 1966918,
+            "day2week": 2028260,
+            "total": 140549720,
+            "id": 11
+        },
+        {
+            "stdatetime": "23:45:00",
+            "value": 1530870,
+            "day2day": 1403485,
+            "day2week": 1435203,
+            "total": 145702652,
+            "id": 12
+        },
+        {
+            "stdatetime": "23:30:00",
+            "value": 1718509,
+            "day2day": 1600291,
+            "day2week": 1628057,
+            "total": 144171782,
+            "id": 13
+        }
+    ]
+}

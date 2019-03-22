@@ -59,6 +59,7 @@ describe('Container Component', () => {
         test.expectWithPath('name', 'andycall');
         let text = test.getComponentByType('text');
         expect(text.text()).toBe('helloworld');
+        test.unmount();
     });
 
     it('container unmount', () => {
@@ -105,9 +106,10 @@ describe('Container Component', () => {
         };
 
         let component = <Render code={JSON.stringify(info)}/>;
-        mount(component);
+        let wrapper = mount(component);
         let state = store.getState();
         expect(state.container[containerModal].name).toBe('andycall');
+        wrapper.unmount();
     });
 
     it('[export]: inner container can export value using ExpressionString', () => {
@@ -153,7 +155,7 @@ describe('Container Component', () => {
         let component = <Render code={JSON.stringify(info)}/>;
 
         const wrapper = mount(component);
-        let inputs = wrapper.find('.ant-input');
+        let inputs = wrapper.find('input');
         let firstInput = inputs.at(0);
         let secondInput = inputs.at(1);
 
@@ -175,6 +177,8 @@ describe('Container Component', () => {
         expect(container[exportModel].name).toBe('12');
         expect(container[innerModel].subName).toBe('1');
         expect(container[innerModel].anoSubName).toBe('2');
+
+        wrapper.unmount();
     });
 
     it('[$parent]: inner container can access parent container\'s property with $parent', () => {
@@ -219,6 +223,8 @@ describe('Container Component', () => {
 
         expect(innerElement.html()).toBe('<span class="rcre-text inner">inner</span>');
         expect(outerElement.html()).toBe('<span class="rcre-text outer">outer</span>');
+
+        wrapper.unmount();
     });
 
     it('[$parent]: three nest container', () => {
@@ -266,7 +272,7 @@ describe('Container Component', () => {
                 }
             ]
         };
-        const component = <Render code={JSON.stringify(info)}/>;
+        const component = <Render code={JSON.stringify(info)} />;
         let wrapper = mount(component);
         let state = store.getState();
         let container = state.container;
@@ -278,6 +284,7 @@ describe('Container Component', () => {
         expect(texts.at(0).text()).toBe('model: left-1-1, private name: left-1-1');
         expect(texts.at(1).text()).toBe('model: left-1-1, parent name: left-1');
         expect(texts.at(2).text()).toBe('model: left-1-1, parent parent name: root');
+        wrapper.unmount();
     });
 
     it('[bind]: basic usage for bind property', () => {
@@ -317,7 +324,7 @@ describe('Container Component', () => {
                             'type': 'formItem',
                             'control': {
                                 'type': 'button',
-                                'htmlType': 'submit',
+                                '~type': 'submit',
                                 'disabled': '#ES{!$form.valid}',
                                 'text': 'submit'
                             }
@@ -336,7 +343,7 @@ describe('Container Component', () => {
         );
 
         const wrapper = mount(component);
-        let inputs = wrapper.find('.ant-input');
+        let inputs = wrapper.find('input');
         let firstInput = inputs.at(0);
         let secondInput = inputs.at(1);
 
@@ -358,6 +365,8 @@ describe('Container Component', () => {
         expect(container['bindContainer'].username).toBe('mike');
         expect(container['bindContainer'].password).toBe('1234');
         expect(container['childBindContainer'].password).toBe('1234');
+
+        wrapper.unmount();
     });
 
     it('[bind]: 3th nest container with bind property', () => {
@@ -430,7 +439,7 @@ describe('Container Component', () => {
         );
 
         const wrapper = mount(component);
-        let inputs = wrapper.find('.ant-input');
+        let inputs = wrapper.find('input');
         let firstInput = inputs.at(0);
         let secondInput = inputs.at(1);
 
@@ -452,6 +461,8 @@ describe('Container Component', () => {
         expect(container['bindContainer'].username).toBe('mike');
         expect(container['bindContainer'].password).toBe('1234');
         expect(container['childBindContainer'].password).toBe('1234');
+
+        wrapper.unmount();
     });
 
     it('[$parent + $export] sync container in 3th nest container', async () => {
@@ -534,6 +545,7 @@ describe('Container Component', () => {
         expect(state.container.otherContainer.innerAge).toBe('button');
         expect(state.container.root.age).toBe('button');
 
+        wrapper.unmount();
     });
 
     it('[bind] setMultiData with bind', () => {
@@ -587,7 +599,7 @@ describe('Container Component', () => {
         );
 
         const wrapper = mount(component);
-        let inputs = wrapper.find('.ant-input');
+        let inputs = wrapper.find('input');
         let firstInput = inputs.at(0);
         let secondInput = inputs.at(1);
 
@@ -610,6 +622,8 @@ describe('Container Component', () => {
         expect(container[exportModel].anoSubName).toBe('2');
         expect(container[innerModel].subName).toBe('1');
         expect(container[innerModel].anoSubName).toBe('2');
+
+        wrapper.unmount();
     });
 
     it('[bind]: setMultiDataBind', () => {
@@ -688,6 +702,8 @@ describe('Container Component', () => {
         expect(container['outer'].username).toBe('');
         expect(container['inner'].username).toBe('');
         expect(container['inner'].password).toBe('');
+
+        wrapper.unmount();
     });
 
     it('deleteData', async () => {
@@ -743,21 +759,20 @@ describe('Container Component', () => {
             ]
         };
 
-        const component = <Render code={JSON.stringify(info)}/>;
-        const wrapper = mount(component);
-        let buttonElement: any = wrapper.find('RCREConnect(button)').at(0).instance();
+        let test = new RCRETestUtil(info);
+        test.setContainer('outer');
 
-        await buttonElement.TEST_simulateEvent('onClick', {});
+        let username = test.getComponentByName('username');
+        test.setData(username, 'helloworld');
 
-        let state = store.getState();
-        let container = state.container;
-        wrapper.update();
+        let button = test.getComponentByType('button');
+        await test.simulate(button, 'onClick');
 
-        let formElement = wrapper.find('RCREForm').at(0);
-        expect(formElement.find('RCREFormItem').text()).toBe('password');
-        expect(container.outer.username).toBe(undefined);
-        expect(container['outer'].userNameShow).toBe(false);
-        expect(container['outer'].test).toBe(1);
+        expect(test.hasComponentByName('username')).toBe(false);
+        let state = test.getContainerState();
+        expect(state.username).toBe(undefined);
+
+        test.unmount();
     });
 
     it('[bind]: deleteData with bind', async () => {
@@ -824,39 +839,33 @@ describe('Container Component', () => {
                 }
             ]
         };
-        const connectContainer = <Render code={JSON.stringify(info)}/>;
 
-        const component = (
-            <Provider store={store}>
-                {connectContainer}
-            </Provider>
-        );
-        const wrapper = mount(component);
+        let test = new RCRETestUtil(info);
+        test.setContainer('inner');
 
-        let inputs = wrapper.find('RCREConnect(input)');
-        let firstInput: any = inputs.at(0).instance();
-        firstInput.TEST_setData('1234');
+        let username = test.getComponentByName('username');
+        test.setData(username, '1234');
 
-        let state = store.getState();
-        let container = state.container;
-
+        let rootState = test.getState();
+        let container = rootState.container;
         expect(container['outer'].username).toBe('1234');
         expect(container['inner'].username).toBe('1234');
 
-        // 点击按钮隐藏第一个输入框后
-        let buttonElement: any = wrapper.find('RCREConnect(button)').at(0).instance();
-        await buttonElement.TEST_simulateEvent('onClick');
+        test.setContainer('outer');
+        let button = test.getComponentByType('button');
+        await test.simulate(button, 'onClick');
 
-        state = store.getState();
-        container = state.container;
-        wrapper.update();
+        test.setContainer('inner');
+        expect(test.hasComponentByName('username')).toBe(false);
+        expect(test.hasComponentByName('password')).toBe(true);
 
-        let formElement = wrapper.find('RCREForm').at(0);
-        expect(formElement.find('RCREFormItem').text()).toBe('password');
+        rootState = test.getState();
+        container = rootState.container;
         expect(container['outer'].userNameShow).toBe(false);
         expect(container['outer'].test).toBe(1);
         expect(container['outer'].username).toBe(undefined);
         expect(container['inner'].username).toBe(undefined);
+        test.unmount();
     });
 
     it('[bind]: delete parent bind data property', async () => {
@@ -926,40 +935,29 @@ describe('Container Component', () => {
                 }
             ]
         };
-        const connectContainer = <Render code={JSON.stringify(info)}/>;
 
-        const component = (
-            <Provider store={store}>
-                {connectContainer}
-            </Provider>
-        );
-        const wrapper = mount(component);
+        let test = new RCRETestUtil(info);
+        test.setContainer('inner');
+        let username = test.getComponentByName('username');
+        test.setData(username, '1234');
 
-        let inputs = wrapper.find('RCREConnect(input)');
-        let firstInput: any = inputs.at(0).instance();
-
-        firstInput.TEST_setData('1234');
-
-        let state = store.getState();
+        let state = test.getState();
         let container = state.container;
 
         expect(container['outer'].username).toBe('1234');
         expect(container['inner'].username).toBe('1234');
 
-        // 点击按钮隐藏第一个输入框后
-        let buttonElement: any = wrapper.find('RCREConnect(button)').at(0).instance();
-        await buttonElement.TEST_simulateEvent('onClick');
-
-        state = store.getState();
+        test.setContainer('outer');
+        let button = test.getComponentByType('button');
+        await test.simulate(button, 'onClick');
+        state = test.getState();
         container = state.container;
-        wrapper.update();
-
-        let formElement = wrapper.find('RCREForm').at(0);
-        expect(formElement.find('RCREFormItem').text()).toBe('password');
         expect(container['outer'].userNameShow).toBe(false);
         expect(container['outer'].test).toBe(1);
         expect(container['outer'].username).toBe(undefined);
         expect(container['inner'].username).toBe(undefined);
+
+        test.unmount();
     });
 
     it('oldNestContainerCompatible', () => {
@@ -1004,11 +1002,12 @@ describe('Container Component', () => {
             />
         );
 
-        mount(component);
+        let wrapper = mount(component);
         let state = store.getState();
         let container = state.container;
 
         expect(container[exportModel].name).toBe('outer');
+        wrapper.unmount();
     });
 
     it('[props] SYNC_DATA_SUCCESS inherit', () => {
@@ -1055,6 +1054,7 @@ describe('Container Component', () => {
         expect(container['component'].age).toBe(22);
         expect(texts.at(0).text()).toBe('name: andycall is children');
         expect(texts.at(1).text()).toBe('age: 44');
+        wrapper.unmount();
     });
 
     it('[props]: inherit', () => {
@@ -1098,6 +1098,8 @@ describe('Container Component', () => {
         expect(container['component'].age).toBe(22);
         expect(texts.at(0).text()).toBe('name: andycall');
         expect(texts.at(1).text()).toBe('age: 22');
+
+        wrapper.unmount();
     });
 
     it('[props]: prop is not Expression', () => {
@@ -1141,6 +1143,7 @@ describe('Container Component', () => {
         expect(container['component'].name).toBe('andycall');
         expect(container['component'].age).toBe(22);
         expect(texts.at(0).html()).toBe('<span class="rcre-text "></span>');
+        wrapper.unmount();
     });
 
     it('[props]: has prop without data', () => {
@@ -1199,6 +1202,7 @@ describe('Container Component', () => {
         });
 
         expect(texts.at(0).text()).toBe('yhtree');
+        wrapper.unmount();
     });
 
     it('[props]: set Data inherit', () => {
@@ -1230,19 +1234,15 @@ describe('Container Component', () => {
             ]
         };
 
-        const component = <Render code={JSON.stringify(info)}/>;
+        let test = new RCRETestUtil(info);
+        test.setContainer('component');
+        let friend = test.getComponentByName('friend');
+        test.setData(friend, 'yhtree');
 
-        let wrapper = mount(component);
-        let input = wrapper.find('input');
-
-        input.simulate('change', {
-            target: {
-                value: 'yhtree'
-            }
-        });
-
-        let texts = wrapper.find('span');
-        expect(texts.at(1).text()).toBe('yhtree');
+        test.setContainer('child');
+        let text = test.getComponentByType('text');
+        expect(text.text()).toBe('yhtree');
+        test.unmount();
     });
 
     it('[props]: inner container sync data and inherit to other', () => {
@@ -1290,7 +1290,7 @@ describe('Container Component', () => {
         let component = <Render code={JSON.stringify(info)}/>;
         let wrapper = mount(component);
 
-        let input = wrapper.find('.ant-input').at(0);
+        let input = wrapper.find('input').at(0);
 
         input.simulate('change', {
             target: {
@@ -1302,6 +1302,7 @@ describe('Container Component', () => {
         expect(state.container.outer.username).toBe('helloworld');
         expect(state.container.child1.username).toBe('helloworld');
         expect(state.container.child2.username).toBe('helloworld');
+        wrapper.unmount();
     });
 
     it('has dataCustomer', async () => {
@@ -1370,6 +1371,7 @@ describe('Container Component', () => {
         state = store.getState();
         container = state.container;
         expect(container['receiveData'].text).toBe('data from dataPass');
+        test.unmount();
     });
 
     it('mount new container will add new node to containerGraph', async () => {
@@ -1444,6 +1446,8 @@ describe('Container Component', () => {
         state = store.getState();
         expect(typeof state.container.nestInitTest).toBe('object');
         expect(state.container.nestInitTest.name).toBe('andycall');
+
+        test.unmount();
     });
 
     it('has dataProvider', async () => {
@@ -1591,41 +1595,39 @@ describe('Container Component', () => {
         let text = wrapper.find('span').at(0);
 
         expect(text.text()).toBe('andycall');
+
+        wrapper.unmount();
     });
 
-    it('dataProvider responseRewrite support decoupling assignment', () => {
-        return new Promise((resolve, reject) => {
-            let config = {
-                body: [{
-                    type: 'container',
-                    model: 'dataProviderResponseTest',
-                    dataProvider: [{
-                        mode: 'ajax',
-                        namespace: 'dataSource',
-                        config: {
-                            url: 'http://localhost:8844/api/mock/table',
-                            method: 'GET'
-                        },
-                        responseRewrite: {
-                            'demo.list': '#ES{$output.data.head}'
-                        }
-                    }],
-                    children: [{
-                        type: 'text',
-                        text: 'helloworld'
-                    }]
+    it('dataProvider responseRewrite support decoupling assignment', async () => {
+        let config = {
+            body: [{
+                type: 'container',
+                model: 'dataProviderResponseTest',
+                dataProvider: [{
+                    mode: 'ajax',
+                    namespace: 'dataSource',
+                    config: {
+                        url: 'http://localhost:8844/static/table.json',
+                        method: 'GET'
+                    },
+                    responseRewrite: {
+                        'demo.list': '#ES{$output.head}'
+                    }
+                }],
+                children: [{
+                    type: 'text',
+                    text: 'helloworld'
                 }]
-            };
-            let component = <Render code={JSON.stringify(config)}/>;
-            mount(component);
-
-            setTimeout(() => {
-                let state = store.getState();
-                let demo = state.container.dataProviderResponseTest.demo;
-                expect(demo.list.length).toBe(5);
-                resolve();
-            }, 200);
-        });
+            }]
+        };
+        let component = <Render code={JSON.stringify(config)}/>;
+        let wrapper = mount(component);
+        await waitForDataProviderComplete();
+        let state = store.getState();
+        let demo = state.container.dataProviderResponseTest.demo;
+        expect(demo.list.length).toBe(5);
+        wrapper.unmount();
     });
 
     it('[dataProvider]: ASYNC_LOAD_SUCCESS can be refresh the component', () => {
@@ -1640,7 +1642,7 @@ describe('Container Component', () => {
                                 mode: 'ajax',
                                 namespace: 'DataSource',
                                 config: {
-                                    url: 'http://localhost:8844/api/mock/table',
+                                    url: 'http://localhost:8844/static/table.json',
                                     method: 'GET'
                                 }
                             }
@@ -1665,12 +1667,13 @@ describe('Container Component', () => {
             };
 
             let component = <Render code={JSON.stringify(config)}/>;
-            mount(component);
+            let wrapper = mount(component);
 
             setTimeout(() => {
                 let state = store.getState();
                 expect(typeof state.container.dataProviderTest.DataSource).toBe('object');
                 expect(typeof state.container.innerSource.datasource).toBe('object');
+                wrapper.unmount();
                 resolve();
             }, 300);
         });
@@ -1711,7 +1714,7 @@ describe('Container Component', () => {
         let state = store.getState();
         expect(state.container.initTest.name).toBe('andycall');
 
-        let input = wrapper.find('.ant-input');
+        let input = wrapper.find('input');
 
         input.simulate('change', {
             target: {
@@ -1721,6 +1724,8 @@ describe('Container Component', () => {
 
         state = store.getState();
         expect(state.container.initTest.name).toBe('test');
+
+        wrapper.unmount();
     });
 
     it('formItem in container should have form control', () => {
@@ -1772,6 +1777,8 @@ describe('Container Component', () => {
         let wrapper = mount(component);
         let text = wrapper.find('span').at(0);
         expect(text.text()).toBe('andycall');
+
+        wrapper.unmount();
     });
 
     it('data Customer with 3 container inherit', async () => {
@@ -1830,8 +1837,11 @@ describe('Container Component', () => {
         expect(state.container.root.name).toBe('andycall');
         expect(state.container.middle.name).toBe('andycall');
 
-        let text = test.wrapper.find('span').at(1);
+        test.setContainer('inner');
+        let text = test.getComponentByType('text');
         expect(text.text()).toBe('andycall');
+
+        test.unmount();
     });
 
     it('auth deleteFormItem in nest Container', async () => {
@@ -1888,16 +1898,9 @@ describe('Container Component', () => {
                                         label: 'type',
                                         required: true,
                                         control: {
-                                            type: 'radio',
+                                            type: 'input',
                                             name: 'input_type',
-                                            defaultValue: 'a',
-                                            options: [{
-                                                label: 'A',
-                                                value: 'a'
-                                            }, {
-                                                label: 'B',
-                                                value: 'b'
-                                            }]
+                                            defaultValue: 'a'
                                         }
                                     }
                                 ]
@@ -1909,8 +1912,8 @@ describe('Container Component', () => {
         };
 
         let test = new RCRETestUtil(info);
-        test.setContainer('outer');
-        let username = test.wrapper.find('RCREConnect(input)').at(0);
+        test.setContainer('formContainer');
+        let username = test.getComponentByName('username');
         test.setData(username, 'helloworld');
 
         let state = store.getState();
@@ -1919,7 +1922,7 @@ describe('Container Component', () => {
         expect(state.container.outer.mixed).toBe('helloworldhelloworld');
         expect(state.container.outer.arr.name).toBe('helloworld');
 
-        let radio = test.wrapper.find('RCREConnect(radio)').at(0);
+        let radio = test.getComponentByName('input_type');
         test.setData(radio, 'b');
 
         state = store.getState();
@@ -1928,6 +1931,8 @@ describe('Container Component', () => {
         expect(state.container.outer.mixed).toBe(undefined);
         expect(state.container.outer.arr.name).toBe(undefined);
         expect(state.container.formContainer.username).toBe(undefined);
+
+        test.unmount();
     });
 
     it('[function ExpressionString] auth deleteFormItem in nest Container', async () => {
@@ -1986,16 +1991,9 @@ describe('Container Component', () => {
                                         label: 'type',
                                         required: true,
                                         control: {
-                                            type: 'radio',
+                                            type: 'input',
                                             name: 'input_type',
-                                            defaultValue: 'a',
-                                            options: [{
-                                                label: 'A',
-                                                value: 'a'
-                                            }, {
-                                                label: 'B',
-                                                value: 'b'
-                                            }]
+                                            defaultValue: 'a'
                                         }
                                     }
                                 ]
@@ -2007,8 +2005,8 @@ describe('Container Component', () => {
         };
 
         let test = new RCRETestUtil(info);
-        test.setContainer('outer');
-        let username = test.wrapper.find('RCREConnect(input)').at(0);
+        test.setContainer('formContainer');
+        let username = test.getComponentByName('username');
         test.setData(username, 'helloworld');
 
         let state = store.getState();
@@ -2017,7 +2015,7 @@ describe('Container Component', () => {
         expect(state.container.outer.mixed).toBe('helloworldhelloworld');
         expect(state.container.outer.arr.name).toBe('helloworld');
 
-        let radio = test.wrapper.find('RCREConnect(radio)').at(0);
+        let radio = test.getComponentByName('input_type');
         test.setData(radio, 'b');
 
         state = store.getState();
@@ -2026,6 +2024,8 @@ describe('Container Component', () => {
         expect(state.container.outer.mixed).toBe(undefined);
         expect(state.container.outer.arr.name).toBe(undefined);
         expect(state.container.formContainer.username).toBe(undefined);
+
+        test.unmount();
     });
 
     it('sync export when inner child component unmount', () => {
@@ -2044,15 +2044,8 @@ describe('Container Component', () => {
                         },
                         children: [
                             {
-                                type: 'radio',
-                                name: 'switch',
-                                options: [{
-                                    label: 'A',
-                                    value: '1'
-                                }, {
-                                    label: 'B',
-                                    value: '2'
-                                }]
+                                type: 'input',
+                                name: 'switch'
                             },
                             {
                                 type: 'input',
@@ -2066,31 +2059,23 @@ describe('Container Component', () => {
             }]
         };
 
-        let component = <Render code={JSON.stringify(config)}/>;
-        let wrapper = mount(component);
-
+        let test = new RCRETestUtil(config);
+        test.setContainer('inner');
         let state = store.getState();
         // expect(state.container.parent.innerData.username).toBe('');
 
-        let input = wrapper.find('.ant-input').at(0);
-        let radio: any = wrapper.find('RadioGroup').at(0).instance();
+        let switchInput = test.getComponentByName('switch');
+        let username = test.getComponentByName('basic.username');
 
-        input.simulate('change', {
-            target: {
-                value: 'helloworld'
-            }
-        });
-
-        radio.props.onChange({
-            target: {
-                value: '2'
-            }
-        });
+        test.setData(username, 'helloworld');
+        test.setData(switchInput, '2');
 
         state = store.getState();
         expect(state.container.inner.switch).toBe('2');
         expect(state.container.inner.basic.username).toBe(undefined);
         expect(state.container.parent.innerData.username).toBe(undefined);
+
+        test.unmount();
     });
 
     it('auth deleteFormItem with string export in nest Container', () => {
@@ -2145,7 +2130,7 @@ describe('Container Component', () => {
                                         show: '#ES{$data.input_type === "b"}',
                                         control: {
                                             type: 'input',
-                                            name: 'passw ord'
+                                            name: 'password'
                                         }
                                     },
                                     {
@@ -2153,16 +2138,9 @@ describe('Container Component', () => {
                                         label: 'type',
                                         required: true,
                                         control: {
-                                            type: 'radio',
+                                            type: 'input',
                                             name: 'input_type',
-                                            defaultValue: 'a',
-                                            options: [{
-                                                label: 'A',
-                                                value: 'a'
-                                            }, {
-                                                label: 'B',
-                                                value: 'b'
-                                            }]
+                                            defaultValue: 'a'
                                         }
                                     }
                                 ]
@@ -2174,8 +2152,8 @@ describe('Container Component', () => {
         };
 
         let test = new RCRETestUtil(info);
-        test.setContainer('outer');
-        let username = test.wrapper.find('RCREConnect(input)').at(0);
+        test.setContainer('formContainer');
+        let username = test.getComponentByName('username');
         test.setData(username, 'helloworld');
 
         let state = store.getState();
@@ -2184,7 +2162,8 @@ describe('Container Component', () => {
         expect(state.container.outer.mixed).toBe('helloworldhelloworld');
         expect(state.container.outer.arr.name).toBe('helloworld');
 
-        let radio = test.wrapper.find('RCREConnect(radio)').at(0);
+        test.setContainer('formContainer');
+        let radio = test.getComponentByName('input_type');
         test.setData(radio, 'b');
         state = store.getState();
         expect(state.container.outer.outerUserName).toBe(undefined);
@@ -2192,6 +2171,8 @@ describe('Container Component', () => {
         expect(state.container.outer.mixed).toBe(undefined);
         expect(state.container.outer.arr.name).toBe(undefined);
         expect(state.container.formContainer.username).toBe(undefined);
+
+        test.unmount();
     });
 
     it('when inner container is destroyed, it can still recover', async () => {
@@ -2260,6 +2241,8 @@ describe('Container Component', () => {
         await test.simulate(show, 'onClick');
         state = store.getState();
         expect(state.container.containerModel.username).toBe('andycall');
+
+        test.unmount();
     });
 
     it('clearDataToParentsWhenDestroy', async () => {
@@ -2332,6 +2315,8 @@ describe('Container Component', () => {
         state = store.getState();
         expect(state.container.outer.username).toBe(undefined);
         expect(state.container.child).toBe(undefined);
+
+        test.unmount();
     });
 
     it('collect defaultValue will never into hidden and show component', () => {
@@ -2362,11 +2347,13 @@ describe('Container Component', () => {
         };
 
         let component = <Render code={JSON.stringify(info)}/>;
-        mount(component);
+        let wrapper = mount(component);
 
         let state = store.getState();
         expect(state.container.defaultCollect.showInput).toBe('showValue');
         expect(state.container.defaultCollect.hideInput).toBe(undefined);
+
+        wrapper.unmount();
     });
 
     it('set defaultValue with multiname', () => {
@@ -2407,12 +2394,13 @@ describe('Container Component', () => {
         };
 
         let component = <Render code={JSON.stringify(info)}/>;
-        mount(component);
+        let wrapper = mount(component);
 
         let state = store.getState();
         expect(state.container.defaultCollect.scope.showInput).toBe('showValue');
         expect(state.container.defaultCollect.scope.hideInput).toBe(undefined);
         expect(state.container.defaultCollect.arr[0].name).toBe('test');
+        wrapper.unmount();
     });
 
     it('sync data with dataProvider in nest Container', async () => {
@@ -2420,11 +2408,11 @@ describe('Container Component', () => {
             mode: 'ajax',
             namespace: 'dataSource',
             config: {
-                url: 'http://127.0.0.1:8844/api/mock/table',
+                url: 'http://127.0.0.1:8844/static/table.json',
                 method: 'GET'
             },
             responseRewrite: {
-                total: '#ES{$output.total}',
+                total: '#ES{$output.body.length}',
                 showChildChild: true
             }
         }];
@@ -2547,6 +2535,8 @@ describe('Container Component', () => {
 
         expect(state.container.childB.username).toBe('andycall');
         expect(state.container.childB.showChildChild).toBe(true);
+
+        test.unmount();
     });
 
     it('container with loading in container', async () => {
@@ -2561,7 +2551,7 @@ describe('Container Component', () => {
                     {
                         mode: 'ajax',
                         config: {
-                            url: 'http://127.0.0.1:8844/api/mock/dateStartTime',
+                            url: 'http://127.0.0.1:8844/static/table.json',
                             method: 'GET'
                         },
                         namespace: 'dateStartTime'
@@ -2597,6 +2587,8 @@ describe('Container Component', () => {
         wrapper.update();
         let textElement = wrapper.find('.rcre-text');
         expect(textElement.at(0).text()).toBe('test');
+
+        wrapper.unmount();
     });
 
     it('trigger wont cause container update', async () => {
@@ -2637,6 +2629,8 @@ describe('Container Component', () => {
         let container: any = test.getContainer('demo').instance();
 
         expect(container.CONTAINER_UPDATE_COUNT).toBe(2);
+
+        test.unmount();
     });
 
     it('FormItem init wont cause container update', () => {
@@ -2665,6 +2659,8 @@ describe('Container Component', () => {
         test.setContainer('demo');
         let container: any = test.getContainer('demo').instance();
         expect(container.CONTAINER_UPDATE_COUNT).toBe(2);
+
+        test.unmount();
     });
 
     it('Container should export when init', () => {
@@ -2717,6 +2713,8 @@ describe('Container Component', () => {
         test.setData(childCheckbox, true);
         state = test.getContainerState();
         expect(state.username).toBe('andycall');
+
+        test.unmount();
     });
 
     it('container inherit', () => {
@@ -2751,6 +2749,8 @@ describe('Container Component', () => {
         let state = test.getState().container;
         expect(state.demo).toEqual({username: [1]});
         expect(state.child).toEqual({username: [1], show: true});
+
+        test.unmount();
     });
 
     it('props can single works without export', () => {
@@ -2790,7 +2790,10 @@ describe('Container Component', () => {
         let username = test.getComponentByName('username');
         test.setData(username, 'test');
 
-        let rootState = test.getState();
-        console.log(rootState.container);
+        test.setContainer('child');
+        state = test.getContainerState();
+        expect(state.username).toBe('test');
+
+        test.unmount();
     });
 });

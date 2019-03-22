@@ -64,7 +64,6 @@ export class RCREContainer<Config extends ContainerConfig<Config>> extends Basic
         this.initDataCustomer(info, props);
         this.initDefaultData(info, props, context);
         this.model = info.model;
-        // this.initDataProvider(info, props, context);
     }
 
     /**
@@ -161,21 +160,6 @@ export class RCREContainer<Config extends ContainerConfig<Config>> extends Basic
             }, context);
         }
     }
-
-    // private initDataProvider(info: ContainerConfig<Config>, props: ContainerProps<Config>, context: object) {
-    //     const providerActions = {
-    //         asyncLoadDataProgress: this.props.asyncLoadDataProgress,
-    //         asyncLoadDataSuccess: this.props.asyncLoadDataSuccess,
-    //         asyncLoadDataFail: this.props.asyncLoadDataFail,
-    //         syncLoadDataSuccess: this.props.syncLoadDataSuccess,
-    //         syncLoadDataFail: this.props.syncLoadDataFail
-    //     };
-    //
-    //     let dataProvider = info.dataProvider;
-    //     if (dataProvider) {
-    //         this.dataProvider.requestForData(info.model, dataProvider, providerActions, props, context);
-    //     }
-    // }
 
     private initContainerGraph(info: ContainerConfig<Config>) {
         if (!containerGraph.has(info.model)) {
@@ -321,7 +305,7 @@ export class RCREContainer<Config extends ContainerConfig<Config>> extends Basic
         let $data = clone(state.container[info.model] || {});
         let $tmp = clone(this.props.$tmp);
 
-        const setMultiData = (items: { name: string, value: any, isTmp: boolean }[]) => {
+        const $setMultiData = (items: { name: string, value: any, isTmp: boolean }[]) => {
             if (this.isUnmount) {
                 return;
             }
@@ -353,12 +337,26 @@ export class RCREContainer<Config extends ContainerConfig<Config>> extends Basic
             }, info.model, this.context);
         };
 
+        const {
+            initContainer,
+            asyncLoadDataFail,
+            asyncLoadDataProgress,
+            syncLoadDataFail,
+            syncLoadDataSuccess,
+            asyncLoadDataSuccess,
+            clearData,
+            deleteData,
+            setData,
+            setMultiData,
+            ...props
+        } = this.props;
+
         // Container Component no long compile expression string for child
         // instead, AbstractComponent should compile it by themSelf
         let childElements = info.children.map((child, index) => {
             child = this.getPropsInfo(child, this.props, [], false, ['show', 'hidden']);
             let childElement = createChild(child, {
-                ...this.props,
+                ...props,
                 info: child,
                 model: info.model,
                 $data: $data,
@@ -371,7 +369,7 @@ export class RCREContainer<Config extends ContainerConfig<Config>> extends Basic
                 $setData: this.childSetData,
                 $getData: this.getData,
                 $deleteData: $deleteData,
-                $setMultiData: setMultiData,
+                $setMultiData: $setMultiData,
                 key: `${child.type}_${index}`
             });
 

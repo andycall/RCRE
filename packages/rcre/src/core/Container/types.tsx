@@ -9,7 +9,7 @@ import React from 'react';
 import {CSSProperties} from 'react';
 import {isPlainObject, isEmpty, clone, isObjectLike} from 'lodash';
 import moment from 'moment';
-import {compileExpressionString, isExpression, parseExpressionString} from '../util/vm';
+import {compileExpressionString, injectFilterIntoContext, isExpression, parseExpressionString} from '../util/vm';
 import {TriggerEventItem} from '../Trigger/Trigger';
 import {DataCustomer} from '../DataCustomer/index';
 import {RCREOptions} from '../Page';
@@ -17,6 +17,8 @@ import {gridPositionItems} from '../Layout/Row/Row';
 import {UrlWithStringQuery} from 'url';
 import {ParsedUrlQuery} from 'querystring';
 import {Events} from '../Events';
+import {Global} from 'rcre-runtime';
+import {filter} from '../util/filter';
 // import {ContainerConfig} from './AbstractContainer';
 
 export type rawJSONType = string | number | null | boolean | Object;
@@ -394,10 +396,11 @@ export function getRuntimeContext<T extends BasicConfig>(
     context: any
 ): runTimeType {
     let runtime: runTimeType = {
+        ...Global,
         $data: {},
-        $now: moment(),
-        $moment: moment
     };
+
+    injectFilterIntoContext(runtime);
 
     if (props.$data) {
         runtime.$data = Object.assign({}, props.$data);
@@ -432,6 +435,39 @@ export function getRuntimeContext<T extends BasicConfig>(
     }
 
     return runtime;
+}
+
+
+/**
+ * 清理runTime变量,谨防内存泄露
+ */
+export function recycleRunTime(runTime: runTimeType) {
+    delete runTime.$data;
+    delete runTime.$parent;
+    delete runTime.$item;
+    delete runTime.$global;
+    delete runTime.$args;
+    delete runTime.$form;
+    delete runTime.$index;
+    delete runTime.$parent;
+    delete runTime.$trigger;
+
+    let globalKeys = Object.keys(Global);
+
+    for (let key of globalKeys) {
+        delete runTime[key];
+    }
+
+    let filterKeys = Object.keys(filter.store);
+
+    for (let key of filterKeys) {
+        delete runTime[key];
+    }
+
+    // @ts-ignore
+    runTime = null;
+
+    return null;
 }
 
 export type ParseInfoOptions<T> = {
@@ -515,6 +551,7 @@ export abstract class BasicContainer<Q extends BasicConfig, T extends BasicConta
         delete mute.gridPaddingLeft;
         delete mute.gridPaddingRight;
         delete mute.gridPosition;
+        delete mute.defaultValue;
         delete mute.clearFormStatusOnlyWhenDestroy;
         delete mute.clearWhenDestroy;
         delete mute.disableSync;

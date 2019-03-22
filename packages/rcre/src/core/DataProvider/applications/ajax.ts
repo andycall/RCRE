@@ -1,7 +1,7 @@
 import {AsyncAdaptor, AsyncAdaptorRetValue} from '../adaptors/async';
 import {AxiosRequestConfig, AxiosResponse} from 'axios';
 import {isNil, clone} from 'lodash';
-import {request} from '../../../services/api';
+import {request} from '../../Service/api';
 import {ProviderSourceConfig} from '../Controller';
 import {isExpression, parseExpressionString} from '../../util/vm';
 import {runTimeType} from '../../Container';

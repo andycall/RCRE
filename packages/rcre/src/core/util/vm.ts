@@ -1,5 +1,5 @@
 import * as _ from 'lodash';
-import {execExpressString, isExpressionString, reportError, Global} from 'rcre-runtime';
+import {execExpressString, isExpressionString, reportError} from 'rcre-runtime';
 import {runTimeType} from '../Container/types';
 import {normalizedPathString} from './util';
 import {filter} from "./filter";
@@ -170,12 +170,12 @@ export function safeStringify(obj: Object) {
 }
 
 export function parseExpressionString(str: any, context: runTimeType) {
-    injectFilterIntoContext(context);
     if (process.env.NODE_ENV === 'test' && typeof str === 'function') {
-
-        Object.assign(context, Global);
         try {
-            return str(context);
+            let result = str(context);
+            // @ts-ignore
+            context = null;
+            return result;
         } catch (e) {
             reportError(e, str.toString());
             return null;

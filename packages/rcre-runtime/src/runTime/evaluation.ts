@@ -11,7 +11,6 @@ import {execUnaryExpression} from './expression/unaryExpression';
 import {execLogicalExpression} from './expression/logicalExpression';
 import {execCallExpression} from './expression/callExpression';
 import {execNewExpression} from './expression/newExpression';
-import {Global} from "./index";
 
 const ASTCache: Map<string, ESTree.Program> = new Map();
 
@@ -103,8 +102,6 @@ export function evaluation(code: string, context: Object) {
             return context[name];
         }
     }
-
-    Object.assign(context, Global);
 
     return execStatement(firstLine, context);
 }

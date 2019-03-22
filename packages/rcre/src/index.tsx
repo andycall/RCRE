@@ -21,19 +21,19 @@ import {Render} from './render';
 import './core/Container/AbstractContainer';
 import './core/Layout/Div/Div';
 import './core/Layout/Text/Text';
+import './core/Hosts';
 import './core/Layout/Row/Row';
 import {dataProviderEvent} from './core/Events/dataProviderEvent';
 
 export * from './types';
 export * from './core/util/util';
-export * from './services/api';
+export * from './core/Service/api';
 export * from './core/Container/types';
 export * from './core/Events';
 export * from './core/Page';
 export * from './core/Events/dataProviderEvent';
 export * from './core/DataCustomer/index';
 export * from './core/util/componentLoader';
-export * from './services/log';
 export * from './core/util/stringToPath';
 export * from './data/events';
 
@@ -74,29 +74,6 @@ if (process.env.REMOTE_DEBUG) {
     let msg = `you are in remote debug mode, please copy and past <script src="${url}"></script> into your webpages.`;
     console.log(msg);
 }
-
-// if (process.env.NODE_ENV !== 'test') {
-//     if (isUnsupportedBrowser({
-//         msie: '10',
-//         chrome: '55',
-//         safari: '11',
-//         firefox: '10'
-//     }, false, window && window.navigator.userAgent)) {
-//         console.error('检测到你正在使用低版本的浏览器，请使用最新版Chrome浏览器或者Firefox浏览器');
-//     }
-// }
-//
-// if (process.env.NODE_ENV === 'test') {
-//     let oldRCRE = require('@baidu/rcre-core');
-//     oldRCRE.registerAddFilterCallback((name: string, fn: any) => {
-//         filter.setFilter(name, fn);
-//     });
-//
-//     // 将0.18的FuncCustomer同步到0.19
-//     oldRCRE.setFucCustomerCallback((name: string, fn: any) => {
-//         DataCustomer.funcCustomer.setCustomer(name, fn);
-//     });
-// }
 
 export const version = __VERSION__;
 export const React = react;

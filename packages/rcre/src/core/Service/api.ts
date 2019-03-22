@@ -2,7 +2,6 @@ import axios, {AxiosRequestConfig, AxiosResponse} from 'axios';
 import * as _ from 'lodash';
 import {stringify} from 'qs';
 import {Chalk} from 'chalk';
-import {requestLog} from './log';
 const httpAdaptors = require('axios/lib/adapters/http');
 
 interface RequestCache {
@@ -91,12 +90,6 @@ export async function request(url: string, config: AxiosRequestConfig & {
         // let response = chalk.cyan(util.inspect(ret.data, false));
         let msg = `${logger}: [url]: ${u}; [method]: ${m}; [data]: ${JSON.stringify(config.data)}; [cached]: ${c};`;
         console.log(msg);
-        requestLog.add({
-            url: url,
-            method: method,
-            data: config.data,
-            cached: cached
-        });
     }
 
     let ret: any;

@@ -17,10 +17,6 @@ export interface ConnectTools<Props, Config> {
      */
     env: Props;
     /**
-     * 当前组件的值
-     */
-    value?: any;
-    /**
      * ExpressionString执行环境
      */
     runTime: runTimeType;
@@ -98,6 +94,10 @@ export interface ConnectTools<Props, Config> {
 
 export interface BasicConnectProps<Props, Config extends BasicConfig> {
     tools: ConnectTools<Props, Config>;
+    /**
+     * 当前组件的值
+     */
+    value?: any;
 }
 
 export interface CommonOptions {
@@ -123,18 +123,6 @@ export interface CommonOptions {
      * 手动设置数，默认为value
      */
     nameKey?: string;
-
-    /**
-     * 和使用name同步值具有相同功能的事件，
-     * 如果组件有name属性，必填
-     */
-    nameBindEvents?: {
-        eventName: string;
-        valueKey: string | string[];
-    } | {
-        eventName: string;
-        valueKey: string | string[];
-    }[];
 
     /**
      * 收集name时跳过的属性
@@ -275,8 +263,6 @@ export abstract class BasicConnect<Config extends BasicConfig, P> extends BasicC
         if (this.$propertyWatch.length > 10) {
             this.isTooMuchProperty = true;
         }
-
-        this.nameBindEvents = options.nameBindEvents;
     }
 
     public findWatchProperty(info: any, path: string, depth: number = 0) {
@@ -610,10 +596,6 @@ export abstract class BasicConnect<Config extends BasicConfig, P> extends BasicC
             context: this.context,
             ...options.parseOptions
         });
-
-        if (info.hasOwnProperty('name') && !this.options.nameBindEvents) {
-            // console.error(this.props.info.type + ': 组件如果含有name属性，则需要配置nameBindEvents');
-        }
 
         this.info = info;
 

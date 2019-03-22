@@ -23,36 +23,6 @@ describe('rcre-test-tools', () => {
         expect(test.config).toBe(config);
     });
 
-    it('component with name have nameBindEvents', async () => {
-        let config = {
-            body: [{
-                type: 'container',
-                model: 'demo',
-                children: [{
-                    type: 'input',
-                    name: 'username',
-                    trigger: [{
-                        event: 'onChange',
-                        targetCustomer: '$this',
-                        params: {
-                            otherName: '#ES{$args.value}'
-                        }
-                    }]
-                }]
-            }]
-        };
-
-        let test = new RCRETestUtil(config);
-        test.setContainer('demo');
-
-        let username = test.getComponentByName('username');
-        await test.setDataWithBindEvents(username, 'helloworld');
-
-        let state = test.getContainerState();
-        expect(state.username).toBe('helloworld');
-        expect(state.otherName).toBe('helloworld');
-    });
-
     it('debug', () => {
         let config = {
             body: [{

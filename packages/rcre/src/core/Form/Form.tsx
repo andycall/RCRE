@@ -1,12 +1,9 @@
 import * as React from 'react';
 import {BasicConfig, BasicContainer, BasicContainerPropsInterface} from '../Container/types';
-import {connect} from 'react-redux';
-import {RootState} from '../../data/reducers';
-import {bindActionCreators, Dispatch} from 'redux';
-import {actionCreators, IFormActions, SET_FORM_ITEM_PAYLOAD} from './actions';
-import {filterExpressionData} from '../util/vm';
-import {isEmpty, clone} from 'lodash';
+import {debounce} from 'lodash';
 import {COREConfig, CoreKind} from '../../types';
+import {formActions, SET_FORM_ITEM_PAYLOAD} from "./actions";
+import {createChild, store} from "../../index";
 
 export class FormConfig<Config> extends BasicConfig {
     type: CoreKind.form;
@@ -19,11 +16,6 @@ export class FormConfig<Config> extends BasicConfig {
      * 表单的数据模型，会包含整个表单内部所有元素的数据
      */
     name?: string;
-
-    /**
-     * 表单布局
-     */
-    layout?: 'horizontal' | 'vertical' | 'inline';
 
     /**
      * 提交之后清除表单数据
@@ -47,6 +39,8 @@ export interface FormItemState {
     valid: boolean;
     formItemName: string;
     rules: any[];
+    status: string;
+    errorMsg: string;
     $validate?: boolean;
     required: boolean;
 }
@@ -59,185 +53,216 @@ export interface FormState {
     };
 }
 
-export interface FormProps<Config extends BasicConfig> extends FormPropsInterface<Config> {
-    /**
-     * 当前Form的数据模型
-     */
-    $form: FormState;
+export interface FormProps<Config extends BasicConfig> extends FormPropsInterface<Config> {}
 
-    /**
-     * 设置Form数据
-     */
-    setFormItem: typeof actionCreators.setFormItem;
+export type FormConnectOptions = {};
 
-    /**
-     * 清除某个FormItem的数据
-     */
-    deleteFormItem: typeof actionCreators.deleteFormItem;
+// export const FormContext = React.createContext({
+//     $setFormItem: (payload: SET_FORM_ITEM_PAYLOAD) => {},
+//     $setFormItems: (payload: SET_FORM_ITEM_PAYLOAD[]) => {},
+//     $deleteFormItem: (itemName: string) => {},
+//     $formSubmit: (event: React.FormEvent<HTMLFormElement>) => {}
+// });
 
-    /**
-     * 批量设置Form数据
-     */
-    setFormItems: typeof actionCreators.setFormItems;
+export function formConnect(options: FormConnectOptions = {}): (Wrapper: React.ComponentClass<any>) => React.ComponentClass<any> {
+    return (Wrapper) => {
+        return class RCREFormContainer<Config extends FormConfig<Config>> extends BasicContainer<Config, FormProps<Config>, {}> {
+            static displayName = 'RCREFormConnect(' + Wrapper.name + ')';
+            private info: Config;
+            private delaySubmit: any;
+            private formItemFunctions: any;
 
-    /**
-     * 表单提交
-     */
-    formSubmit: typeof actionCreators.formSubmit;
+            constructor(props: FormProps<Config>) {
+                super(props);
 
-    /**
-     * 初始化表单
-     */
-    initForm: typeof actionCreators.initForm;
+                this.formItemFunctions = {
+                    $setFormItem: this.$setFormItem,
+                    $setFormItems: this.$setFormItems,
+                    $deleteFormItem: this.$deleteFormItem,
+                    $formSubmit: this.handleSubmit
+                };
 
-    /**
-     * 删除表单
-     */
-    deleteForm: typeof actionCreators.deleteForm;
+                this.info = this.getPropsInfo(this.props.info, props);
+                let name = this.info.name;
 
-    /**
-     * 更新Form组件的属性
-     */
-    setForm: typeof actionCreators.setForm;
-}
+                if (!name) {
+                    return;
+                }
 
-class RCREFormContainer<Config extends FormConfig<Config>> extends BasicContainer<Config, FormProps<Config>, {}> {
-    constructor(props: FormProps<Config>) {
-        super(props);
+                store.dispatch(formActions.initForm({
+                    name: name,
+                    data: {
+                        ...this.info,
+                        name: name,
+                        validateFirst: this.info.validateFirst || false,
+                        clearAfterSubmit: this.info.clearAfterSubmit || false,
+                        control: {}
+                    }
+                }));
 
-        let info = this.props.info;
-        let name = info.name;
-
-        if (!name) {
-            return;
-        }
-
-        info = filterExpressionData(info);
-        this.props.initForm({
-            name,
-            data: {
-                name: info.name,
-                layout: info.layout || 'horizontal',
-                validateFirst: info.validateFirst || false,
-                clearAfterSubmit: info.clearAfterSubmit || false,
-                control: {}
+                this.delaySubmit = debounce(this.triggerSubmit.bind(this), 500, {
+                    leading: true,
+                    trailing: false
+                });
             }
-        });
 
-        this.$setFormItem = this.$setFormItem.bind(this);
-        this.$setFormItems = this.$setFormItems.bind(this);
-        this.$deleteFormItem = this.$deleteFormItem.bind(this);
-    }
+            componentWillUnmount() {
+                super.componentWillUnmount();
+                if (this.info.name) {
+                    store.dispatch(formActions.deleteForm({
+                        name: this.info.name
+                    }));
+                }
+            }
 
-    componentWillReceiveProps(nextProps: FormProps<Config>) {
-        let info = this.getPropsInfo(nextProps.info, nextProps);
+            private $setFormItem = (payload: SET_FORM_ITEM_PAYLOAD) => {
+                if (this.info.name) {
+                    store.dispatch(formActions.setFormItem({
+                        formName: this.info.name,
+                        formItemName: payload.formItemName!,
+                        ...payload
+                    }));
+                }
+            };
 
-        if (info.layout && info.layout !== nextProps.$form['layout']) {
-            this.props.setForm({
-                name: info.name!,
-                key: 'layout',
-                value: info.layout
-            });
+            private $setFormItems = (payload: SET_FORM_ITEM_PAYLOAD[]) => {
+                if (this.info.name) {
+                    payload = payload.map(pay => ({
+                        formName: this.info.name,
+                        formItemName: pay.formItemName,
+                        ...pay
+                    }));
+
+                    store.dispatch(formActions.setFormItems(payload));
+                }
+            };
+
+            private $deleteFormItem = (itemName: string) => {
+                if (this.info.name) {
+                    store.dispatch(formActions.deleteFormItem({
+                        formName: this.info.name,
+                        formItemName: itemName
+                    }));
+                }
+            };
+
+            public handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+                event.preventDefault();
+                event.stopPropagation();
+
+                this.delaySubmit();
+            };
+
+            public triggerSubmit = async (preventSubmit: boolean = false) => {
+                if (!this.info.name) {
+                    return;
+                }
+
+                let state = store.getState();
+                let $form = state.form[this.info.name];
+                let info = this.getPropsInfo(this.props.info);
+                let control = $form.control;
+
+                let invalidItems: SET_FORM_ITEM_PAYLOAD[] = [];
+                let submitData = {};
+
+                for (let itemName in control) {
+                    if (control.hasOwnProperty(itemName)) {
+                        let item: SET_FORM_ITEM_PAYLOAD = control[itemName];
+                        let valid = item.valid;
+
+                        let data = this.getValueFromDataStore(itemName);
+                        submitData[itemName] = data;
+
+                        // 设置validateFirst只验证第一个表单控件
+                        if (!valid && info.name) {
+                            if (info.validateFirst) {
+                                store.dispatch(formActions.setFormItem({
+                                    formName: info.name,
+                                    formItemName: itemName,
+                                    $validate: true
+                                }));
+                                this.forceUpdate();
+                                return;
+                            }
+
+                            invalidItems.push({
+                                formName: info.name,
+                                formItemName: itemName,
+                                $validate: true
+                            });
+                        }
+                    }
+                }
+
+                if (invalidItems.length > 0) {
+                    store.dispatch(formActions.setFormItems(invalidItems));
+                    this.forceUpdate();
+                    return;
+                }
+
+                if (this.props.info.clearAfterSubmit && this.props.$setMultiData) {
+                    let items = Object.keys(submitData).map(key => ({
+                        name: key,
+                        value: ''
+                    }));
+
+                    this.props.$setMultiData(items);
+                }
+
+                return await this.commonEventHandler('onSubmit', submitData, {
+                    preventSubmit: preventSubmit
+                });
+            };
+
+            render() {
+                this.info = this.getPropsInfo(this.props.info);
+                let state = store.getState();
+
+                if (!this.info.name) {
+                    return <div>Form组件需要一个name属性</div>;
+                }
+
+                let $form = state.form[this.info.name] || {};
+
+                let children = this.info.children;
+
+                if (!(children instanceof Array)) {
+                    return <div>children props should be array</div>;
+                }
+
+                let childElement = children.map((child, index) => {
+                    child = this.getPropsInfo(child, this.props, [], false, ['show', 'hidden']);
+
+                    let childNode = createChild(child, {
+                        ...this.props,
+                        formItemFunctions: this.formItemFunctions,
+                        info: child,
+                        $form: $form,
+                        key: `form_element_${index}`
+                    });
+
+                    return this.renderChildren(child, childNode);
+                });
+
+                let form = (
+                    <Wrapper
+                        {...this.info}
+                        onSubmit={this.handleSubmit}
+                    >
+                        {childElement}
+                    </Wrapper>
+                );
+
+                return (
+                    <div
+                        className={'rcre-form-container ' + (this.info.className || '')}
+                        style={this.info.style}
+                    >
+                        {this.renderChildren(this.info, form)}
+                    </div>
+                );
+            }
         }
-    }
-
-    componentWillUnmount() {
-        let info = this.getPropsInfo(this.props.info);
-
-        if (info.name) {
-            this.props.deleteForm({
-                name: info.name
-            });
-        }
-    }
-
-    private $setFormItem(payload: SET_FORM_ITEM_PAYLOAD) {
-        if (this.props.info.name) {
-            this.props.setFormItem({
-                formName: this.props.info.name,
-                formItemName: payload.formItemName!,
-                ...payload
-            });
-        }
-    }
-
-    private $setFormItems(payload: SET_FORM_ITEM_PAYLOAD[]) {
-        if (this.props.info.name) {
-            payload = payload.map(pay => ({
-                formName: this.props.info.name,
-                formItemName: pay.formItemName,
-                ...pay
-            }));
-
-            this.props.setFormItems(payload);
-        }
-    }
-
-    private $deleteFormItem(itemName: string) {
-        if (this.props.info.name) {
-            this.props.deleteFormItem({
-                formName: this.props.info.name,
-                formItemName: itemName
-            });
-        }
-    }
-
-    render() {
-        let info = this.getPropsInfo(this.props.info);
-        let $form = this.props.$form;
-
-        if (!info.name) {
-            return <div>Form组件需要一个name属性</div>;
-        }
-
-        if (isEmpty($form)) {
-            return <div />;
-        }
-
-        let children = React.Children.map(this.props.children, (child: React.ReactElement<any>) => {
-            return React.cloneElement(child, {
-                ...this.props,
-                $form: clone($form),
-                $setFormItem: this.$setFormItem,
-                $setFormItems: this.$setFormItems,
-                $deleteFormItem: this.$deleteFormItem,
-                $formSubmit: this.props.formSubmit,
-                $initForm: this.props.initForm
-            });
-        });
-
-        return (
-            <div
-                className={'rcre-form-container ' + (info.className || '')}
-                style={info.style}
-            >
-                {children}
-            </div>
-        );
-    }
-}
-
-const mapStateToProps = (state: RootState, ownProps: FormPropsInterface<any>) => {
-    if (!ownProps.info.name) {
-        console.error('Form组件需要name属性作为数据存储Key');
-        return {
-            $form: {}
-        };
-    }
-
-    return {
-        $form: state.form[ownProps.info.name] || {}
     };
-};
-
-const mapDispatchToProps = (dispatch: Dispatch<IFormActions>) => bindActionCreators({
-    setFormItem: actionCreators.setFormItem,
-    deleteFormItem: actionCreators.deleteFormItem,
-    formSubmit: actionCreators.formSubmit,
-    initForm: actionCreators.initForm,
-    setForm: actionCreators.setForm,
-    deleteForm: actionCreators.deleteForm,
-    setFormItems: actionCreators.setFormItems
-}, dispatch);
-
-export default connect(mapStateToProps, mapDispatchToProps)(RCREFormContainer);
+}

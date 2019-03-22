@@ -6,7 +6,6 @@ const format = require('json-format');
 import {get, flatten} from 'lodash';
 
 export * from './AutoMaticRobot/AutomaticRobot';
-console.log(1);
 
 interface DebugOptions {
     // 显示原始ExpressionString内容
@@ -390,29 +389,6 @@ export class RCRETestUtil {
     public setData(component: ReactWrapper, value: any) {
         let instance: any = component.instance();
         instance.TEST_setData(value);
-        this.wrapper.update();
-    }
-
-    /**
-     * 触发setData和setData绑定的事件
-     * @param component
-     * @param value
-     */
-    public async setDataWithBindEvents(component: ReactWrapper, value: any) {
-        let instance: any = component.instance();
-        if (!instance.nameBindEvents) {
-            throw new Error('component did not register nameBindEvents options');
-        }
-
-        let nameBindEvents = instance.nameBindEvents;
-        let eventName = nameBindEvents.eventName;
-        let valueKey = nameBindEvents.valueKey;
-
-        instance.TEST_setData(value);
-        await instance.TEST_simulateEvent(eventName, {
-            [valueKey]: value
-        });
-
         this.wrapper.update();
     }
 

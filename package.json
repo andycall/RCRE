@@ -23,7 +23,10 @@
     "homepage": "https://github.com/andycall/RCRE#readme",
     "devDependencies": {
         "@types/acorn": "^4.0.5",
+        "@types/body-parser": "^1.17.0",
+        "@types/cors": "^2.8.4",
         "@types/enzyme-adapter-react-16": "^1.0.5",
+        "@types/express": "^4.16.1",
         "@types/jest": "^24.0.11",
         "@types/js-beautify": "^1.8.0",
         "@types/lodash": "^4.14.122",
@@ -33,19 +36,24 @@
         "@types/qs": "^6.5.2",
         "@types/react": "^16.8.7",
         "@types/react-dom": "^16.8.2",
+        "@types/request": "^2.48.1",
+        "body-parser": "^1.18.3",
+        "cors": "^2.8.5",
         "enzyme": "^3.9.0",
         "enzyme-adapter-react-16": "^1.10.0",
+        "express": "^4.16.4",
         "jest": "^23.6.0",
         "js-beautify": "^1.9.0",
         "lerna": "^3.13.1",
         "moxios": "^0.4.0",
+        "request": "^2.88.0",
         "rollup-plugin-postcss": "^2.0.3",
         "rollup-plugin-typescript2": "^0.19.3",
         "ts-jest": "^23.10.4"
     },
     "scripts": {
         "build": "node scripts/rollup/build.js",
-        "test": "jest --env=jsdom -c ./jest.config.json"
+        "test": "jest --env=jsdom -c ./jest.config.json --forceExit"
     },
     "dependencies": {
         "@types/react-redux": "^7.0.3",

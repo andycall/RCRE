@@ -117,7 +117,7 @@ export type IActions = {
 
 export type IFormActions = IActions[keyof IActions];
 
-export const actionCreators = {
+export const formActions = {
     setFormItem: (payload: SET_FORM_ITEM_PAYLOAD) => ({
         type: SET_FORM_ITEM as typeof SET_FORM_ITEM,
         payload
