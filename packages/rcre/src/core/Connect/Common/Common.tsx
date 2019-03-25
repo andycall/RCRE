@@ -1,5 +1,5 @@
 import React from 'react';
-import {BasicConfig} from '../../Container/types';
+import {BasicConfig} from '../../../types';
 import {BasicConnect, BasicConnectPropsInterface, CommonOptions, WrapperComponentType} from '../basicConnect';
 
 const defaultMappingProps = {};

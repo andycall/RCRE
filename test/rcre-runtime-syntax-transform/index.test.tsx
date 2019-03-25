@@ -375,12 +375,12 @@ describe('ExpressionString代码转转', () => {
         });
     });
 
-    describe('反斜杠字符串', () => {
-        it('反斜杠"', () => {
-            let code = '$data.calendarTotal.enabledReserveTotal === 0 ? \\"gd-inquiry-cell-danger\\" : \\"gd-inquiry-cell-success\\"';
-            console.log(transform(code));
-        });
-    });
+    // describe('反斜杠字符串', () => {
+    //     it('反斜杠"', () => {
+    //         let code = '$data.calendarTotal.enabledReserveTotal === 0 ? \\"gd-inquiry-cell-danger\\" : \\"gd-inquiry-cell-success\\"';
+    //         console.log(transform(code));
+    //     });
+    // });
 });
 
 describe('transformFile', () => {

@@ -5,12 +5,12 @@
 
 import React from 'react';
 import PropsTypes from 'prop-types';
+import {BasicConfig} from '../types';
 import {createChild} from './util/createChild';
 import URL from 'url';
 import querystring from 'querystring';
 import {containerGraph, ContainerNode} from './Service/ContainerDepGraph';
 import {ContainerConfig} from './Container/AbstractContainer';
-import {BasicConfig} from './Container/types';
 import {Events} from './Events';
 
 export type RCREOptions = {

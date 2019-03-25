@@ -1,10 +1,10 @@
 import * as React from 'react';
 import {CSSProperties} from 'react';
 import {isArray} from 'lodash';
-import {BasicConfig, BasicContainer, BasicContainerPropsInterface} from '../../Container/types';
+import {BasicContainer} from '../../Container/BasicComponent';
 import {createChild} from '../../util/createChild';
 import {detect} from 'bowser';
-import {COREConfig, CoreKind} from '../../../types';
+import {BasicConfig, BasicContainerPropsInterface, COREConfig, CoreKind} from '../../../types';
 import {componentLoader} from '../../util/componentLoader';
 
 export type gridPositionItems = 'top-left' | 'top-center' | 'top-right' |

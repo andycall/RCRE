@@ -1,6 +1,4 @@
-// import {ColProps} from '@baidu/native-ads-antd/lib/grid/col';
-import {BasicConfig} from '../Container';
-import {COREConfig, CoreKind} from '../../types';
+import {BasicConfig, COREConfig, CoreKind} from '../../types';
 
 export interface ValidateRules {
     /**

@@ -1,8 +1,7 @@
 import * as React from 'react';
 import {CSSProperties} from 'react';
 import * as _ from 'lodash';
-import {BasicConfig} from '../../Container/types';
-import {ConfigFactory, CoreKind} from '../../../types';
+import {BasicConfig, ConfigFactory, CoreKind} from '../../../types';
 
 import './Text.css';
 import {TriggerEventItem} from '../../Trigger/Trigger';

@@ -1,7 +1,7 @@
 import * as React from 'react';
-import {BasicContainer, BasicConfig, BasicContainerPropsInterface} from '../../Container/types';
+import {BasicContainer} from '../../Container/BasicComponent';
 import {createChild} from '../../util/createChild';
-import {COREConfig, CoreKind} from '../../../types';
+import {BasicConfig, BasicContainerPropsInterface, COREConfig, CoreKind} from '../../../types';
 import {componentLoader} from '../../util/componentLoader';
 
 export interface DivConfig<Config> extends BasicConfig {

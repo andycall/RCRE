@@ -1,8 +1,10 @@
+import {store} from '../../render';
+import {runTimeType} from '../../types';
 import {actionCreators} from '../Container/action';
-import {ContainerProps, getRuntimeContext, runTimeType} from '../Container/types';
+import {ContainerProps} from '../Container/BasicComponent';
 import {clone, isEqual, isPlainObject, remove, isEmpty, get, has, cloneDeep} from 'lodash';
+import {getRuntimeContext, isPromise} from '../util/util';
 import {compileExpressionString, isExpression, parseExpressionString} from '../util/vm';
-import {isPromise, store} from '../../index';
 import {ContainerConfig} from '../Container/AbstractContainer';
 import {SyncAdaptor} from './adaptors/sync';
 import {AsyncAdaptor} from './adaptors/async';

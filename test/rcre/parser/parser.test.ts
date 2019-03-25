@@ -1,4 +1,4 @@
-import { getRuntimeContext, runTimeType } from '../../../packages/rcre/src/core/Container/types';
+import { getRuntimeContext, runTimeType } from '../../../packages/rcre/src/core/Container/BasicComponent';
 import {parseExpressionString} from '../../../packages/rcre/src/core/util/vm';
 import {getParamsFromFuncCall, isExpressionString} from "rcre-runtime";
 

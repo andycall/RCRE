@@ -1,11 +1,11 @@
+import {store} from '../../../render';
+import {runTimeType} from '../../../types';
 import {CustomerParams} from '../index';
 import {compileExpressionString, isExpression, parseExpressionString} from '../../util/vm';
 import {request} from '../../Service/api';
 import * as _ from 'lodash';
-import {store} from '../../../index';
 import {actionCreators} from '../../Container/action';
 import {AxiosResponse} from 'axios';
-import {runTimeType} from '../../Container';
 
 export interface SubmitCustomerExecConfig {
     /**

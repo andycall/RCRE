@@ -49,7 +49,9 @@
         "request": "^2.88.0",
         "rollup-plugin-postcss": "^2.0.3",
         "rollup-plugin-typescript2": "^0.19.3",
-        "ts-jest": "^23.10.4"
+        "ts-jest": "^23.10.4",
+        "tslint": "^5.14.0",
+        "tslint-react": "^3.6.0"
     },
     "scripts": {
         "build": "node scripts/rollup/build.js",

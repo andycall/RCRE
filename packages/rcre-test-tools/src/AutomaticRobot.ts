@@ -1,8 +1,8 @@
 import {PageProps, waitForDataProviderComplete} from 'rcre';
-import {RCRETestUtil} from '../index';
 import chalk from 'chalk';
 import {get, isEqual, find} from 'lodash';
 import format from 'pretty-format';
+import {RCRETestUtil} from './RCRETestUtil';
 
 export interface StepItem {
     // 是否启用

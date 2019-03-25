@@ -1,6 +1,6 @@
 import React from 'react';
-import {BasicConnectProps, commonConnect} from "../Connect";
-import {componentLoader} from "../util/componentLoader";
+import {BasicConnectProps, commonConnect} from '../Connect';
+import {componentLoader} from '../util/componentLoader';
 
 export interface RCREInputProps extends BasicConnectProps<any, any> {}
 
@@ -36,15 +36,15 @@ class RCREInput extends React.PureComponent<RCREInputProps, any> {
                 onFocus={e => {
                     tools.registerEvent('onFocus', {
                         event: e
-                    })
+                    });
                 }}
                 onClick={e => {
                     tools.registerEvent('onClick', {
                         event: e
-                    })
+                    });
                 }}
             />
-        )
+        );
     }
 }
 

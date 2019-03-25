@@ -1,9 +1,10 @@
 import {each, isPlainObject, get, isEqual, isObjectLike, clone, has, isNil} from 'lodash';
-import {BasicContainer, BasicContainerSetDataOptions, runTimeType} from '../Container/types';
+import {store} from '../../render';
+import {BasicConfig, BasicContainerPropsInterface, BasicContainerSetDataOptions, runTimeType} from '../../types';
+import {BasicContainer} from '../Container/BasicComponent';
+import {createChild} from '../util/createChild';
 import {isExpression, parseExpressionString} from '../util/vm';
-import {BasicConfig, BasicContainerPropsInterface} from '../Container/types';
 import React from 'react';
-import {createChild, store} from '../../index';
 import {SET_FORM_ITEM_PAYLOAD} from '../Form/actions';
 
 export type WrapperComponentType<T> =

@@ -1,7 +1,7 @@
 import {isPlainObject} from 'lodash';
 import {evaluation} from './evaluation';
 import LRUCache from 'lru-cache';
-import * as _ from "lodash";
+import * as _ from 'lodash';
 
 export * from './evaluation';
 

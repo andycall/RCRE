@@ -5,7 +5,7 @@ import {
     ConditionalExpression,
     Expression,
     LogicalExpression, MemberExpression, NewExpression, ObjectExpression, SpreadElement, ThisExpression, UnaryExpression
-} from "estree";
+} from 'estree';
 
 export function execArrayExpression(exp: ArrayExpression, context: Object) {
     let arr: any[] = [];

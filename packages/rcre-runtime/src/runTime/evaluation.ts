@@ -1,7 +1,7 @@
 import {parse} from 'acorn';
 import * as ESTree from 'estree';
 import {Statement} from 'estree';
-import {execExpression} from "./execExpression";
+import {execExpression} from './execExpression';
 
 const ASTCache: Map<string, ESTree.Program> = new Map();
 
@@ -13,7 +13,6 @@ function execStatement(statement: Statement, context: Object) {
             throw new Error(`type: ${statement.type} is not supported`);
     }
 }
-
 
 export function evaluation(code: string, context: Object) {
     let ast = ASTCache.get(code);

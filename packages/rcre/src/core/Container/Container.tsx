@@ -11,14 +11,13 @@ import {
     isObjectLike,
     each
 } from 'lodash';
+import {store} from '../../render';
+import {BasicContainerSetDataOptions, runTimeType} from '../../types';
 import {
-    // BasicConfig,
     BasicContainer,
-    BasicContainerSetDataOptions, BasicContextType,
-    ContainerProps,
-    getRuntimeContext, runTimeType,
-    // runTimeType
-} from './types';
+    BasicContextType,
+    ContainerProps
+} from './BasicComponent';
 import {connect} from 'react-redux';
 import {bindActionCreators, Dispatch} from 'redux';
 import {actionCreators, IContainerAction} from './action';
@@ -29,9 +28,8 @@ import {DataCustomer} from '../DataCustomer/index';
 import {createChild} from '../util/createChild';
 import {TMP_MODEL} from './reducer';
 import {containerGraph, ContainerNode} from '../Service/ContainerDepGraph';
-import {store} from '../../index';
 import {ContainerConfig} from './AbstractContainer';
-import {setWith} from '../util/util';
+import {setWith, getRuntimeContext} from '../util/util';
 
 // First Init Life Circle:
 // ComponentWillMount -> Render -> ComponentDidMount

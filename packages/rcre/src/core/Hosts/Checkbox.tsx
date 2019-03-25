@@ -1,7 +1,7 @@
 import React from 'react';
-import {BasicConnectProps} from "../Connect/basicConnect";
-import {commonConnect} from "../Connect/Common/Common";
-import {componentLoader} from "../util/componentLoader";
+import {BasicConnectProps} from '../Connect/basicConnect';
+import {commonConnect} from '../Connect/Common/Common';
+import {componentLoader} from '../util/componentLoader';
 
 interface RCRECheckboxProps extends BasicConnectProps<any, any> {
     text: string;
@@ -21,7 +21,7 @@ class RCRECheckbox extends React.Component<RCRECheckboxProps, any> {
                     });
                 }}
             />
-        )
+        );
     }
 }
 

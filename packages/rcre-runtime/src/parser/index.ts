@@ -1,7 +1,7 @@
 import {Walker} from './walker';
 import {runInContext} from '../runTime';
 import {isNil, isPlainObject} from 'lodash';
-import {safeStringify} from "../util";
+import {safeStringify} from '../util';
 
 export * from './walker';
 

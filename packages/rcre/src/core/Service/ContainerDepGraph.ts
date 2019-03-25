@@ -8,8 +8,7 @@ import {
     parseExpressionString
 } from '../util/vm';
 import {BindItem} from '../Container/AbstractContainer';
-import {setWith, deleteWith} from '../util/util';
-import {getRuntimeContext} from '../Container';
+import {setWith, deleteWith, getRuntimeContext} from '../util/util';
 import {parseExpressionToken} from 'rcre-runtime';
 
 export interface ContainerNodeOptions {

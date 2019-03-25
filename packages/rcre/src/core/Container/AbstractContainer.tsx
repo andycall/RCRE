@@ -1,12 +1,12 @@
 import * as React from 'react';
 import './Container.css';
-import {BasicConfig, BasicContainer, ContainerProps, defaultData} from './types';
+import {BasicContainer, ContainerProps, defaultData} from './BasicComponent';
 import {ContainerNodeOptions} from '../Service/ContainerDepGraph';
 import {CustomerSourceConfig} from '../DataCustomer/index';
 import Container from './Container';
 import {createChild} from '../util/createChild';
 import {ProviderSourceConfig} from '../DataProvider/Controller';
-import {COREConfig, CoreKind} from '../../types';
+import {BasicConfig, COREConfig, CoreKind} from '../../types';
 import {componentLoader} from '../util/componentLoader';
 
 export type BindItem = {

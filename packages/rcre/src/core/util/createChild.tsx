@@ -1,9 +1,8 @@
 import * as React from 'react';
 import * as _ from 'lodash';
-import {BasicContainerPropsInterface, BasicConfig, getRuntimeContext} from '../Container/types';
-import '../Container/AbstractContainer';
-import {RCRETrigger} from '../Trigger';
+import {BasicConfig, BasicContainerPropsInterface} from '../../types';
 import {componentLoader} from './componentLoader';
+import {getRuntimeContext} from './util';
 import {isExpression, parseExpressionString} from './vm';
 
 export function createChild<Config extends BasicConfig, T extends BasicConfig, P extends BasicContainerPropsInterface<Config>>
@@ -44,6 +43,7 @@ export function createChild<Config extends BasicConfig, T extends BasicConfig, P
     let children: React.ReactNode = React.createElement(component, childProps, childElements);
 
     if (info.trigger) {
+        let RCRETrigger = componentLoader.getComponent('__TRIGGER__');
         children = (
             <RCRETrigger
                 {...childProps}

@@ -4,9 +4,13 @@
  * @param object
  * @returns {boolean}
  */
-import {dataProviderEvent} from '../Events/dataProviderEvent';
 import {clone, isObject} from 'lodash';
+import {Global} from 'rcre-runtime';
+import {BasicConfig, BasicContainerPropsInterface, runTimeType} from '../../types';
+import {dataProviderEvent} from '../Events/dataProviderEvent';
+import {filter} from './filter';
 import {stringToPath} from './stringToPath';
+import {injectFilterIntoContext} from './vm';
 
 export function isPromise(object: any): boolean {
     if (Promise && Promise.resolve) {
@@ -56,7 +60,7 @@ export function setWith(obj: Object, path: string, value: any) {
     let pathList = stringToPath(path);
     let target = copy;
 
-    for (let i = 0; i < pathList.length - 1; i ++) {
+    for (let i = 0; i < pathList.length - 1; i++) {
         let name = pathList[i];
         if (!name) {
             break;
@@ -97,7 +101,7 @@ export function deleteWith<T>(path: string, obj: T): T {
     let pathList = stringToPath(path);
     let target = copy;
 
-    for (let i = 0; i < pathList.length - 1; i ++) {
+    for (let i = 0; i < pathList.length - 1; i++) {
         let name = pathList[i];
         if (!name) {
             break;
@@ -130,26 +134,80 @@ export function deleteWith<T>(path: string, obj: T): T {
     return copy;
 }
 
+export function getRuntimeContext<T extends BasicConfig>(
+    props: BasicContainerPropsInterface<T> | any,
+    context: any
+): runTimeType {
+    let runtime: runTimeType = {
+        ...Global,
+        $data: {},
+    };
+
+    injectFilterIntoContext(runtime);
+
+    if (props.$data) {
+        runtime.$data = Object.assign({}, props.$data);
+    }
+
+    if (props.$parent) {
+        runtime.$parent = Object.assign({}, props.$parent);
+    }
+
+    if (props.hasOwnProperty('$item')) {
+        runtime.$item = props.$item;
+    }
+
+    if (props.hasOwnProperty('$index')) {
+        runtime.$index = props.$index;
+    }
+
+    if (props.$trigger) {
+        runtime.$trigger = props.$trigger;
+    }
+
+    if (props.$form) {
+        runtime.$form = props.$form;
+    }
+
+    if (context && context.$query) {
+        runtime.$query = context.$query;
+    }
+
+    if (context && context.$global) {
+        runtime.$global = context.$global;
+    }
+
+    return runtime;
+}
+
 /**
- * 对路径字符串进行转换，数组和点运算符统一成点运算符形式
- *
- * 对于数字路径的处理：
- * normalizedPath(name.age.city) ==> name.age.city
- * normalizedPath(name[0].1]) ==> name.0.1
- * normalizedPath(name[0][1]) ==> name.0.1
- *
- * @param pathString
+ * 清理runTime变量,谨防内存泄露
  */
+export function recycleRunTime(runTime: runTimeType) {
+    delete runTime.$data;
+    delete runTime.$parent;
+    delete runTime.$item;
+    delete runTime.$global;
+    delete runTime.$args;
+    delete runTime.$form;
+    delete runTime.$index;
+    delete runTime.$parent;
+    delete runTime.$trigger;
 
-export function normalizedPathString(pathString: string) {
-    let pathBlackList = stringToPath(pathString);
-    return pathBlackList.map((pathItem: string) => {
-        let isArrayName = pathItem.slice(0, 1) === '[' && pathItem.slice(-1) === ']';
+    let globalKeys = Object.keys(Global);
 
-        if (isArrayName) {
-            return pathItem.slice(1, -1);
-        } else {
-            return pathItem;
-        }
-    }).join('.');
+    for (let key of globalKeys) {
+        delete runTime[key];
+    }
+
+    let filterKeys = Object.keys(filter.store);
+
+    for (let key of filterKeys) {
+        delete runTime[key];
+    }
+
+    // @ts-ignore
+    runTime = null;
+
+    return null;
 }

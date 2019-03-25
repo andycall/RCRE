@@ -1,11 +1,8 @@
 /// <reference path="../global.ts" />
 import react from 'react';
 import reactdom from 'react-dom';
-import configureStore from './data/store';
 import {filter} from './core/util/filter';
 import {createChild} from './core/util/createChild';
-import {Store} from 'redux';
-import {RootState} from './data/reducers';
 import * as vm from './core/util/vm';
 
 import './index.css';
@@ -16,7 +13,7 @@ import * as Trigger from './core/Trigger';
 import * as Connect from './core/Connect';
 import * as types from './types';
 import * as Form from './core/Form';
-import {Render} from './render';
+import {Render, store} from './render';
 
 import './core/Container/AbstractContainer';
 import './core/Layout/Div/Div';
@@ -28,7 +25,7 @@ import {dataProviderEvent} from './core/Events/dataProviderEvent';
 export * from './types';
 export * from './core/util/util';
 export * from './core/Service/api';
-export * from './core/Container/types';
+export * from './core/Container/BasicComponent';
 export * from './core/Events';
 export * from './core/Page';
 export * from './core/Events/dataProviderEvent';
@@ -38,8 +35,6 @@ export * from './core/util/stringToPath';
 export * from './data/events';
 
 export * from './data/reducers';
-
-export let store: Store<RootState> = configureStore();
 
 export function clearStore() {
     store.dispatch({
@@ -58,6 +53,7 @@ export {
     containerGraph,
     vm,
     Form,
+    store,
     Render,
     types,
     Connect

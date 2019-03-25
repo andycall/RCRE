@@ -1,12 +1,17 @@
 import * as React from 'react';
-import {createChild, dataProviderEvent, isPromise, request, RunTimeType, store} from "../../index";
+import {store} from '../../render';
+import {BasicContainerPropsInterface, RunTimeType} from '../../types';
+import {dataProviderEvent} from '../Events/dataProviderEvent';
+import {request} from '../Service/api';
+import {createChild} from '../util/createChild';
+import {isPromise, recycleRunTime} from '../util/util';
 import {applyRule} from './validate';
 import {isPlainObject, isEqual, isNil, isEmpty, each, get, find} from 'lodash';
-import {BasicContainer, BasicContainerPropsInterface, recycleRunTime} from "../Container";
-import {ApiRule, FormItemConfig} from "./types";
-import {SET_FORM_ITEM_PAYLOAD} from "./actions";
-import {FormItemState, FormState} from "./Form";
-import {compileExpressionString, isExpression, parseExpressionString} from "../util/vm";
+import {BasicContainer} from '../Container';
+import {ApiRule, FormItemConfig} from './types';
+import {SET_FORM_ITEM_PAYLOAD} from './actions';
+import {FormItemState, FormState} from './Form';
+import {compileExpressionString, isExpression, parseExpressionString} from '../util/vm';
 
 export class FormItemPropsInterface extends BasicContainerPropsInterface<FormItemConfig<any>> {
     info: FormItemConfig<any>;
@@ -23,7 +28,7 @@ export class FormItemPropsInterface extends BasicContainerPropsInterface<FormIte
          * 删除表单元素的验证信息
          */
         $deleteFormItem: (formItemName: string) => void;
-    }
+    };
 }
 
 export function formItemConnect(): (Wrapper: React.ComponentClass<any>) => React.ComponentClass<any> {
@@ -946,6 +951,6 @@ export function formItemConnect(): (Wrapper: React.ComponentClass<any>) => React
 
                 return this.renderChildren(info, childElement);
             }
-        }
-    }
+        };
+    };
 }

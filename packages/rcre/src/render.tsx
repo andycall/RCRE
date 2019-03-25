@@ -1,10 +1,11 @@
-import {store} from './index';
-import {BasicConfig} from './core/Container/types';
+import {Store} from 'redux';
+import {RootState} from './data/reducers';
+import configureStore from './data/store';
+import {BasicConfig} from './types';
 import * as React from 'react';
 import Page, {PageProps, RCREOptions} from './core/Page';
 import {Provider} from 'react-redux';
 import {Events} from './core/Events/index';
-import * as Container from './core/Container';
 
 interface RenderState {
     renderFlag: boolean;
@@ -14,7 +15,9 @@ export type globalOptions = {
     [s: string]: any
 };
 
-export interface RenderPropsInterface<T extends Container.BasicConfig> {
+export let store: Store<RootState> = configureStore();
+
+export interface RenderPropsInterface<T extends BasicConfig> {
     // 配置代码
     code: PageProps<T> | string;
     // 全局变量

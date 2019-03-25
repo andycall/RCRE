@@ -1,5 +1,5 @@
 import {isEmpty, isNil} from 'lodash';
-import {ValidateRules} from "./types";
+import {ValidateRules} from './types';
 
 const spRegexp = /[\uD800-\uDBFF][\uDC00-\uDFFF]/g;
 

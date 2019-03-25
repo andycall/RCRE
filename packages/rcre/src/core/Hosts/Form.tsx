@@ -1,6 +1,6 @@
 import React from 'react';
-import {formConnect} from "../Form/Form";
-import {componentLoader} from "../util/componentLoader";
+import {formConnect} from '../Form/Form';
+import {componentLoader} from '../util/componentLoader';
 
 class RCREForm extends React.Component<any, any> {
     render() {

@@ -1,9 +1,8 @@
-import {BasicContainerSetDataOptions} from './types';
-
 /**
  * @file Container组件的Action
  * @author dongtiancheng
  */
+import {BasicContainerSetDataOptions} from '../../types';
 
 export const INIT_CONTAINER = 'INIT_CONTAINER';
 export const SET_DATA = 'SET_DATA';

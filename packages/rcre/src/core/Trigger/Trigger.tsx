@@ -1,9 +1,12 @@
 import React from 'react';
-import {BasicConfig, BasicContainer, BasicContainerPropsInterface} from '../Container/types';
+import {store} from '../../render';
+import {BasicConfig, BasicContainerPropsInterface} from '../../types';
+import {BasicContainer} from '../Container/BasicComponent';
+import {componentLoader} from "../util/componentLoader";
+import {isPromise} from '../util/util';
 import {actionCreators, TRIGGER_SET_DATA_OPTIONS, TRIGGER_SET_DATA_PAYLOAD} from './actions';
 import {DataCustomer} from '../DataCustomer/index';
 import {compileExpressionString, isExpression, parseExpressionString} from '../util/vm';
-import {isPromise, store} from '../../index';
 import {isObject} from 'lodash';
 
 interface TriggerConfig extends BasicConfig {
@@ -404,3 +407,5 @@ export class RCRETrigger<Config extends BasicConfig> extends BasicContainer<Trig
         };
     }
 }
+
+componentLoader.addComponent('__TRIGGER__', RCRETrigger);

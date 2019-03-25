@@ -1,7 +1,7 @@
+import {store} from '../../../render';
 import {CustomerParams} from '../index';
 import {actionCreators} from '../../Container/action';
 import {compileExpressionString, isExpression, parseExpressionString} from '../../util/vm';
-import {store} from '../../../index';
 
 export interface PassCustomerExecConfig {
     /**

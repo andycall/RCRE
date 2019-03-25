@@ -1,9 +1,10 @@
 import * as React from 'react';
-import {BasicConfig, BasicContainer, BasicContainerPropsInterface} from '../Container/types';
+import {store} from '../../render';
+import {BasicContainer} from '../Container/BasicComponent';
 import {debounce} from 'lodash';
-import {COREConfig, CoreKind} from '../../types';
-import {formActions, SET_FORM_ITEM_PAYLOAD} from "./actions";
-import {createChild, store} from "../../index";
+import {BasicConfig, BasicContainerPropsInterface, COREConfig, CoreKind} from '../../types';
+import {createChild} from '../util/createChild';
+import {formActions, SET_FORM_ITEM_PAYLOAD} from './actions';
 
 export class FormConfig<Config> extends BasicConfig {
     type: CoreKind.form;
@@ -123,7 +124,7 @@ export function formConnect(options: FormConnectOptions = {}): (Wrapper: React.C
                         ...payload
                     }));
                 }
-            };
+            }
 
             private $setFormItems = (payload: SET_FORM_ITEM_PAYLOAD[]) => {
                 if (this.info.name) {
@@ -135,7 +136,7 @@ export function formConnect(options: FormConnectOptions = {}): (Wrapper: React.C
 
                     store.dispatch(formActions.setFormItems(payload));
                 }
-            };
+            }
 
             private $deleteFormItem = (itemName: string) => {
                 if (this.info.name) {
@@ -144,14 +145,14 @@ export function formConnect(options: FormConnectOptions = {}): (Wrapper: React.C
                         formItemName: itemName
                     }));
                 }
-            };
+            }
 
             public handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
                 event.preventDefault();
                 event.stopPropagation();
 
                 this.delaySubmit();
-            };
+            }
 
             public triggerSubmit = async (preventSubmit: boolean = false) => {
                 if (!this.info.name) {
@@ -213,7 +214,7 @@ export function formConnect(options: FormConnectOptions = {}): (Wrapper: React.C
                 return await this.commonEventHandler('onSubmit', submitData, {
                     preventSubmit: preventSubmit
                 });
-            };
+            }
 
             render() {
                 this.info = this.getPropsInfo(this.props.info);
@@ -263,6 +264,6 @@ export function formConnect(options: FormConnectOptions = {}): (Wrapper: React.C
                     </div>
                 );
             }
-        }
+        };
     };
 }

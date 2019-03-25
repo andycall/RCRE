@@ -1,10 +1,11 @@
+import {store} from '../../render';
+import {BasicConfig, runTimeType} from '../../types';
 import {passCustomer} from './customers/pass';
 import {EventEmitter} from 'events';
 import {locationCustomer} from './customers/location';
-import {BasicConfig, ContainerProps, runTimeType} from '../Container/types';
+import {ContainerProps} from '../Container/BasicComponent';
 import {isExpression, parseExpressionString} from '../util/vm';
 import {FunsCustomerController} from './funcCustomer';
-import {store} from '../../index';
 import {localStoreCustomer} from './customers/localStorage';
 import {submitCustomer} from './customers/submit';
 import {isPromise} from '../util/util';

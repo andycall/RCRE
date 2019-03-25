@@ -1,12 +1,36 @@
 import * as _ from 'lodash';
 import {execExpressString, isExpressionString, reportError} from 'rcre-runtime';
-import {runTimeType} from '../Container/types';
-import {normalizedPathString} from './util';
-import {filter} from "./filter";
+import {runTimeType} from '../../types';
+import {filter} from './filter';
+import {stringToPath} from './stringToPath';
 
 export type compilePairType<S> = {
     [s: string]: S
 };
+
+/**
+ * 对路径字符串进行转换，数组和点运算符统一成点运算符形式
+ *
+ * 对于数字路径的处理：
+ * normalizedPath(name.age.city) ==> name.age.city
+ * normalizedPath(name[0].1]) ==> name.0.1
+ * normalizedPath(name[0][1]) ==> name.0.1
+ *
+ * @param pathString
+ */
+
+export function normalizedPathString(pathString: string) {
+    let pathBlackList = stringToPath(pathString);
+    return pathBlackList.map((pathItem: string) => {
+        let isArrayName = pathItem.slice(0, 1) === '[' && pathItem.slice(-1) === ']';
+
+        if (isArrayName) {
+            return pathItem.slice(1, -1);
+        } else {
+            return pathItem;
+        }
+    }).join('.');
+}
 
 export function evalInContext(code: string, context: Object) {
     if (!_.isPlainObject(context)) {
@@ -184,7 +208,6 @@ export function parseExpressionString(str: any, context: runTimeType) {
 
     return execExpressString(str, context);
 }
-
 
 /**
  * 把RCRE的filter函数变量注入到context中
