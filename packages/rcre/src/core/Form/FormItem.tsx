@@ -340,11 +340,17 @@ export function formItemConnect(): (Wrapper: React.ComponentClass<any>) => React
             componentDidMount() {
                 let info = this.getFormItemInfo(this.props);
                 let isHidden = info.hidden === true || info.show === false;
+
+                // 没有control属性就跳过
+                if (!info.control) {
+                    return;
+                }
+
                 let formItemList = this.collectCompiledComponentNameFromChild(info.control);
                 let nameList = formItemList.nameList;
                 let disabledMap = formItemList.disabledMap;
 
-                if (nameList.length > 0 && this.props.formItemFunctions.$setFormItem && !isHidden) {
+                if (nameList.length > 0 && this.props.formItemFunctions && !isHidden) {
                     nameList.forEach(name => {
                         let formItemName = name;
 
@@ -472,7 +478,7 @@ export function formItemConnect(): (Wrapper: React.ComponentClass<any>) => React
                         }
 
                         // formItem在数据模型中已存在
-                        if (nextProps.$form && nextProps.$form.control[name]) {
+                        if (nextProps.$form && nextProps.$form.control && nextProps.$form.control[name]) {
                             let itemInfo = nextProps.$form.control[name];
                             // 是否强制验证，由triggerSubmit触发
                             let forceValidate = itemInfo.$validate;
@@ -573,6 +579,7 @@ export function formItemConnect(): (Wrapper: React.ComponentClass<any>) => React
                     data = compileExpressionString(apiRule.data, execRunTime);
                 }
 
+                console.log('addd');
                 dataProviderEvent.addToList(apiRule.url);
 
                 let ret = await request(apiRule.url, {
@@ -884,7 +891,7 @@ export function formItemConnect(): (Wrapper: React.ComponentClass<any>) => React
                 }
 
                 if (!info.control) {
-                    return <div>control property is required for FormGroup</div>;
+                    return <div>control property is required for FormItem</div>;
                 }
 
                 let control = info.control;

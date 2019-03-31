@@ -1,7 +1,7 @@
 import { compileExpressionString } from '../../../packages/rcre/src/core/util/vm';
 import { filter } from '../../../packages/rcre/src/core/util/filter';
-import {runInContext} from "rcre-runtime";
-import {getRuntimeContext} from "rcre";
+import {runInContext} from 'rcre-runtime';
+import {getRuntimeContext} from 'rcre';
 
 describe('runInContext', () => {
     it('should throw ReferenceError', () => {

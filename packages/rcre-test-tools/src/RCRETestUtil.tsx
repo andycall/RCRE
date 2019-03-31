@@ -653,14 +653,13 @@ export class RCRETestUtil {
     }
 }
 
-
-export async function simulate(wrapper: ReactWrapper, component: ReactWrapper, event: string, args: object = {}) {
+export async function simulate(wrapper: any, component: any, event: string, args: object = {}) {
     let instance: any = component.instance();
     await instance.TEST_simulateEvent(event, args);
     wrapper.update();
 }
 
-export function setData(component: ReactWrapper, value: any) {
+export function setData(component: any, value: any) {
     let instance: any = component.instance();
     instance.TEST_setData(value);
 }

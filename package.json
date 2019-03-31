@@ -55,7 +55,8 @@
     },
     "scripts": {
         "build": "node scripts/rollup/build.js",
-        "test": "jest --env=jsdom -c ./jest.config.json --forceExit"
+        "testMockServer": "node test/__mock__/server.js &",
+        "test": "jest --env=jsdom -c ./jest.config.json"
     },
     "dependencies": {
         "@types/react-redux": "^7.0.3",

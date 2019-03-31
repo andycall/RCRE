@@ -8,10 +8,6 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const path = require('path');
 
-process.on('disconnect', () => {
-    process.exit(0);
-});
-
 const app = express();
 app.use('/static', express.static(path.join(__dirname, './data')));
 

@@ -18,6 +18,7 @@ import {Render, store} from './render';
 import './core/Container/AbstractContainer';
 import './core/Layout/Div/Div';
 import './core/Layout/Text/Text';
+import './core/Layout/ForEach/Foreach';
 import './core/Hosts';
 import './core/Layout/Row/Row';
 import {dataProviderEvent} from './core/Events/dataProviderEvent';

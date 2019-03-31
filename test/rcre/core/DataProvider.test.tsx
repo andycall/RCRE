@@ -1,7 +1,6 @@
 import React from 'react';
 import axios from 'axios';
 import {clearStore, PageProps, Render, store, waitForDataProviderComplete} from 'rcre';
-import {RCRENativeAntd} from '@baidu/rcre-components-nativeads-antd';
 import {mount} from 'enzyme';
 import moxios from 'moxios';
 import {RCRETestUtil, setData} from 'rcre-test-tools';
@@ -20,7 +19,7 @@ describe('DataProvider', () => {
 
     it('init with defaultValue', () => {
         return new Promise((resolve, reject) => {
-            let config: PageProps<RCRENativeAntd> = {
+            let config: PageProps<any> = {
                 body: [
                     {
                         type: CoreKind.container,
@@ -140,11 +139,11 @@ describe('DataProvider', () => {
                         ],
                         children: [
                             {
-                                type: 'switch',
+                                type: 'input',
                                 name: 'lock'
                             },
                             {
-                                type: 'switch',
+                                type: 'input',
                                 name: 'strict'
                             }
                         ]
@@ -177,7 +176,7 @@ describe('DataProvider', () => {
                 expect(state.container.demo.first.data).toBe('first response');
                 expect(state.container.demo.second.data).toBe('second response');
 
-                let switchComponent = wrapper.find('RCREConnect(switch)').at(0);
+                let switchComponent = wrapper.find('RCREConnect(input)').at(0);
                 setData(switchComponent, false);
 
                 moxios.wait(async () => {
@@ -196,7 +195,7 @@ describe('DataProvider', () => {
                     let fourth = moxios.requests.get('GET', '/demo/fourth?name=4');
                     expect(fourth).toBe(undefined);
 
-                    let strict = wrapper.find('RCREConnect(switch)').at(1);
+                    let strict = wrapper.find('RCREConnect(input)').at(1);
                     setData(strict, false);
 
                     state = store.getState();
@@ -747,7 +746,7 @@ describe('Real Request DataProvider', () => {
         const BAR_CHART = 'barChart';
         const PIE_CHART = 'pieChart';
 
-        let config: PageProps<RCRENativeAntd> = {
+        let config: PageProps<any> = {
             body: [{
                 type: CoreKind.container,
                 model: 'test',

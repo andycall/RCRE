@@ -23,12 +23,25 @@ export function isPromise(object: any): boolean {
 export function waitForDataProviderComplete() {
     return new Promise((resolve, reject) => {
         setTimeout(() => {
+            let timeout = setTimeout(() => {
+                let pendingNamespaces = dataProviderEvent.stack.map(m => m.key).join('\n,');
+                clearTimeout(timeout);
+                reject(new Error('dataProvider request timeout \n pending namespace: ' + pendingNamespaces));
+            }, 100000);
+
             if (dataProviderEvent.stack.length === 0) {
+                clearTimeout(timeout);
                 return resolve();
             }
 
             dataProviderEvent.on('done', () => {
+                clearTimeout(timeout);
                 resolve();
+            });
+
+            dataProviderEvent.on('error', err => {
+                clearTimeout(timeout);
+                reject(err);
             });
         });
     });

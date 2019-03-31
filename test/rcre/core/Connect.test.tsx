@@ -23,6 +23,7 @@ describe('CommonConnect', () => {
 
                 expect(props.type).toBe('demoType');
 
+                // @ts-ignore
                 return <button {...props}>{props.children}</button>;
             }
         }

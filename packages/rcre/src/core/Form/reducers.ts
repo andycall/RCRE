@@ -40,8 +40,6 @@ export const reducer: Reducer<IState> = (state: IState = initialState, actions: 
         case INIT_FORM: {
             let name = actions.payload.name;
 
-            debugger;
-
             if (name in state) {
                 console.error('检查到Form的name存在冲突, repeat:' + name);
                 return state;

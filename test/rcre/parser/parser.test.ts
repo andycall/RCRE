@@ -1,6 +1,6 @@
-import { getRuntimeContext, runTimeType } from '../../../packages/rcre/src/core/Container/BasicComponent';
+import {getRuntimeContext, runTimeType} from "rcre";
 import {parseExpressionString} from '../../../packages/rcre/src/core/util/vm';
-import {getParamsFromFuncCall, isExpressionString} from "rcre-runtime";
+import {getParamsFromFuncCall, isExpressionString} from 'rcre-runtime';
 
 describe('parseExpressString', () => {
     let runTime: runTimeType;

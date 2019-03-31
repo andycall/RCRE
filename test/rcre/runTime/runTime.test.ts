@@ -1,4 +1,4 @@
-import {evaluation} from "rcre-runtime";
+import {evaluation} from 'rcre-runtime';
 
 function loopCases(cases: any[], context: Object = {}) {
     for (let i = 0; i < cases.length; i++) {

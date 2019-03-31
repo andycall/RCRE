@@ -9,7 +9,6 @@ import {
     filter,
     FuncCustomerArgs
 } from 'rcre';
-import {ComponentKind, RCRENativeAntd} from '@baidu/rcre-components-nativeads-antd';
 import {mount} from 'enzyme';
 import axios from 'axios';
 import moxios from 'moxios';
@@ -29,12 +28,12 @@ describe('DataCustomer', () => {
     });
 
     it('$this', async () => {
-        let config: PageProps<RCRENativeAntd> = {
+        let config: PageProps<any> = {
             body: [{
                 type: CoreKind.container,
                 model: 'demo',
                 children: [{
-                    type: ComponentKind.button,
+                    type: 'button',
                     text: 'click me',
                     trigger: [{
                         event: 'onClick',
@@ -60,7 +59,7 @@ describe('DataCustomer', () => {
     });
 
     it('$parent', async () => {
-        let config: PageProps<RCRENativeAntd> = {
+        let config: PageProps<any> = {
             body: [{
                 type: CoreKind.container,
                 model: 'demo',
@@ -70,7 +69,7 @@ describe('DataCustomer', () => {
                         model: 'child',
                         children: [
                             {
-                                type: ComponentKind.button,
+                                type: 'button',
                                 text: 'click me',
                                 trigger: [{
                                     event: 'onClick',
@@ -168,7 +167,7 @@ describe('DataCustomer', () => {
                 resolve();
             });
 
-            let config: PageProps<RCRENativeAntd> = {
+            let config: PageProps<any> = {
                 body: [{
                     type: CoreKind.container,
                     model: 'demo',
@@ -183,7 +182,7 @@ describe('DataCustomer', () => {
                     },
                     children: [
                         {
-                            type: ComponentKind.button,
+                            type: 'button',
                             text: 'helloworld',
                             trigger: [{
                                 event: 'onClick',
@@ -206,7 +205,7 @@ describe('DataCustomer', () => {
     });
 
     it('dataPass', async () => {
-        let config: PageProps<RCRENativeAntd> = {
+        let config: PageProps<any> = {
             body: [{
                 type: CoreKind.container,
                 model: 'dataPassDemo',
@@ -251,7 +250,7 @@ describe('DataCustomer', () => {
     });
 
     it('multi targetCustomer', async () => {
-        let config: PageProps<RCRENativeAntd> = {
+        let config: PageProps<any> = {
             body: [{
                 type: CoreKind.container,
                 model: 'demo',
@@ -261,7 +260,7 @@ describe('DataCustomer', () => {
                         model: 'child',
                         children: [
                             {
-                                type: ComponentKind.button,
+                                type: 'button',
                                 text: 'text',
                                 trigger: [{
                                     event: 'onClick',
@@ -299,7 +298,7 @@ describe('DataCustomer', () => {
     });
 
     it('multi event handler', async () => {
-        let config: PageProps<RCRENativeAntd> = {
+        let config: PageProps<any> = {
             body: [{
                 type: CoreKind.container,
                 model: 'demo',
@@ -309,7 +308,7 @@ describe('DataCustomer', () => {
                         model: 'child',
                         children: [
                             {
-                                type: ComponentKind.button,
+                                type: 'button',
                                 text: 'text',
                                 trigger: [{
                                     event: 'onClick',
@@ -373,7 +372,7 @@ describe('DataCustomer', () => {
             return 2;
         });
 
-        let config: PageProps<RCRENativeAntd> = {
+        let config: PageProps<any> = {
             body: [
                 {
                     type: CoreKind.container,
@@ -461,7 +460,7 @@ describe('DataCustomer', () => {
                                 name: 'password'
                             },
                             {
-                                type: ComponentKind.button,
+                                type: 'button',
                                 text: 'submit',
                                 trigger: [{
                                     event: 'onSubmit',
@@ -540,7 +539,7 @@ describe('DataCustomer', () => {
                                 name: 'password'
                             },
                             {
-                                type: ComponentKind.button,
+                                type: 'button',
                                 text: 'submit',
                                 trigger: [{
                                     event: 'onSubmit',
@@ -616,7 +615,7 @@ describe('DataCustomer', () => {
                                 name: 'password'
                             },
                             {
-                                type: ComponentKind.button,
+                                type: 'button',
                                 text: 'submit',
                                 trigger: [{
                                     event: 'onSubmit',
@@ -695,7 +694,7 @@ describe('DataCustomer', () => {
                                 name: 'password'
                             },
                             {
-                                type: ComponentKind.button,
+                                type: 'button',
                                 text: 'submit',
                                 trigger: [{
                                     event: 'onSubmit',
@@ -781,7 +780,7 @@ describe('DataCustomer', () => {
                                 name: 'password'
                             },
                             {
-                                type: ComponentKind.button,
+                                type: 'button',
                                 text: 'submit',
                                 trigger: [{
                                     event: 'onSubmit',
@@ -814,7 +813,7 @@ describe('DataCustomer', () => {
     });
 
     it('$parent targetCustomer', async () => {
-        let config: PageProps<RCRENativeAntd> = {
+        let config: PageProps<any> = {
             body: [
                 {
                     type: CoreKind.container,
@@ -828,7 +827,7 @@ describe('DataCustomer', () => {
                             },
                             children: [
                                 {
-                                    type: ComponentKind.button,
+                                    type: 'button',
                                     text: 'updateValue',
                                     trigger: [
                                         {
@@ -873,7 +872,7 @@ describe('DataCustomer', () => {
             });
         });
 
-        let config: PageProps<RCRENativeAntd> = {
+        let config: PageProps<any> = {
             body: [
                 {
                     type: CoreKind.container,
@@ -900,7 +899,7 @@ describe('DataCustomer', () => {
                     },
                     children: [
                         {
-                            type: ComponentKind.button,
+                            type: 'button',
                             text: 'click',
                             trigger: [{
                                 event: 'onClick',
@@ -928,7 +927,7 @@ describe('DataCustomer', () => {
     });
 
     it('customer won"t exec when previous got error', async () => {
-        let config: PageProps<RCRENativeAntd> = {
+        let config: PageProps<any> = {
             body: [
                 {
                     type: CoreKind.container,
@@ -1002,7 +1001,7 @@ describe('DataCustomer', () => {
 
     it('customer exec when add keepWhenError property in groups', async () => {
         return new Promise(async (resolve) => {
-            let config: PageProps<RCRENativeAntd> = {
+            let config: PageProps<any> = {
                 body: [
                     {
                         type: CoreKind.container,
@@ -1087,13 +1086,13 @@ describe('DataCustomer', () => {
     });
 
     it('one event to three customer', async () => {
-        let config: PageProps<RCRENativeAntd> = {
+        let config: PageProps<any> = {
             body: [{
                 type: CoreKind.container,
                 model: 'demo',
                 children: [
                     {
-                        type: ComponentKind.button,
+                        type: 'button',
                         text: 'text',
                         trigger: [{
                             event: 'onClick',
@@ -1121,7 +1120,7 @@ describe('DataCustomer', () => {
 
         let test = new RCRETestUtil(config);
         test.setContainer('demo');
-        let button = test.getComponentByType(ComponentKind.button);
+        let button = test.getComponentByType('button');
         await test.simulate(button, 'onClick');
 
         let state = test.getContainerState();

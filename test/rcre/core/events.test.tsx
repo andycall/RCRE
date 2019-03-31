@@ -16,7 +16,7 @@ describe('Events', () => {
                             mode: 'ajax',
                             namespace: 'demo',
                             config: {
-                                url: 'http://localhost:8844/api/mock/validate',
+                                url: 'http://localhost:8844/static/table.json',
                                 method: 'GET',
                                 data: {
                                     name: '#ES{$data.name}'
@@ -37,7 +37,7 @@ describe('Events', () => {
                                     mode: 'ajax',
                                     namespace: 'innerDemo',
                                     config: {
-                                        url: 'http://localhost:8844/api/mock/validate',
+                                        url: 'http://localhost:8844/static/table.json',
                                         method: 'GET',
                                         data: {
                                             name: '#ES{$data.name}'
@@ -65,7 +65,7 @@ describe('Events', () => {
                             mode: 'ajax',
                             namespace: 'demo',
                             config: {
-                                url: 'http://localhost:8844/api/mock/validate',
+                                url: 'http://localhost:8844/static/table.json',
                                 method: 'GET',
                                 data: {}
                             }
@@ -84,7 +84,7 @@ describe('Events', () => {
                                     mode: 'ajax',
                                     namespace: 'innerDemo',
                                     config: {
-                                        url: 'http://localhost:8844/api/mock/validate',
+                                        url: 'http://localhost:8844/static/table.json',
                                         method: 'GET',
                                         data: {}
                                     }

@@ -1,5 +1,5 @@
-import {clearStore} from "rcre";
-import {RCRETestUtil} from "rcre-test-tools";
+import {clearStore} from 'rcre';
+import {RCRETestUtil} from 'rcre-test-tools';
 
 describe('Input', () => {
     beforeEach(() => {
