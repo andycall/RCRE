@@ -658,7 +658,7 @@ describe('DataProvider', () => {
     });
 
     it('strictRequired', () => {
-        return new Promise((resolve, reject) => {
+        return new Promise(async (resolve, reject) => {
             let config = {
                 body: [{
                     type: 'container',
@@ -688,11 +688,11 @@ describe('DataProvider', () => {
                             name: 'username'
                         },
                         {
-                            type: 'switch',
+                            type: 'checkbox',
                             name: 'strict'
                         },
                         {
-                            type: 'switch',
+                            type: 'checkbox',
                             name: 'loose'
                         }
                     ]
@@ -707,15 +707,15 @@ describe('DataProvider', () => {
             let loose = util.getComponentByName('loose');
 
             util.setData(strict, true);
-            util.simulate(strict, 'onClick', {
+            await util.simulate(strict, 'onClick', {
                 value: true
             });
             util.setData(loose, false);
-            util.simulate(loose, 'onClick', {
+            await util.simulate(loose, 'onClick', {
                 value: false
             });
             util.setData(username, '');
-            util.simulate(username, 'onChange', {
+            await util.simulate(username, 'onChange', {
                 value: ''
             });
 
@@ -754,7 +754,7 @@ describe('Real Request DataProvider', () => {
                     mode: 'ajax',
                     namespace: LINE_CHART,
                     config: {
-                        url: 'http://localhost:8844/api/mock/linechart',
+                        url: 'http://localhost:8844/static/piechart.json',
                         method: 'GET',
                         data: {}
                     }
@@ -762,7 +762,7 @@ describe('Real Request DataProvider', () => {
                     mode: 'ajax',
                     namespace: BAR_CHART,
                     config: {
-                        url: 'http://localhost:8844/api/mock/barchart',
+                        url: 'http://localhost:8844/static/barchart.json',
                         method: 'GET',
                         data: {}
                     }
@@ -770,7 +770,7 @@ describe('Real Request DataProvider', () => {
                     mode: 'ajax',
                     namespace: PIE_CHART,
                     config: {
-                        url: 'http://localhost:8844/api/mock/piechart',
+                        url: 'http://localhost:8844/static/linechart.json',
                         method: 'GET',
                         data: {}
                     }
@@ -805,7 +805,7 @@ describe('Real Request DataProvider', () => {
                         mode: 'ajax',
                         namespace: 'first',
                         config: {
-                            url: 'http://localhost:8844/api/mock/linechart',
+                            url: 'http://localhost:8844/static/linechart.json',
                             method: 'GET'
                         },
                         requiredParams: []
@@ -813,7 +813,7 @@ describe('Real Request DataProvider', () => {
                         mode: 'ajax',
                         namespace: 'second',
                         config: {
-                            url: 'http://localhost:8844/api/mock/barchart',
+                            url: 'http://localhost:8844/static/barchart.json',
                             method: 'GET',
                             data: {
                                 username: '#ES{$data.username}'

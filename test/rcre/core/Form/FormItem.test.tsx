@@ -201,20 +201,20 @@ describe('FormItem', () => {
             let form = wrapper.find('form').at(0);
             form.simulate('submit', {});
 
-            // moxios.wait(async () => {
-            //     let submitRequest = moxios.requests.mostRecent();
-            //
-            //     expect(JSON.parse(submitRequest.config.data)).toEqual({
-            //         username: 'abfdeijwidjwijdwijdoqwijdqiodjqiwojdwoqijdqw'
-            //     });
-            //
-            //     await submitRequest.respondWith({
-            //         status: 200,
-            //         response: {
-            //             errno: 0
-            //         }
-            //     });
-            // });
+            moxios.wait(async () => {
+                let submitRequest = moxios.requests.mostRecent();
+
+                expect(JSON.parse(submitRequest.config.data)).toEqual({
+                    username: 'abfdeijwidjwijdwijdoqwijdqiodjqiwojdwoqijdqw'
+                });
+
+                await submitRequest.respondWith({
+                    status: 200,
+                    response: {
+                        errno: 0
+                    }
+                });
+            });
         });
     });
 
@@ -444,32 +444,32 @@ describe('FormItem', () => {
             let state = store.getState();
             expect(state.form.testForm.valid).toBe(false);
 
-            // moxios.wait(async () => {
-            //     let request = moxios.requests.mostRecent();
-            //     let requestData = request.config.data;
-            //
-            //     expect(JSON.parse(requestData).username).toBe('1');
-            //
-            //     await request.respondWith({
-            //         status: 200,
-            //         response: {
-            //             errno: 0,
-            //             errmsg: 'ok',
-            //             data: {
-            //                 username: 'andycall'
-            //             }
-            //         }
-            //     });
-            //
-            //     state = store.getState();
-            //
-            //     expect(state.container.rootContainer.username).toBe('andycall');
-            //     expect(state.container.formContainer.username).toBe('andycall');
-            //
-            //     expect(state.form.testForm.valid).toBe(true);
-            //
-            //     resolve();
-            // });
+            moxios.wait(async () => {
+                let request = moxios.requests.mostRecent();
+                let requestData = request.config.data;
+
+                expect(JSON.parse(requestData).username).toBe('1');
+
+                await request.respondWith({
+                    status: 200,
+                    response: {
+                        errno: 0,
+                        errmsg: 'ok',
+                        data: {
+                            username: 'andycall'
+                        }
+                    }
+                });
+
+                state = store.getState();
+
+                expect(state.container.rootContainer.username).toBe('andycall');
+                expect(state.container.formContainer.username).toBe('andycall');
+
+                expect(state.form.testForm.valid).toBe(true);
+
+                resolve();
+            });
         });
     });
 
