@@ -54,6 +54,7 @@
         "tslint-react": "^3.6.0"
     },
     "scripts": {
+        "dev": "node scripts/rollup/watch.js",
         "build": "node scripts/rollup/build.js",
         "testMockServer": "node test/__mock__/server.js &",
         "test": "jest --env=jsdom -c ./jest.config.json"
