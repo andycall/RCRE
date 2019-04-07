@@ -1,9 +1,10 @@
 import {AutomaticRobot} from 'rcre-test-tools';
-import {clearStore, store} from 'rcre';
+import {clearStore, componentLoader, store} from 'rcre';
+import React from "react";
+import {commonConnect} from "../../packages/rcre/src/core/Connect/Common/Common";
 
 describe('AutomaticRobot', () => {
     beforeEach(() => {
-
         clearStore();
     });
 
@@ -59,6 +60,7 @@ describe('AutomaticRobot', () => {
                 ]
             }
         ]);
+        robot.test.unmount();
     });
 
     it('data not valid will cause error', async () => {
@@ -118,6 +120,8 @@ describe('AutomaticRobot', () => {
         } catch (e) {
             expect(e.message).toBe('CheckState failed: password\'s form status is not valid. errmsg: 长度不能小余2');
         }
+
+        robot.test.unmount();
     });
 
     it('event steps', async () => {
@@ -183,16 +187,14 @@ describe('AutomaticRobot', () => {
                         args: {
                             value: '1234'
                         }
-                    }, {
-                        eventName: 'onChange',
-                        args: {
-                            value: '4567'
-                        }
                     }]
                 }
             ]
         }]);
+
         expect(robot.test.getState()).toMatchSnapshot();
+
+        robot.test.unmount();
     });
 
     it('Containers can still be embedded in the Steps', async () => {
@@ -283,17 +285,35 @@ describe('AutomaticRobot', () => {
         }]);
 
         expect(robot.test.getState().container).toMatchSnapshot();
+
+        robot.test.unmount();
     });
 
     it('AutoComplete NameValid', async () => {
+        class NameValid extends React.PureComponent<any> {
+            render() {
+                return (
+                    <div>this.props.value</div>
+                );
+            }
+        }
+        componentLoader.addComponent('nameValidTest', commonConnect({
+            isNameValid: (value, props) => {
+                if (value === '1') {
+                    return true;
+                }
+
+                return false;
+            }
+        })(NameValid));
+
         let config = {
             body: [{
                 type: 'container',
                 model: 'demo',
                 children: [{
-                    type: 'autoComplete',
-                    name: 'search',
-                    dataSource: ['1', '2', '3']
+                    type: 'nameValidTest',
+                    name: 'nameValidTest'
                 }]
             }]
         };
@@ -303,18 +323,20 @@ describe('AutomaticRobot', () => {
                 {
                     container: 'demo',
                     steps: [{
-                        name: 'search',
-                        value: '9'
+                        name: 'nameValidTest',
+                        value: '2'
                     }]
                 }
             ]);
         } catch (e) {
             expect(e.message).toBe('StepItem: item value is not valid. \n' +
                 'Object {\n' +
-                '  "name": "search",\n' +
-                '  "value": "9",\n' +
+                '  "name": "nameValidTest",\n' +
+                '  "value": "2",\n' +
                 '}');
         }
+
+        robot.test.unmount();
     });
 
     it('Select NameValid', async () => {
@@ -323,15 +345,8 @@ describe('AutomaticRobot', () => {
                 type: 'container',
                 model: 'demo',
                 children: [{
-                    type: 'select',
-                    name: 'list',
-                    options: [{
-                        key: 'a',
-                        value: 'A'
-                    }, {
-                        key: 'b',
-                        value: 'B'
-                    }]
+                    type: 'input',
+                    name: 'list'
                 }]
             }]
         };
@@ -352,6 +367,8 @@ describe('AutomaticRobot', () => {
                 '  "value": "c",\n' +
                 '}');
         }
+
+        robot.test.unmount();
     });
 
     it('Checkbox NameValid', async () => {
@@ -387,5 +404,7 @@ describe('AutomaticRobot', () => {
                 '  },\n' +
                 '}');
         }
+
+        robot.test.unmount();
     });
 });

@@ -1,6 +1,7 @@
 import {isPlainObject} from 'lodash';
 import {evaluation} from './evaluation';
 import LRUCache from 'lru-cache';
+import moment from 'moment';
 import * as _ from 'lodash';
 
 export * from './evaluation';
@@ -29,6 +30,8 @@ export const Global = {
     decodeURIComponent: decodeURIComponent,
     document: document,
     JSON: JSON,
+    $moment: moment,
+    $now: moment(),
     _: _,
     console: console
 };

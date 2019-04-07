@@ -19,8 +19,8 @@ Object {
   "container": Object {
     "__TMP_MODEL__DO_NO_USE_IT": Object {},
     "demo": Object {
-      "anotherUserName": "4567",
-      "passUserName": "4567",
+      "anotherUserName": "1234",
+      "passUserName": "1234",
       "username": "1234",
     },
   },
@@ -28,17 +28,6 @@ Object {
     "test": Object {
       "clearAfterSubmit": false,
       "control": Object {
-        "password": Object {
-          "formItemName": "password",
-          "formName": "test",
-          "required": true,
-          "rules": Array [
-            Object {
-              "minLength": 2,
-            },
-          ],
-          "valid": false,
-        },
         "username": Object {
           "errorMsg": "",
           "formItemName": "username",
@@ -49,19 +38,19 @@ Object {
           "valid": true,
         },
       },
-      "layout": "horizontal",
       "name": "test",
-      "valid": false,
+      "type": "form",
+      "valid": true,
       "validateFirst": false,
     },
   },
   "trigger": Object {
     "demo": Object {
       "$SELF_PASS_CUSTOMER": Object {
-        "anotherUserName": "4567",
+        "anotherUserName": "1234",
       },
       "testCustomer": Object {
-        "passUserName": "4567",
+        "passUserName": "1234",
       },
     },
   },

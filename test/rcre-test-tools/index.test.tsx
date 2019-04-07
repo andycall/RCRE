@@ -107,8 +107,9 @@ describe('rcre-test-tools', () => {
         let godUser = test.getComponentByName('godUser');
 
         expect(test.getComponentFormStatus(badUsername)).toBe(null);
-        expect(test.getComponentFormStatus(godUser)).toEqual({ name: 'basicForm',
-            layout: 'horizontal',
+        expect(test.getComponentFormStatus(godUser)).toEqual({
+            name: 'basicForm',
+            type: 'form',
             validateFirst: false,
             clearAfterSubmit: false,
             control: {} });

@@ -90,10 +90,15 @@ export function formConnect(options: FormConnectOptions = {}): (Wrapper: React.C
                     return;
                 }
 
+                let {
+                    children,
+                    ...others
+                } = this.info;
+
                 store.dispatch(formActions.initForm({
                     name: name,
                     data: {
-                        ...this.info,
+                        ...others,
                         name: name,
                         validateFirst: this.info.validateFirst || false,
                         clearAfterSubmit: this.info.clearAfterSubmit || false,

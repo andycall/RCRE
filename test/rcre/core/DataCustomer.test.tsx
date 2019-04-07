@@ -110,15 +110,8 @@ describe('DataCustomer', () => {
                         model: 'child',
                         children: [
                             {
-                                type: 'select',
+                                type: 'input',
                                 name: 'dynamicSelect',
-                                options: [{
-                                    key: '$this',
-                                    value: '$this'
-                                }, {
-                                    key: '$parent',
-                                    value: '$parent'
-                                }],
                                 defaultValue: '$this'
                             },
                             {

@@ -44,7 +44,8 @@ describe('runInContext', () => {
 
         let context = {
             prev: 1,
-            next: 2
+            next: 2,
+            ...filter.store
         };
 
         let ret = runInContext('count(prev, next)', context);
@@ -57,8 +58,14 @@ describe('runInContext', () => {
             return prev + next;
         });
 
-        let p = runInContext('count(prev, next)', {prev: 1, next: 2});
-        let n = runInContext('count(prev, next)', {prev: 2, next: 1});
+        let p = runInContext('count(prev, next)', {
+            prev: 1, next: 2,
+            ...filter.store
+        });
+        let n = runInContext('count(prev, next)', {
+            prev: 2, next: 1,
+            ...filter.store
+        });
 
         expect(p).toEqual(n);
     });
@@ -80,7 +87,8 @@ describe('runInContext', () => {
 
         let context = {
             prev: 1,
-            next: 2
+            next: 2,
+            ...filter.store
         };
 
         let ret = runInContext('multiply(sum(prev, next), sum(prev, next))', context);
@@ -97,7 +105,8 @@ describe('runInContext', () => {
 
         let context = {
             prev: 1,
-            next: 2
+            next: 2,
+            ...filter.store
         };
 
         let ret = runInContext('multiply(sum(prev, next), sum(prev, next), 3)', context);
@@ -111,7 +120,8 @@ describe('runInContext', () => {
 
         let context = {
             prev: 1,
-            next: 2
+            next: 2,
+            ...filter.store
         };
 
         let ret = runInContext('sumAll(prev, next, 3, 4, 5, 6, 7, 8)', context);
@@ -126,7 +136,8 @@ describe('runInContext', () => {
 
         let context = {
             prev: 1,
-            next: 2
+            next: 2,
+            ...filter.store
         };
 
         let ret = runInContext('1 > 0 ? sumAll(prev, next) : sumAll(-prev, -next)', context);

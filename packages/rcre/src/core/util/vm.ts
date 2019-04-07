@@ -194,7 +194,7 @@ export function safeStringify(obj: Object) {
 }
 
 export function parseExpressionString(str: any, context: runTimeType) {
-    if (process.env.NODE_ENV === 'test' && typeof str === 'function') {
+    if (typeof str === 'function') {
         try {
             let result = str(context);
             // @ts-ignore

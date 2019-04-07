@@ -874,7 +874,7 @@ describe('REQUEST CACHE', function () {
                     mode: 'ajax',
                     namespace: 'A',
                     config: {
-                        url: 'http://localhost:8844/api/mock/linechart',
+                        url: 'http://localhost:8844/static/linechart.json',
                         method: 'GET',
                         data: {
                             name: '1'
@@ -902,7 +902,7 @@ describe('REQUEST CACHE', function () {
                     mode: 'ajax',
                     namespace: 'B',
                     config: {
-                        url: 'http://localhost:8844/api/mock/linechart',
+                        url: 'http://localhost:8844/static/linechart.json',
                         method: 'GET',
                         data: {
                             name: '1'

@@ -1,4 +1,4 @@
-import {evaluation} from 'rcre-runtime';
+import {evaluation, Global} from 'rcre-runtime';
 
 function loopCases(cases: any[], context: Object = {}) {
     for (let i = 0; i < cases.length; i++) {
@@ -176,6 +176,8 @@ describe('Compiler test', () => {
                 }
             };
 
+            Object.assign(context, Global);
+
             expect(
                 evaluation('String.prototype.split.call($data.str, ",")', context))
                 .toEqual(['a', 'b', 'c', 'd', 'e']);
@@ -191,27 +193,27 @@ describe('Compiler test', () => {
         });
 
         it('Object.prototype.toString.call', () => {
-            let result = evaluation('Object.prototype.toString({name: 1})', {});
+            let result = evaluation('Object.prototype.toString({name: 1})', Global);
             expect(result).toBe('[object Object]');
         });
 
         it('[].slice', () => {
-            let result = evaluation('[1,2,3,4,5,6].slice(3)', {});
+            let result = evaluation('[1,2,3,4,5,6].slice(3)', Global);
             expect(result).toEqual([4, 5, 6]);
         });
 
         it('Array.prototype.slice.call', () => {
-            let result = evaluation('Array.prototype.slice.call([1,2,3,4,5,6], 2)', {});
+            let result = evaluation('Array.prototype.slice.call([1,2,3,4,5,6], 2)', Global);
             expect(result).toEqual([3, 4, 5, 6]);
         });
 
         it('Array.prototype.slice.apply', () => {
-            let result = evaluation('Array.prototype.slice.apply([1,2,3,4,5,6], [2])', {});
+            let result = evaluation('Array.prototype.slice.apply([1,2,3,4,5,6], [2])', Global);
             expect(result).toEqual([3, 4, 5, 6]);
         });
 
         it('JSON.stringify({name: 1, age: 2})', () => {
-            let result = evaluation('JSON.stringify({name: 1, age: 2})', {});
+            let result = evaluation('JSON.stringify({name: 1, age: 2})', Global);
             expect(result).toBe(JSON.stringify({name: 1, age: 2}));
         });
     });
