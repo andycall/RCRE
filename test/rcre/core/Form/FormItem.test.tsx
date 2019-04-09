@@ -1,6 +1,6 @@
 import React from 'react';
 import {mount} from 'enzyme';
-import {clearStore, filter, Render, store, FuncCustomerArgs, waitForDataProviderComplete} from 'rcre';
+import {clearStore, filter, Render, FuncCustomerArgs, waitForDataProviderComplete} from 'rcre';
 import {RCRETestUtil} from 'rcre-test-tools';
 import moxios from 'moxios';
 import axios from 'axios';
@@ -117,10 +117,8 @@ describe('FormItem', () => {
                     }
                 ]
             };
-            let component = (
-                <Render code={JSON.stringify(basicConfig)}/>
-            );
-            let wrapper = mount(component);
+            let test = new RCRETestUtil(basicConfig);
+            let wrapper = test.wrapper;
             let username = wrapper.find('input').at(0);
             let price = wrapper.find('input').at(1);
             let max = wrapper.find('input').at(2);
@@ -130,7 +128,7 @@ describe('FormItem', () => {
                     value: 'andycall'
                 }
             });
-            let state = store.getState();
+            let state = test.getState();
             expect(state.container.form.username).toBe('andycall');
             expect(state.form.basicForm.control.username.valid).toBe(true);
 
@@ -141,7 +139,7 @@ describe('FormItem', () => {
             });
 
             username.simulate('blur', {});
-            state = store.getState();
+            state = test.getState();
             expect(state.form.basicForm.valid).toBe(false);
 
             price.simulate('change', {
@@ -150,7 +148,7 @@ describe('FormItem', () => {
                 }
             });
 
-            state = store.getState();
+            state = test.getState();
             let formControl = state.form.basicForm.control;
             let priceControl = formControl.price;
             expect(priceControl.valid).toBe(false);
@@ -163,7 +161,7 @@ describe('FormItem', () => {
                 }
             });
 
-            state = store.getState();
+            state = test.getState();
 
             expect(state.form.basicForm.control.price.valid).toBe(true);
 
@@ -173,7 +171,7 @@ describe('FormItem', () => {
                     value: str
                 }
             });
-            state = store.getState();
+            state = test.getState();
             expect(state.container.form.username).toBe(str);
             expect(state.form.basicForm.control.username.valid).toBe(false);
             expect(state.form.basicForm.control.username.errorMsg).toBe('长度不能超过20个字符');
@@ -183,7 +181,7 @@ describe('FormItem', () => {
                     value: str.length + 1
                 }
             });
-            state = store.getState();
+            state = test.getState();
             expect(state.form.basicForm.control.username.valid).toBe(true);
 
             function asyncCallback($args: FuncCustomerArgs<any>) {
@@ -280,8 +278,9 @@ describe('FormItem', () => {
                 }]
             };
 
-            let wrapper = mount(<Render code={JSON.stringify(config)}/>);
-            let state = store.getState();
+            let test = new RCRETestUtil(config);
+            let wrapper = test.wrapper;
+            let state = test.getState();
             let form = state.form.testForm;
             expect(form.valid).toBe(false);
             expect(form.control.username.valid).toBe(false);
@@ -314,8 +313,9 @@ describe('FormItem', () => {
                 }]
             };
 
-            let wrapper = mount(<Render code={JSON.stringify(config)}/>);
-            let state = store.getState();
+            let test = new RCRETestUtil(config);
+            let wrapper = test.wrapper;
+            let state = test.getState();
             let form = state.form.nestTestForm;
             expect(form.valid).toBe(false);
             expect(form.control.username.valid).toBe(false);
@@ -323,7 +323,7 @@ describe('FormItem', () => {
 
             let username = wrapper.find('input').at(0);
             username.simulate('blur', {});
-            state = store.getState();
+            state = test.getState();
 
             expect(state.form.nestTestForm.control.username.errorMsg).toBe('内容必填');
             wrapper.unmount();
@@ -439,9 +439,9 @@ describe('FormItem', () => {
                 }]
             };
 
-            mount(<Render code={JSON.stringify(config)}/>);
+            let test = new RCRETestUtil(config);
 
-            let state = store.getState();
+            let state = test.getState();
             expect(state.form.testForm.valid).toBe(false);
 
             moxios.wait(async () => {
@@ -461,7 +461,7 @@ describe('FormItem', () => {
                     }
                 });
 
-                state = store.getState();
+                state = test.getState();
 
                 expect(state.container.rootContainer.username).toBe('andycall');
                 expect(state.container.formContainer.username).toBe('andycall');
@@ -586,9 +586,8 @@ describe('FormItem', () => {
             }]
         };
 
-        let component = <Render code={JSON.stringify(config)}/>;
-        mount(component);
-        let state = store.getState();
+        let test = new RCRETestUtil(config);
+        let state = test.getState();
         expect(state.container.showHiddenTest.hideInput).toBe(true);
         expect(state.form.hiddenTestForm.control.username).toBe(undefined);
         expect(state.form.hiddenTestForm.control.password.valid).toBe(false);
@@ -626,13 +625,13 @@ describe('FormItem', () => {
             }]
         };
 
-        let component = <Render code={JSON.stringify(config)}/>;
-        let wrapper = mount(component);
+        let test = new RCRETestUtil(config);
+        let wrapper = test.wrapper;
 
         let userName = wrapper.find('input').at(0);
         let password = wrapper.find('input').at(1);
 
-        let state = store.getState();
+        let state = test.getState();
         expect(state.form.requiredForm.control.username.valid).toBe(false);
         expect(state.form.requiredForm.control.username.required).toBe(true);
         expect(state.form.requiredForm.control.password.valid).toBe(false);
@@ -650,7 +649,7 @@ describe('FormItem', () => {
             }
         });
 
-        state = store.getState();
+        state = test.getState();
         expect(state.form.requiredForm.control.username.valid).toBe(true);
         expect(state.form.requiredForm.control.username.required).toBe(true);
         expect(state.form.requiredForm.control.password.valid).toBe(true);
@@ -669,7 +668,7 @@ describe('FormItem', () => {
             }
         });
 
-        state = store.getState();
+        state = test.getState();
         expect(state.form.requiredForm.control.username.valid).toBe(true);
         expect(state.form.requiredForm.control.username.required).toBe(false);
         expect(state.form.requiredForm.control.password.valid).toBe(true);
@@ -749,13 +748,13 @@ describe('FormItem', () => {
             }]
         };
 
-        let component = <Render code={JSON.stringify(config)}/>;
-        let wrapper = mount(component);
+        let test = new RCRETestUtil(config);
+        let wrapper = test.wrapper;
 
         let userName = wrapper.find('input').at(0);
         let age = wrapper.find('input').at(1);
 
-        let state = store.getState();
+        let state = test.getState();
 
         expect(state.container.initFormValidate.userName).toBe('lx');
         expect(state.form.initFormValidate.control.userName.valid).toBe(true);
@@ -777,7 +776,7 @@ describe('FormItem', () => {
             }
         });
 
-        state = store.getState();
+        state = test.getState();
         expect(state.form.initFormValidate.control.userName.valid).toBe(false);
         expect(state.form.initFormValidate.control.age.valid).toBe(true);
         expect(state.form.initFormValidate.valid).toBe(false);

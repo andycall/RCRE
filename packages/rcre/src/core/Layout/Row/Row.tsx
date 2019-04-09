@@ -135,11 +135,11 @@ export class RowConfig<Config> extends BasicConfig {
     children: (Config | COREConfig<Config>)[];
 }
 
-export class RowPropsInterface<Config extends RowConfig<Config>> extends BasicContainerPropsInterface<Config> {
+export class RowPropsInterface<Config extends RowConfig<Config>> extends BasicContainerPropsInterface {
     info: Config;
 }
 
-export class Row<Config extends RowConfig<Config>> extends BasicContainer<Config, RowPropsInterface<Config>, {}> {
+export class Row<Config extends RowConfig<Config>> extends BasicContainer<RowPropsInterface<Config>, {}> {
     private static isRowDirection(flexDirection: flexDirectionItems = 'row') {
         return flexDirection === 'row' || flexDirection === 'row-reverse';
     }

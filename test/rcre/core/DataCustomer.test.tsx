@@ -3,9 +3,7 @@ import {
     clearStore,
     CustomerParams,
     DataCustomer,
-    PageProps,
     Render,
-    store,
     filter,
     FuncCustomerArgs
 } from 'rcre';
@@ -28,7 +26,7 @@ describe('DataCustomer', () => {
     });
 
     it('$this', async () => {
-        let config: PageProps<any> = {
+        let config = {
             body: [{
                 type: CoreKind.container,
                 model: 'demo',
@@ -59,7 +57,7 @@ describe('DataCustomer', () => {
     });
 
     it('$parent', async () => {
-        let config: PageProps<any> = {
+        let config = {
             body: [{
                 type: CoreKind.container,
                 model: 'demo',
@@ -160,7 +158,7 @@ describe('DataCustomer', () => {
                 resolve();
             });
 
-            let config: PageProps<any> = {
+            let config = {
                 body: [{
                     type: CoreKind.container,
                     model: 'demo',
@@ -198,7 +196,7 @@ describe('DataCustomer', () => {
     });
 
     it('dataPass', async () => {
-        let config: PageProps<any> = {
+        let config = {
             body: [{
                 type: CoreKind.container,
                 model: 'dataPassDemo',
@@ -238,12 +236,12 @@ describe('DataCustomer', () => {
 
         await test.simulate(text, 'onClick');
 
-        let state = store.getState();
+        let state = test.getState();
         expect(state.container.dataPassDemo.fromData).toBe('helloworld');
     });
 
     it('multi targetCustomer', async () => {
-        let config: PageProps<any> = {
+        let config = {
             body: [{
                 type: CoreKind.container,
                 model: 'demo',
@@ -291,7 +289,7 @@ describe('DataCustomer', () => {
     });
 
     it('multi event handler', async () => {
-        let config: PageProps<any> = {
+        let config = {
             body: [{
                 type: CoreKind.container,
                 model: 'demo',
@@ -365,7 +363,7 @@ describe('DataCustomer', () => {
             return 2;
         });
 
-        let config: PageProps<any> = {
+        let config = {
             body: [
                 {
                     type: CoreKind.container,
@@ -700,8 +698,8 @@ describe('DataCustomer', () => {
                 ]
             };
 
-            let component = <Render code={config}/>;
-            let wrapper = mount(component);
+            let test = new RCRETestUtil(config);
+            let wrapper = test.wrapper;
             let button = wrapper.find('RCREConnect(button)');
 
             moxios.wait(async () => {
@@ -720,7 +718,7 @@ describe('DataCustomer', () => {
                     }
                 });
 
-                let state = store.getState();
+                let state = test.getState();
                 expect(state.container.submit.name).toBe('RCRE is best');
 
                 resolve();
@@ -786,8 +784,8 @@ describe('DataCustomer', () => {
                 ]
             };
 
-            let component = <Render code={config}/>;
-            let wrapper = mount(component);
+            let test = new RCRETestUtil(config);
+            let wrapper = test.wrapper;
             let button = wrapper.find('RCREConnect(button)');
 
             moxios.wait(async () => {
@@ -806,7 +804,7 @@ describe('DataCustomer', () => {
     });
 
     it('$parent targetCustomer', async () => {
-        let config: PageProps<any> = {
+        let config = {
             body: [
                 {
                     type: CoreKind.container,
@@ -839,14 +837,14 @@ describe('DataCustomer', () => {
             ]
         };
 
-        let component = <Render code={config}/>;
-        let wrapper = mount(component);
+        let test = new RCRETestUtil(config);
+        let wrapper = test.wrapper;
 
         let button = wrapper.find('RCREConnect(button)');
 
         await simulate(wrapper, button, 'onClick');
 
-        let state = store.getState();
+        let state = test.getState();
         expect(state.container.outer.username).toBe('helloworld');
     });
 
@@ -865,7 +863,7 @@ describe('DataCustomer', () => {
             });
         });
 
-        let config: PageProps<any> = {
+        let config = {
             body: [
                 {
                     type: CoreKind.container,
@@ -908,19 +906,19 @@ describe('DataCustomer', () => {
             ]
         };
 
-        let component = <Render code={config}/>;
-        let wrapper = mount(component);
+        let test = new RCRETestUtil(config);
+        let wrapper = test.wrapper;
 
         let button = wrapper.find('RCREConnect(button)');
         await simulate(wrapper, button, 'onClick');
 
-        let state = store.getState();
+        let state = test.getState();
         expect(state.container.outer.name).toBe('helloworld');
         expect(state.container.outer.age).toBe(22);
     });
 
     it('customer won"t exec when previous got error', async () => {
-        let config: PageProps<any> = {
+        let config = {
             body: [
                 {
                     type: CoreKind.container,
@@ -994,7 +992,7 @@ describe('DataCustomer', () => {
 
     it('customer exec when add keepWhenError property in groups', async () => {
         return new Promise(async (resolve) => {
-            let config: PageProps<any> = {
+            let config = {
                 body: [
                     {
                         type: CoreKind.container,
@@ -1045,8 +1043,8 @@ describe('DataCustomer', () => {
                 ]
             };
 
-            let component = <Render code={config}/>;
-            let wrapper = mount(component);
+            let test = new RCRETestUtil(config);
+            let wrapper = test.wrapper;
 
             let button = wrapper.find('RCREConnect(text)');
 
@@ -1069,7 +1067,7 @@ describe('DataCustomer', () => {
                     }
                 });
 
-                let state = store.getState();
+                let state = test.getState();
                 expect(state).toMatchSnapshot();
                 resolve();
             });
@@ -1079,7 +1077,7 @@ describe('DataCustomer', () => {
     });
 
     it('one event to three customer', async () => {
-        let config: PageProps<any> = {
+        let config = {
             body: [{
                 type: CoreKind.container,
                 model: 'demo',

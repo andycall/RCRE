@@ -1,6 +1,6 @@
 import * as React from 'react';
-import {store} from '../../render';
-import {BasicContainerPropsInterface, RunTimeType} from '../../types';
+import {RootState} from '../../data/reducers';
+import {BasicContainerPropsInterface, BasicContextType, RunTimeType} from '../../types';
 import {dataProviderEvent} from '../Events/dataProviderEvent';
 import {request} from '../Service/api';
 import {createChild} from '../util/createChild';
@@ -13,7 +13,7 @@ import {SET_FORM_ITEM_PAYLOAD} from './actions';
 import {FormItemState, FormState} from './Form';
 import {compileExpressionString, isExpression, parseExpressionString} from '../util/vm';
 
-export class FormItemPropsInterface extends BasicContainerPropsInterface<FormItemConfig<any>> {
+export class FormItemPropsInterface extends BasicContainerPropsInterface {
     info: FormItemConfig<any>;
 
     $form: FormState;
@@ -33,7 +33,7 @@ export class FormItemPropsInterface extends BasicContainerPropsInterface<FormIte
 
 export function formItemConnect(): (Wrapper: React.ComponentClass<any>) => React.ComponentClass<any> {
     return (Wrapper) => {
-        return class RCREFormItem extends BasicContainer<FormItemConfig<any>, FormItemPropsInterface, {}> {
+        return class RCREFormItem extends BasicContainer<FormItemPropsInterface, {}> {
             static displayName = 'RCREFormItemConnect(' + Wrapper.name + ')';
             public TEST_UPDATECOUNT: number;
             private infoBlackList: string[];
@@ -42,7 +42,7 @@ export function formItemConnect(): (Wrapper: React.ComponentClass<any>) => React
             public $propertyWatch: string[];
             private nameIsExpression: boolean = false;
             private isTooMuchProperty: boolean = false;
-            constructor(props: FormItemPropsInterface) {
+            constructor(props: FormItemPropsInterface, context: BasicContextType) {
                 super(props);
 
                 this.handleChange = this.handleChange.bind(this);
@@ -376,8 +376,8 @@ export function formItemConnect(): (Wrapper: React.ComponentClass<any>) => React
                             return;
                         }
 
-                        let state = store.getState();
-                        let $data = state.container[this.props.model];
+                        let state: RootState = this.context.store.getState();
+                        let $data = state.$rcre.container[this.props.model];
                         let formData = get($data, name);
 
                         let formDataEmpty = false;
@@ -596,9 +596,9 @@ export function formItemConnect(): (Wrapper: React.ComponentClass<any>) => React
                 }
 
                 if (this.props.model) {
-                    let state = store.getState();
+                    let state: RootState = this.context.store.getState();
                     // 重新更新润Time
-                    execRunTime.$data = state.container[this.props.model!];
+                    execRunTime.$data = state.$rcre.container[this.props.model!];
                 }
 
                 let isValid = parseExpressionString(apiRule.validate, {

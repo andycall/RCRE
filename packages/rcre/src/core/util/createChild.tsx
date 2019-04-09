@@ -5,7 +5,7 @@ import {componentLoader} from './componentLoader';
 import {getRuntimeContext} from './util';
 import {isExpression, parseExpressionString} from './vm';
 
-export function createChild<Config extends BasicConfig, T extends BasicConfig, P extends BasicContainerPropsInterface<Config>>
+export function createChild<Config extends BasicConfig, T extends BasicConfig, P extends BasicContainerPropsInterface>
 (info: T, childProps: any, childElements: React.ReactNode = null): React.ReactNode {
     if (typeof info === 'string') {
         return <span>{info}</span>;
@@ -82,6 +82,29 @@ export function createChild<Config extends BasicConfig, T extends BasicConfig, P
                     value: <span className={'rcre-name-card-text-value'}>{value}</span>
                 </div>
                 {children}
+            </div>
+        );
+    }
+
+    return children;
+}
+
+export function renderChildren<Config extends BasicConfig>(info: Config, children: React.ReactNode) {
+    let show = info.show;
+    let hidden = info.hidden;
+
+    if (_.isObjectLike(show) || (info.hasOwnProperty('show') && info.show === undefined)) {
+        show = !!show;
+    }
+
+    if (_.isObjectLike(hidden)) {
+        hidden = !!hidden;
+    }
+
+    if (hidden === true || show === false) {
+        return (
+            <div className="rcre-hidden-element" key={info.type + '_' + Math.random()} style={{display: 'none'}}>
+                {process.env.NODE_ENV === 'test' ? JSON.stringify(info) : ''}
             </div>
         );
     }

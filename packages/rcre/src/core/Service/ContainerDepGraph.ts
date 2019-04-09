@@ -1,3 +1,4 @@
+import {BasicContextType} from '../../types';
 import {IContainerState} from '../Container/reducer';
 import {isObjectLike, each, isPlainObject, clone} from 'lodash';
 import {
@@ -103,8 +104,8 @@ export const containerGraph: Map<string, ContainerNode> = new Map();
 export function syncExportContainerState(
     state: IContainerState,
     affectNode: ContainerNode[],
-    node?: ContainerNode,
-    context: Object = {}
+    context: BasicContextType,
+    node?: ContainerNode
 ) {
     if (!node) {
         return;
@@ -177,11 +178,11 @@ export function syncExportContainerState(
             Object.assign(state[parentModel], state[model]);
         }
 
-        syncExportContainerState(state, affectNode, parentNode, context);
+        syncExportContainerState(state, affectNode, context, parentNode);
     }
 }
 
-export function syncPropsContainerState(state: IContainerState, node?: ContainerNode, context: Object = {}) {
+export function syncPropsContainerState(state: IContainerState, context: BasicContextType, node?: ContainerNode) {
     if (!node) {
         return;
     }
@@ -258,7 +259,7 @@ export function syncPropsContainerState(state: IContainerState, node?: Container
 
             state[childModel] = clone(state[childModel]);
 
-            syncPropsContainerState(state, child, context);
+            syncPropsContainerState(state, context, child);
         });
     }
 }

@@ -1,13 +1,13 @@
 // import {ValidateRules} from '../../../rcre-components-antd/components/Form/FormItem';
 
-export const SET_FORM_ITEM = 'SET_FORM_ITEM';
-export const DELETE_FORM_ITEM = 'DELETE_FORM_ITEM';
-export const SET_FORM_ITEMS = 'SET_FORM_ITEMS';
-export const FORM_SUBMIT = 'FORM_SUBMIT';
-export const INIT_FORM = 'INIT_FORM';
-export const SET_FORM = 'SET_FORM';
-export const DELETE_FORM = 'DELETE_FORM';
-export const RESET_FORM = 'RESET_FORM';
+export const SET_FORM_ITEM = 'RCRE_SET_FORM_ITEM';
+export const DELETE_FORM_ITEM = 'RCRE_DELETE_FORM_ITEM';
+export const SET_FORM_ITEMS = 'RCRE_SET_FORM_ITEMS';
+export const FORM_SUBMIT = 'RCRE_FORM_SUBMIT';
+export const INIT_FORM = 'RCRE_INIT_FORM';
+export const SET_FORM = 'RCRE_SET_FORM';
+export const DELETE_FORM = 'RCRE_DELETE_FORM';
+export const RESET_FORM = 'RCRE_RESET_FORM';
 
 export type SET_FORM_ITEM_PAYLOAD = {
     /**

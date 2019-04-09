@@ -3,7 +3,9 @@ import {get, flatten} from 'lodash';
 import chalk from 'chalk';
 import {mount, ReactWrapper} from 'enzyme';
 import {ReactElement} from 'react';
-import {PageProps, Render, store, RootState, vm} from 'rcre';
+import {PageConfig, Render, RootState, vm, RCREState} from 'rcre';
+import {Store} from 'redux';
+
 const format = require('json-format');
 
 interface DebugOptions {
@@ -20,22 +22,42 @@ interface DebugOptions {
 }
 
 export class RCRETestUtil {
-    public config: PageProps<any>;
+    public config: PageConfig<any>;
     public component: ReactElement<any>;
     public wrapper: ReactWrapper;
     public container: ReactWrapper;
     public model: string;
+    public store: Store<any>;
 
-    constructor(config: PageProps<any>, global: object = {}) {
-        this.config = config;
-        this.component = <Render code={config} global={global} />;
+    constructor(config: PageConfig<any> | React.ReactElement<any>, global: object = {}, store?: Store<any>) {
+        if (config && config.hasOwnProperty('$$typeof')) {
+            this.component = config as React.ReactElement<any>;
+        } else {
+            this.config = config as PageConfig<any>;
+            this.component = (
+                <Render
+                    code={config as PageConfig<any>}
+                    global={global}
+                    store={store}
+                />
+            );
+        }
+
         this.wrapper = mount(this.component);
+        this.getStore();
+    }
+
+    private getStore() {
+        let instance: any = this.wrapper.instance();
+        this.store = instance.store;
     }
 
     /**
      * 销毁整个应用
      */
     public unmount() {
+        // @ts-ignore
+        this.store = null;
         this.wrapper.unmount();
     }
 
@@ -57,9 +79,13 @@ export class RCRETestUtil {
             throw new Error('please set your container first');
         }
 
-        let state = store.getState();
+        if (!this.store) {
+            throw new Error('component is unmounted');
+        }
+
+        let state: RootState = this.store.getState();
         // @ts-ignore
-        expect(get(state.container[this.model], path)).toBe(value);
+        expect(get(state.$rcre.container[this.model], path)).toBe(value);
     }
 
     /**
@@ -67,15 +93,19 @@ export class RCRETestUtil {
      * @param group
      */
     public expectGroupWithPath(group: any[][]) {
-        let state = store.getState();
+        if (!this.store) {
+            throw new Error('component is unmounted');
+        }
+
+        let state: RootState = this.store.getState();
 
         if (!this.model) {
             throw new Error('please set your container first');
         }
 
-        for (let i = 0; i < group.length; i ++) {
+        for (let i = 0; i < group.length; i++) {
             let item = group[i];
-            let result = get(state.container[this.model], item[0]);
+            let result = get(state.$rcre.container[this.model], item[0]);
             let expected = item[1];
 
             if (result !== expected) {
@@ -141,7 +171,7 @@ export class RCRETestUtil {
         let container = this.getContainer(this.model);
 
         let elements: ReactWrapper[] = [];
-        for (let i = 0; i < container.children().length; i ++) {
+        for (let i = 0; i < container.children().length; i++) {
             this.find(container.childAt(i), elements, 'RCREConnect(' + type + ')');
         }
 
@@ -171,7 +201,7 @@ export class RCRETestUtil {
         let container = this.getContainer(this.model);
 
         let elements: ReactWrapper[] = [];
-        for (let i = 0; i < container.children().length; i ++) {
+        for (let i = 0; i < container.children().length; i++) {
             this.find(container.childAt(i), elements, 'RCREConnect(' + type + ')');
         }
 
@@ -194,7 +224,7 @@ export class RCRETestUtil {
         }
         let container = this.getContainer(this.model);
         let elements: ReactWrapper[] = [];
-        for (let i = 0; i < container.children().length; i ++) {
+        for (let i = 0; i < container.children().length; i++) {
             this.find(container.childAt(i), elements, (element) => {
                 let instance: any = element.instance();
                 if (!instance) {
@@ -244,7 +274,7 @@ export class RCRETestUtil {
 
         let container = this.getContainer(this.model);
         let elements: ReactWrapper[] = [];
-        for (let i = 0; i < container.children().length; i ++) {
+        for (let i = 0; i < container.children().length; i++) {
             this.find(container.childAt(i), elements, (element) => {
                 let info: any = element.prop('info');
 
@@ -283,7 +313,7 @@ export class RCRETestUtil {
             elements.push(root);
         }
 
-        for (let i = 0; i < children.length; i ++) {
+        for (let i = 0; i < children.length; i++) {
             let child = children.at(i);
             this.find(child, elements, selector);
         }
@@ -292,8 +322,13 @@ export class RCRETestUtil {
     /**
      * 获取当前应用的状态
      */
-    public getState(): RootState {
-        return store.getState();
+    public getState(): RCREState {
+        if (!this.store) {
+            throw new Error('component is unmounted');
+        }
+
+        let state: RootState = this.store.getState();
+        return state.$rcre;
     }
 
     /**
@@ -310,7 +345,11 @@ export class RCRETestUtil {
      * @param container
      */
     public getContainerState(container?: string) {
-        let state = store.getState();
+        if (!this.store) {
+            throw new Error('component is unmounted');
+        }
+
+        let state: RootState = this.store.getState();
 
         if (!container) {
             if (this.model) {
@@ -320,7 +359,7 @@ export class RCRETestUtil {
             }
         }
 
-        return state.container[container];
+        return state.$rcre.container[container];
     }
 
     /**
@@ -328,13 +367,17 @@ export class RCRETestUtil {
      * @param {string} form form组件的name
      */
     public getFormState(form: string) {
-        let state = store.getState();
+        if (!this.store) {
+            throw new Error('component is unmounted');
+        }
 
-        if (!state.form[form]) {
+        let state: RootState = this.store.getState();
+
+        if (!state.$rcre.form[form]) {
             throw new Error('can not find form name: ' + form);
         }
 
-        return state.form[form];
+        return state.$rcre.form[form];
     }
 
     /**
@@ -461,7 +504,7 @@ export class RCRETestUtil {
         return lines.join('\n') + '\n' + '\n' + this.formatComments(comments);
     }
 
-    private formatComments(comments: {[type: string]: string}) {
+    private formatComments(comments: { [type: string]: string }) {
         let str = '';
 
         Object.keys(comments).forEach(key => {
@@ -506,7 +549,7 @@ export class RCRETestUtil {
         return valid;
     }
 
-    private debugNode(node: any, depth: number, lines: string[], comments: {[type: string]: string}, options?: DebugOptions) {
+    private debugNode(node: any, depth: number, lines: string[], comments: { [type: string]: string }, options?: DebugOptions) {
         if (!node) {
             return;
         }

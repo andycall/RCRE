@@ -1,4 +1,3 @@
-import {store} from '../../../render';
 import {CustomerParams} from '../index';
 import {actionCreators} from '../../Container/action';
 import {compileExpressionString, isExpression, parseExpressionString} from '../../util/vm';
@@ -38,7 +37,7 @@ export function passCustomer(config: PassCustomerExecConfig, params: CustomerPar
         return;
     }
 
-    store.dispatch(actionCreators.dataCustomerPass({
+    params.context.store.dispatch(actionCreators.dataCustomerPass({
         model: targetContainerModel,
         data: output
     }, params.context));

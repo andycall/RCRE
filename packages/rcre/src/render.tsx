@@ -1,9 +1,12 @@
+// import {Store} from 'redux';
 import {Store} from 'redux';
+import {dataProviderEvent} from './core/Events/dataProviderEvent';
+import {containerGraph} from './core/Service/ContainerDepGraph';
 import {RootState} from './data/reducers';
 import configureStore from './data/store';
 import {BasicConfig} from './types';
 import * as React from 'react';
-import Page, {PageProps, RCREOptions} from './core/Page';
+import Page, {PageConfig, RCREOptions} from './core/Page';
 import {Provider} from 'react-redux';
 import {Events} from './core/Events/index';
 
@@ -15,11 +18,11 @@ export type globalOptions = {
     [s: string]: any
 };
 
-export let store: Store<RootState> = configureStore();
+// export let store: Store<RootState> = configureStore();
 
 export interface RenderPropsInterface<T extends BasicConfig> {
     // 配置代码
-    code: PageProps<T> | string;
+    code: PageConfig<T> | string;
     // 全局变量
     global?: globalOptions;
     // RCRE配置
@@ -28,6 +31,8 @@ export interface RenderPropsInterface<T extends BasicConfig> {
     events?: Events;
     // 开启组件调试模式
     debug?: boolean;
+    // Redux store
+    store?: Store<any>;
     // 组件加载模式
     loadMode?: string;
 }
@@ -39,29 +44,26 @@ export class Render<T extends BasicConfig> extends React.Component<RenderPropsIn
     };
 
     public events: Events;
+    private store: Store<RootState>;
 
     constructor(props: RenderPropsInterface<T>) {
         super(props);
-
-        this.state = {
-            renderFlag: true
-        };
-
+        if (props.store) {
+            this.store = props.store;
+        } else {
+            this.store = configureStore();
+        }
         this.events = props.events || new Events();
     }
 
-    componentWillReceiveProps(nextProps: RenderPropsInterface<T>) {
-        let prevCode = this.props.code;
-        let nextCode = nextProps.code;
-
-        if (typeof prevCode === 'object' && typeof nextCode === 'object') {
-            prevCode = JSON.stringify(prevCode);
-            nextCode = JSON.stringify(nextCode);
-        }
-
-        this.setState({
-            renderFlag: false
+    componentWillUnmount(): void {
+        this.store.dispatch({
+            type: '_RESET_STORE_'
         });
+        dataProviderEvent.clear();
+        containerGraph.clear();
+        // @ts-ignore
+        this.store = null;
     }
 
     render() {
@@ -81,30 +83,19 @@ export class Render<T extends BasicConfig> extends React.Component<RenderPropsIn
         }
 
         return (
-            <Provider store={store}>
-                {
-                    this.state.renderFlag ? (
-                        <Page
-                            title={info.title}
-                            body={info.body}
-                            debug={this.props.debug}
-                            lang={info.lang}
-                            global={this.props.global}
-                            loadMode={this.props.loadMode}
-                            options={this.props.options}
-                            events={this.events}
-                        />
-                    ) : <div />
-                }
+            <Provider store={this.store}>
+                <Page
+                    title={info.title}
+                    body={info.body}
+                    debug={this.props.debug}
+                    lang={info.lang}
+                    global={this.props.global}
+                    loadMode={this.props.loadMode}
+                    options={this.props.options}
+                    events={this.events}
+                    store={this.store}
+                />
             </Provider>
         );
-    }
-
-    componentDidUpdate() {
-        if (!this.state.renderFlag) {
-            this.setState({
-                renderFlag: true
-            });
-        }
     }
 }

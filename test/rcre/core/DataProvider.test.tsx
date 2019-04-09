@@ -1,6 +1,6 @@
 import React from 'react';
 import axios from 'axios';
-import {clearStore, PageProps, Render, store, waitForDataProviderComplete} from 'rcre';
+import {clearStore, PageConfig, Render, waitForDataProviderComplete} from 'rcre';
 import {mount} from 'enzyme';
 import moxios from 'moxios';
 import {RCRETestUtil, setData} from 'rcre-test-tools';
@@ -19,7 +19,7 @@ describe('DataProvider', () => {
 
     it('init with defaultValue', () => {
         return new Promise((resolve, reject) => {
-            let config: PageProps<any> = {
+            let config: PageConfig<any> = {
                 body: [
                     {
                         type: CoreKind.container,
@@ -50,8 +50,7 @@ describe('DataProvider', () => {
                 ]
             };
 
-            let component = <Render code={config}/>;
-            mount(component);
+            let test = new RCRETestUtil(config);
 
             moxios.wait(() => {
                 let request = moxios.requests.mostRecent();
@@ -65,7 +64,7 @@ describe('DataProvider', () => {
                         data: '1234'
                     }
                 }).then(ret => {
-                    let state = store.getState();
+                    let state = test.getState();
                     expect(state.container.initDataProvider.demo.data).toBe('1234');
                     resolve();
                 });
@@ -150,8 +149,8 @@ describe('DataProvider', () => {
                     }
                 ]
             };
-            let component = <Render code={config}/>;
-            let wrapper = mount(component);
+            let test = new RCRETestUtil(config);
+            let wrapper = test.wrapper;
 
             moxios.wait(async () => {
                 let first = moxios.requests.get('GET', '/demo/first?name=1');
@@ -171,7 +170,7 @@ describe('DataProvider', () => {
                     }
                 });
 
-                let state = store.getState();
+                let state = test.getState();
 
                 expect(state.container.demo.first.data).toBe('first response');
                 expect(state.container.demo.second.data).toBe('second response');
@@ -188,7 +187,7 @@ describe('DataProvider', () => {
                         }
                     });
 
-                    state = store.getState();
+                    state = test.getState();
 
                     expect(state.container.demo.third.data).toBe('third response');
 
@@ -198,7 +197,7 @@ describe('DataProvider', () => {
                     let strict = wrapper.find('RCREConnect(input)').at(1);
                     setData(strict, false);
 
-                    state = store.getState();
+                    state = test.getState();
                     expect(state.container.demo.strict).toBe(false);
 
                     moxios.wait(async () => {
@@ -210,7 +209,7 @@ describe('DataProvider', () => {
                             }
                         });
 
-                        state = store.getState();
+                        state = test.getState();
                         expect(state.container.demo.fourth.data).toBe('fourth response');
 
                         resolve();
@@ -248,8 +247,8 @@ describe('DataProvider', () => {
                 ]
             };
 
-            let component = <Render code={config}/>;
-            let wrapper = mount(component);
+            let test = new RCRETestUtil(config);
+            let wrapper = test.wrapper;
 
             moxios.wait(async () => {
                 let request = moxios.requests.mostRecent();
@@ -262,7 +261,7 @@ describe('DataProvider', () => {
                     }
                 });
 
-                let state = store.getState();
+                let state = test.getState();
                 expect(state.container.outer2.first.name).toBe('helloworld');
 
                 wrapper.unmount();
@@ -365,9 +364,8 @@ describe('DataProvider', () => {
                 }]
             };
 
-            let component = <Render code={config}/>;
-            // 当调用mount之后，dataProvider请求自动就发起了
-            let wrapper = mount(component);
+            let test = new RCRETestUtil(config);
+            let wrapper = test.wrapper;
 
             // 在这个回调内对接口进行mock
             moxios.wait(async function () {
@@ -387,7 +385,7 @@ describe('DataProvider', () => {
                 });
 
                 // 这个时候，state已经被dataProvider修改了
-                let state = store.getState();
+                let state = test.getState();
                 expect(state.container.dataProviderTest.firstRequest.password).toBe('123456');
 
                 // 组件的值也更新了
@@ -398,7 +396,7 @@ describe('DataProvider', () => {
             });
 
             // 直接在这里读取state时错误的，因为请求还没返回
-            // let state = store.getState() // !!! WRONG !!!
+            // let state = test.getState() // !!! WRONG !!!
         });
     });
 
@@ -618,7 +616,7 @@ describe('DataProvider', () => {
                     model: 'test',
                     dataProvider: [{
                         mode: 'ajax',
-                        namespace: 'pageProps',
+                        namespace: 'PageConfig',
                         config: {
                             url: '/api/data',
                             method: 'GET'
@@ -665,7 +663,7 @@ describe('DataProvider', () => {
                     model: 'test',
                     dataProvider: [{
                         mode: 'ajax',
-                        namespace: 'pageProps',
+                        namespace: 'PageConfig',
                         config: {
                             url: '/api/data',
                             method: 'GET'
@@ -674,7 +672,7 @@ describe('DataProvider', () => {
                         strictRequired: '#ES{$data.strict}'
                     }, {
                         mode: 'ajax',
-                        namespace: 'pageProps2',
+                        namespace: 'PageConfig2',
                         config: {
                             url: '/api/data',
                             method: 'GET'
@@ -727,8 +725,8 @@ describe('DataProvider', () => {
                         data: 'test'
                     }
                 });
-                expect(util.getContainerState().pageProps).toBe(undefined);
-                expect(util.getContainerState().pageProps2).toEqual({data: 'test'});
+                expect(util.getContainerState().PageConfig).toBe(undefined);
+                expect(util.getContainerState().PageConfig2).toEqual({data: 'test'});
 
                 resolve();
             });
@@ -746,7 +744,7 @@ describe('Real Request DataProvider', () => {
         const BAR_CHART = 'barChart';
         const PIE_CHART = 'pieChart';
 
-        let config: PageProps<any> = {
+        let config: PageConfig<any> = {
             body: [{
                 type: CoreKind.container,
                 model: 'test',

@@ -1,6 +1,12 @@
 import {each, isPlainObject, get, isEqual, isObjectLike, clone, has, isNil} from 'lodash';
-import {store} from '../../render';
-import {BasicConfig, BasicContainerPropsInterface, BasicContainerSetDataOptions, runTimeType} from '../../types';
+import {RootState} from '../../data/reducers';
+import {
+    BasicConfig,
+    BasicContainerPropsInterface,
+    BasicContainerSetDataOptions,
+    BasicContextType,
+    runTimeType
+} from '../../types';
 import {BasicContainer} from '../Container/BasicComponent';
 import {createChild} from '../util/createChild';
 import {isExpression, parseExpressionString} from '../util/vm';
@@ -180,7 +186,7 @@ export interface CommonOptions {
     isNameValid?: (value: any, props: any) => boolean;
 }
 
-export interface BasicConnectPropsInterface<T extends BasicConfig> extends BasicContainerPropsInterface<T> {
+export interface BasicConnectPropsInterface<T extends BasicConfig> extends BasicContainerPropsInterface {
     /**
      * 更新表单元素的属性
      */
@@ -197,7 +203,7 @@ export interface BasicConnectPropsInterface<T extends BasicConfig> extends Basic
     $getFormItemControl: (formItemName: string) => any;
 }
 
-export abstract class BasicConnect<Config extends BasicConfig, P> extends BasicContainer<Config, BasicConnectPropsInterface<Config>, P> {
+export abstract class BasicConnect<Config extends BasicConfig> extends BasicContainer<BasicConnectPropsInterface<Config>, BasicContextType> {
     public $propertyWatch: string[];
     public options: CommonOptions;
     protected debounceCache: { [key: string]: any };
@@ -208,7 +214,7 @@ export abstract class BasicConnect<Config extends BasicConfig, P> extends BasicC
     // 收集到属性过多也是一种负担
     private isTooMuchProperty: boolean = false;
     public nameBindEvents: any = null;
-    protected constructor(props: BasicConnectPropsInterface<Config>, context: object, options: CommonOptions) {
+    protected constructor(props: BasicConnectPropsInterface<Config>, context: BasicContextType, options: CommonOptions) {
         super(props);
 
         this.$propertyWatch = [];
@@ -230,7 +236,8 @@ export abstract class BasicConnect<Config extends BasicConfig, P> extends BasicC
             props.info.name) {
             let defaultValue = props.info.defaultValue;
             let runtime = this.getRuntimeContext(props, context);
-            runtime.$data = store.getState().container[props.model!];
+            let state: RootState = context.store.getState();
+            runtime.$data = state.$rcre.container[props.model!];
             if (isExpression(defaultValue)) {
                 defaultValue = parseExpressionString(defaultValue, runtime);
             }
@@ -472,7 +479,7 @@ export abstract class BasicConnect<Config extends BasicConfig, P> extends BasicC
         return prevValue !== nextValue;
     }
 
-    public componentWillUpdate(nextProps: BasicConnectPropsInterface<Config>, nextState: P, nextContext: any) {
+    public componentWillUpdate(nextProps: BasicConnectPropsInterface<Config>, nextState: BasicContextType, nextContext: any) {
         let nameKey = this.options.nameKey || 'value';
         let prevInfo = this.prepareRender(this.options, this.props);
         let nextInfo = this.prepareRender(this.options, nextProps);
@@ -495,7 +502,7 @@ export abstract class BasicConnect<Config extends BasicConfig, P> extends BasicC
         }
     }
 
-    private isGroupNameChanged(nextProps: BasicConnectPropsInterface<Config>, nextContext: {}) {
+    private isGroupNameChanged(nextProps: BasicConnectPropsInterface<Config>, nextContext: any) {
         if (!this.options.getAllNameKeys) {
             return {
                 changed: false,

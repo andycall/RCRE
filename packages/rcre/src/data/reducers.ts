@@ -4,26 +4,30 @@ import {IState as ITriggerState, reducer as trigger} from '../core/Trigger/reduc
 import {IState as IFormState, reducer as form} from '../core/Form/reducers';
 
 export interface RootState {
+    $rcre: RCREState;
+}
+
+export interface RCREState {
     container: IContainerState;
     trigger: ITriggerState;
     form: IFormState;
 }
 
-export const appReducer: Reducer<RootState> = combineReducers<RootState>({
+const appReducer: Reducer<RootState> = combineReducers<RootState>({
     container,
     trigger,
     form
 });
 
-export const rootReducer: Reducer<RootState> = (state, action) => {
+export const rcreReducer: Reducer<any> = (state, action) => {
     if (action.type === '_RESET_STORE_') {
-        // @ts-ignore
+        console.log('reset');
         return {
             container: {
                 [TMP_MODEL]: {}
             },
-            form: {},
-            trigger: {}
+            trigger: {},
+            form: {}
         };
     }
 

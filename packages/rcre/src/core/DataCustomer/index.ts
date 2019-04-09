@@ -1,5 +1,5 @@
-import {store} from '../../render';
-import {BasicConfig, runTimeType} from '../../types';
+import {RootState} from "../../data/reducers";
+import {BasicConfig, CustomerSourceConfig, runTimeType} from '../../types';
 import {passCustomer} from './customers/pass';
 import {EventEmitter} from 'events';
 import {locationCustomer} from './customers/location';
@@ -12,57 +12,6 @@ import {isPromise} from '../util/util';
 import {TRIGGER_SET_DATA_OPTIONS} from '../Trigger';
 
 type CustomerInstance = (config: any, params: CustomerParams) => any;
-
-export interface CustomerItem {
-    /**
-     * customer名称
-     */
-    name: string;
-
-    /**
-     * customer执行模式
-     */
-    mode?: string;
-
-    /**
-     * customer配置
-     */
-    config?: any;
-
-    /**
-     * customer 函数
-     */
-    func?: string;
-}
-
-export interface CustomerGroup {
-    /**
-     * 组合名称
-     */
-    name: string;
-
-    /**
-     * 执行顺序
-     */
-    steps: string[];
-
-    /**
-     * 当发生错误的时候，继续执行
-     */
-    keepWhenError?: boolean;
-}
-
-export interface CustomerSourceConfig {
-    /**
-     * 单个customer配置
-     */
-    customers: CustomerItem[];
-
-    /**
-     * 业务组合
-     */
-    groups?: CustomerGroup[];
-}
 
 /**
  * 把DataCustomerFunc函数变量注入到context中
@@ -88,7 +37,7 @@ export interface CustomerParams {
     props: any;
     params: any;
     customer: string;
-    context: Object;
+    context: any;
     options: TRIGGER_SET_DATA_OPTIONS | undefined;
 }
 
@@ -100,7 +49,7 @@ export type FuncCustomerArgs<Config extends BasicConfig> = {
     runTime: runTimeType;
     model: string;
     prev: any;
-    props: ContainerProps<Config>;
+    props: ContainerProps;
     context: any;
     params: any;
 };
@@ -307,8 +256,8 @@ export class DataCustomer<Config extends BasicConfig> extends EventEmitter {
     public async execCustomer(params: CustomerParams) {
         let customer = params.customer;
 
-        let state = store.getState();
-        params.runTime.$data = state.container[params.model];
+        let state: RootState = params.context.store.getState();
+        params.runTime.$data = state.$rcre.container[params.model];
 
         let customerInstance: DataCustomer<Config> = this;
         let targetCustomer: DataCustomerItem;

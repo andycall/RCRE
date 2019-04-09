@@ -148,7 +148,7 @@ export function deleteWith<T>(path: string, obj: T): T {
 }
 
 export function getRuntimeContext<T extends BasicConfig>(
-    props: BasicContainerPropsInterface<T> | any,
+    props: BasicContainerPropsInterface | any,
     context: any
 ): runTimeType {
     let runtime: runTimeType = {

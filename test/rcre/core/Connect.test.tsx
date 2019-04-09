@@ -1,8 +1,7 @@
 import {RCRETestUtil} from 'rcre-test-tools';
 import React from 'react';
-import {mount} from 'enzyme';
-import {clearStore, componentLoader, Connect, PageProps, Render, store, types} from 'rcre';
-import {commonConnect} from "../../../packages/rcre/src/core/Connect/Common/Common";
+import {clearStore, componentLoader, Connect, types} from 'rcre';
+import {commonConnect} from '../../../packages/rcre/src/core/Connect/Common/Common';
 
 describe('CommonConnect', () => {
     const TYPE = 'testButton';
@@ -47,9 +46,11 @@ describe('CommonConnect', () => {
             }]
         };
 
-        let wrapper = mount(<Render code={JSON.stringify(config)}/>);
+        let test = new RCRETestUtil(config);
+        let wrapper = test.wrapper;
         let button = wrapper.find('button');
         expect(button.text()).toBe('helloworld');
+        test.unmount();
     });
 
     it('provider build in events', () => {
@@ -88,9 +89,11 @@ describe('CommonConnect', () => {
             }]
         };
 
-        let wrapper = mount(<Render code={JSON.stringify(config)}/>);
+        let test = new RCRETestUtil(config);
+        let wrapper = test.wrapper;
         let button = wrapper.find('button');
         expect(button.text()).toBe('helloworld');
+        test.unmount();
     });
     //
     it('debounce feature', () => {
@@ -158,20 +161,21 @@ describe('CommonConnect', () => {
             let instance: any = input.getDOMNode();
             expect(instance.value).toBe('helloworld');
 
-            let state = store.getState();
+            let state = test.getState();
             expect(state.container.sampleDemo.username).toBe(undefined);
 
             setTimeout(() => {
-                state = store.getState();
+                state = test.getState();
                 expect(state.container.sampleDemo.username).toBe('helloworld');
                 let button = test.wrapper.find('RCREConnect(button)');
 
                 test.simulate(button, 'onClick').then(() => {
-                    state = store.getState();
+                    state = test.getState();
                     expect(state.container.sampleDemo.username).toBe('event');
 
                     instance = input.getDOMNode();
                     expect(instance.value).toBe('event');
+                    test.unmount();
                     resolve();
                 });
             }, 600);
@@ -211,6 +215,7 @@ describe('CommonConnect', () => {
         let inputElement = input.find('input');
         let value = inputElement.prop('value');
         expect(value).toBe('helloworld');
+        test.unmount();
     });
 
     it('debounce can be init during mount', () => {
@@ -235,6 +240,7 @@ describe('CommonConnect', () => {
         let username = test.getComponentByName('username');
         let input = username.find('input');
         expect(input.prop('value')).toBe('helloworld');
+        test.unmount();
     });
     //
     it('input component won"t update when value does not changed', () => {
@@ -290,10 +296,11 @@ describe('CommonConnect', () => {
 
         test.setData(username, 'abcd');
         expect(inputUpdateCount).toBe(3);
+        test.unmount();
     });
 
     it('$item update will trigger connect to update', async () => {
-        let config: PageProps<any> = {
+        let config = {
             body: [{
                 type: 'container',
                 model: 'demo',
@@ -343,6 +350,11 @@ describe('CommonConnect', () => {
         console.log(textA.text());
         console.log(textB.text());
         console.log(textC.text());
+
+        expect(textA.text()).toBe('444');
+        expect(textB.text()).toBe('222');
+        expect(textC.text()).toBe('333');
+        test.unmount();
     });
 
     it('component with name in component with name', () => {
@@ -397,6 +409,7 @@ describe('CommonConnect', () => {
             }
         });
         expect(instance.value).toBe('helloworld');
+        test.unmount();
     });
 
     it('name with ES expression update', () => {
@@ -471,6 +484,7 @@ describe('CommonConnect', () => {
         });
 
         expect(inputUpdateCount).toBe(initUpdateCount + 7);
+        test.unmount();
     });
     //
     it('custom control is Object update count', () => {
@@ -666,7 +680,7 @@ describe('CommonConnect', () => {
 
         let test = new RCRETestUtil(config);
         test.setContainer('checkboxDemo');
-        let state = store.getState();
+        let state = test.getState();
         expect(state.container.checkboxDemo.show).toBe(false);
 
         let inputBeforeClick = test.wrapper.find('input');
@@ -677,7 +691,7 @@ describe('CommonConnect', () => {
 
         let inputAfterClick = test.wrapper.find('input');
         let instance: any = inputAfterClick.getDOMNode();
-        state = store.getState();
+        state = test.getState();
 
         expect(state.container.checkboxDemo.show).toBe(true);
         expect(instance.value).toBe('true');
@@ -737,7 +751,7 @@ describe('CommonConnect', () => {
         let test = new RCRETestUtil(config);
         test.setContainer('checkboxGroup');
 
-        let state = store.getState();
+        let state = test.getState();
         expect(state.container.checkboxGroup.show).toBe(false);
 
         let inputBeforeClick = test.wrapper.find('input');
@@ -746,7 +760,7 @@ describe('CommonConnect', () => {
         let button = test.getComponentByType('button');
         await test.simulate(button, 'onClick');
 
-        state = store.getState();
+        state = test.getState();
         expect(state.container.checkboxGroup.show).toBe(true);
 
         let checkbox = test.getComponentByName('boxGroup');
@@ -791,6 +805,7 @@ describe('CommonConnect', () => {
 
         let test = new RCRETestUtil(config);
         test.setContainer('demo');
+        console.log(test.store.getState());
         expect(test.getContainerState()).toEqual({
             username: 0
         });
@@ -814,7 +829,9 @@ describe('CommonConnect', () => {
         };
 
         let test = new RCRETestUtil(config);
+        console.log(test.store.getState());
         test.setContainer('demo');
+        console.log(test.getContainerState());
         expect(test.getContainerState()).toEqual({
             username: 'A'
         });

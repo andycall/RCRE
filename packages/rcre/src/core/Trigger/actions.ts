@@ -1,5 +1,5 @@
-export const TRIGGER_SET_DATA = 'TRIGGER_SET_DATA';
-export const RESET_TRIGGER = 'RESET_TRIGGER';
+export const TRIGGER_SET_DATA = 'RCRE_TRIGGER_SET_DATA';
+export const RESET_TRIGGER = 'RCRE_RESET_TRIGGER';
 
 export type TRIGGER_SET_DATA_OPTIONS = {
     /**

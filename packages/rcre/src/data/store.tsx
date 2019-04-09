@@ -1,5 +1,5 @@
-import {applyMiddleware, createStore, Store, compose} from 'redux';
-import {rootReducer, RootState} from './reducers';
+import {applyMiddleware, createStore, Store, compose, combineReducers} from 'redux';
+import {rcreReducer, RootState} from './reducers';
 import {triggerEvents} from './events';
 
 const composeEnhancers = ((
@@ -10,7 +10,9 @@ const composeEnhancers = ((
 
 function configureStore(): Store<RootState> {
     return createStore<RootState>(
-        rootReducer,
+        combineReducers({
+            $rcre: rcreReducer
+        }),
         composeEnhancers
     );
 }

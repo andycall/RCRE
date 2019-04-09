@@ -1,5 +1,5 @@
-import {store} from '../../render';
-import {runTimeType} from '../../types';
+import {RootState} from "../../data/reducers";
+import {ProviderSourceConfig, runTimeType} from '../../types';
 import {actionCreators} from '../Container/action';
 import {ContainerProps} from '../Container/BasicComponent';
 import {clone, isEqual, isPlainObject, remove, isEmpty, get, has, cloneDeep} from 'lodash';
@@ -15,70 +15,6 @@ import {LocalStorageAdaptor} from './applications/localstorage';
 import {dataProviderEvent} from '../Events/dataProviderEvent';
 
 // TODO autoInterval
-
-/**
- * Provider 对象数据源配置
- */
-export interface ProviderSourceConfig {
-    /**
-     * provider模式
-     */
-    mode: string;
-    /**
-     * Provider配置
-     */
-    config?: any;
-
-    /**
-     * 请求发起所依赖的参数
-     */
-    requiredParams?: string[] | string;
-
-    /**
-     * 不仅判断参数的key，同样如果每个参数的value转义之后都是true
-     */
-    strictRequired?: boolean | string;
-
-    /**
-     * 使用ExpressionString来决定是否请起数据
-     */
-    condition?: string;
-
-    /**
-     * Provider命名空间
-     */
-    namespace: string;
-
-    /**
-     * Provider返回值映射[弃用]
-     */
-    retMapping?: Object;
-
-    /**
-     * Provider返回值映射
-     */
-    responseRewrite?: Object;
-
-    /**
-     * 返回值检查Expression String
-     */
-    retCheckPattern?: string;
-
-    /**
-     * 错误弹出的错误提示
-     */
-    retErrMsg?: string;
-
-    /**
-     * 自动触发
-     */
-    autoInterval?: number;
-
-    /**
-     * 调试默认
-     */
-    debug?: boolean;
-}
 
 export interface ProviderActions {
     /**
@@ -114,7 +50,7 @@ export interface ProviderActions {
  * 3.1 success(异步运行成功)
  * 3.2 fail(异步运行失败)
  */
-export class DataProvider<Config extends ContainerConfig<Config>> {
+export class DataProvider<Config extends ContainerConfig> {
     static providerInstance: {
         [mode: string]: {
             type: 'sync',
@@ -313,8 +249,8 @@ export class DataProvider<Config extends ContainerConfig<Config>> {
         provider: ProviderSourceConfig,
         runTime: runTimeType,
         model: string,
-        props: ContainerProps<Config>,
-        context: object
+        props: ContainerProps,
+        context: any
     ) {
         let mode = provider.mode;
         let adaptor = DataProvider.getProvider(mode);
@@ -354,7 +290,7 @@ export class DataProvider<Config extends ContainerConfig<Config>> {
         let forceUpdate = runTime.$data && runTime.$data['$update'];
 
         if (forceUpdate) {
-            store.dispatch(actionCreators.setData({
+            context.store.dispatch(actionCreators.setData({
                 name: '$update',
                 value: false
             }, model, context));
@@ -541,11 +477,11 @@ export class DataProvider<Config extends ContainerConfig<Config>> {
     // private async execSocketAdaptor(provider: ProviderSourceConfig, instance: SocketAdaptor, runTime: runTimeType, actions: ProviderActions, model: string) {
     // }
 
-    public getRunTime(model: string, props: ContainerProps<Config>, context: object) {
+    public getRunTime(model: string, props: ContainerProps, context: any) {
         let runTime = getRuntimeContext(props, context);
-        let state = store.getState();
-        runTime.$data = state.container[model];
-        runTime.$trigger = state.trigger[model];
+        let state: RootState = context.store.getState();
+        runTime.$data = state.$rcre.container[model];
+        runTime.$trigger = state.$rcre.trigger[model];
 
         return runTime;
     }
@@ -554,7 +490,7 @@ export class DataProvider<Config extends ContainerConfig<Config>> {
         model: string,
         providerConfig: ProviderSourceConfig[],
         actions: ProviderActions,
-        props: ContainerProps<Config>,
+        props: ContainerProps,
         context: any
     ) {
         let runTime = this.getRunTime(model, props, context);
@@ -589,8 +525,8 @@ export class DataProvider<Config extends ContainerConfig<Config>> {
 
         // 并发发送请求
         for (let i = 0; i < execTask.length; i++) {
-            let state = store.getState();
-            let container = state.container[model];
+            let state: RootState = context.store.getState();
+            let container = state.$rcre.container[model];
             let parallel = execTask[i].map(namespace => {
                 let provider = this.buildInProvider[namespace];
                 runTime.$data = {

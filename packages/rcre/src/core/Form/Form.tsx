@@ -1,8 +1,8 @@
 import * as React from 'react';
-import {store} from '../../render';
+import {RootState} from '../../data/reducers';
 import {BasicContainer} from '../Container/BasicComponent';
 import {debounce} from 'lodash';
-import {BasicConfig, BasicContainerPropsInterface, COREConfig, CoreKind} from '../../types';
+import {BasicConfig, BasicContainerPropsInterface, BasicContextType, COREConfig, CoreKind} from '../../types';
 import {createChild} from '../util/createChild';
 import {formActions, SET_FORM_ITEM_PAYLOAD} from './actions';
 
@@ -29,7 +29,7 @@ export class FormConfig<Config> extends BasicConfig {
     validateFirst?: boolean;
 }
 
-export class FormPropsInterface<Config extends BasicConfig> extends BasicContainerPropsInterface<Config> {
+export class FormPropsInterface<Config extends BasicConfig> extends BasicContainerPropsInterface {
     /**
      * 传入的数据配置
      */
@@ -67,13 +67,13 @@ export type FormConnectOptions = {};
 
 export function formConnect(options: FormConnectOptions = {}): (Wrapper: React.ComponentClass<any>) => React.ComponentClass<any> {
     return (Wrapper) => {
-        return class RCREFormContainer<Config extends FormConfig<Config>> extends BasicContainer<Config, FormProps<Config>, {}> {
+        return class RCREFormContainer<Config extends FormConfig<Config>> extends BasicContainer<FormProps<Config>, {}> {
             static displayName = 'RCREFormConnect(' + Wrapper.name + ')';
             private info: Config;
             private delaySubmit: any;
             private formItemFunctions: any;
 
-            constructor(props: FormProps<Config>) {
+            constructor(props: FormProps<Config>, context: BasicContextType) {
                 super(props);
 
                 this.formItemFunctions = {
@@ -95,7 +95,7 @@ export function formConnect(options: FormConnectOptions = {}): (Wrapper: React.C
                     ...others
                 } = this.info;
 
-                store.dispatch(formActions.initForm({
+                context.store.dispatch(formActions.initForm({
                     name: name,
                     data: {
                         ...others,
@@ -115,7 +115,7 @@ export function formConnect(options: FormConnectOptions = {}): (Wrapper: React.C
             componentWillUnmount() {
                 super.componentWillUnmount();
                 if (this.info.name) {
-                    store.dispatch(formActions.deleteForm({
+                    this.context.store.dispatch(formActions.deleteForm({
                         name: this.info.name
                     }));
                 }
@@ -123,7 +123,7 @@ export function formConnect(options: FormConnectOptions = {}): (Wrapper: React.C
 
             private $setFormItem = (payload: SET_FORM_ITEM_PAYLOAD) => {
                 if (this.info.name) {
-                    store.dispatch(formActions.setFormItem({
+                    this.context.store.dispatch(formActions.setFormItem({
                         formName: this.info.name,
                         formItemName: payload.formItemName!,
                         ...payload
@@ -139,13 +139,13 @@ export function formConnect(options: FormConnectOptions = {}): (Wrapper: React.C
                         ...pay
                     }));
 
-                    store.dispatch(formActions.setFormItems(payload));
+                    this.context.store.dispatch(formActions.setFormItems(payload));
                 }
             }
 
             private $deleteFormItem = (itemName: string) => {
                 if (this.info.name) {
-                    store.dispatch(formActions.deleteFormItem({
+                    this.context.store.dispatch(formActions.deleteFormItem({
                         formName: this.info.name,
                         formItemName: itemName
                     }));
@@ -164,8 +164,8 @@ export function formConnect(options: FormConnectOptions = {}): (Wrapper: React.C
                     return;
                 }
 
-                let state = store.getState();
-                let $form = state.form[this.info.name];
+                let state: RootState = this.context.store.getState();
+                let $form = state.$rcre.form[this.info.name];
                 let info = this.getPropsInfo(this.props.info);
                 let control = $form.control;
 
@@ -183,7 +183,7 @@ export function formConnect(options: FormConnectOptions = {}): (Wrapper: React.C
                         // 设置validateFirst只验证第一个表单控件
                         if (!valid && info.name) {
                             if (info.validateFirst) {
-                                store.dispatch(formActions.setFormItem({
+                                this.context.store.dispatch(formActions.setFormItem({
                                     formName: info.name,
                                     formItemName: itemName,
                                     $validate: true
@@ -202,7 +202,7 @@ export function formConnect(options: FormConnectOptions = {}): (Wrapper: React.C
                 }
 
                 if (invalidItems.length > 0) {
-                    store.dispatch(formActions.setFormItems(invalidItems));
+                    this.context.store.dispatch(formActions.setFormItems(invalidItems));
                     this.forceUpdate();
                     return;
                 }
@@ -223,13 +223,13 @@ export function formConnect(options: FormConnectOptions = {}): (Wrapper: React.C
 
             render() {
                 this.info = this.getPropsInfo(this.props.info);
-                let state = store.getState();
+                let state: RootState = this.context.store.getState();
 
                 if (!this.info.name) {
                     return <div>Form组件需要一个name属性</div>;
                 }
 
-                let $form = state.form[this.info.name] || {};
+                let $form = state.$rcre.form[this.info.name] || {};
 
                 let children = this.info.children;
 

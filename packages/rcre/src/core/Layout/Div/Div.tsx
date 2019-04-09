@@ -9,11 +9,11 @@ export interface DivConfig<Config> extends BasicConfig {
     children: (Config | COREConfig<Config>)[];
 }
 
-export class DivPropsInterface<Config extends BasicConfig> extends BasicContainerPropsInterface<Config> {
+export class DivPropsInterface<Config extends BasicConfig> extends BasicContainerPropsInterface {
     info: Config;
 }
 
-export class Div<Config extends DivConfig<Config>> extends BasicContainer<Config, DivPropsInterface<Config>, {}> {
+export class Div<Config extends DivConfig<Config>> extends BasicContainer<DivPropsInterface<Config>, {}> {
     constructor(props: DivPropsInterface<Config>) {
         super(props);
     }

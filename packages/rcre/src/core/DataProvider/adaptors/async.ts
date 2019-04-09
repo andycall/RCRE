@@ -1,5 +1,4 @@
-import {runTimeType} from '../../../types';
-import {ProviderSourceConfig} from '../Controller';
+import {ProviderSourceConfig, runTimeType} from '../../../types';
 
 export interface AsyncAdaptorRetValue {
     success: boolean;

@@ -1,7 +1,6 @@
 import {AutomaticRobot} from 'rcre-test-tools';
-import {clearStore, componentLoader, store} from 'rcre';
-import React from "react";
-import {commonConnect} from "../../packages/rcre/src/core/Connect/Common/Common";
+import {clearStore, componentLoader, Connect} from 'rcre';
+import React from 'react';
 
 describe('AutomaticRobot', () => {
     beforeEach(() => {
@@ -64,7 +63,6 @@ describe('AutomaticRobot', () => {
     });
 
     it('data not valid will cause error', async () => {
-        console.log(store.getState());
         let config = {
             body: [{
                 type: 'container',
@@ -297,7 +295,7 @@ describe('AutomaticRobot', () => {
                 );
             }
         }
-        componentLoader.addComponent('nameValidTest', commonConnect({
+        componentLoader.addComponent('nameValidTest', Connect.commonConnect({
             isNameValid: (value, props) => {
                 if (value === '1') {
                     return true;

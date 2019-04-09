@@ -1,7 +1,8 @@
-import {PageProps, waitForDataProviderComplete} from 'rcre';
+import {waitForDataProviderComplete, PageConfig} from 'rcre';
 import chalk from 'chalk';
 import {get, isEqual, find} from 'lodash';
 import format from 'pretty-format';
+import {Store} from 'redux';
 import {RCRETestUtil} from './RCRETestUtil';
 
 export interface StepItem {
@@ -53,7 +54,7 @@ export class AutomaticRobot {
     public test: RCRETestUtil;
     public options: RobotOptions;
 
-    constructor(config: PageProps<any>, globals: object = {}) {
+    constructor(config: PageConfig<any>, globals: object = {}, store?: Store<any>) {
         this.test = new RCRETestUtil(config, globals);
         this.options = {};
     }

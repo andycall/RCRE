@@ -1,8 +1,8 @@
 import React from 'react';
-import {store} from '../../render';
+import {RootState} from "../../data/reducers";
 import {BasicConfig, BasicContainerPropsInterface} from '../../types';
 import {BasicContainer} from '../Container/BasicComponent';
-import {componentLoader} from "../util/componentLoader";
+import {componentLoader} from '../util/componentLoader';
 import {isPromise} from '../util/util';
 import {actionCreators, TRIGGER_SET_DATA_OPTIONS, TRIGGER_SET_DATA_PAYLOAD} from './actions';
 import {DataCustomer} from '../DataCustomer/index';
@@ -60,7 +60,7 @@ export class TriggerEventItem {
     condition?: string;
 }
 
-export interface TriggerPropsInterface extends BasicContainerPropsInterface<TriggerConfig> {
+export interface TriggerPropsInterface extends BasicContainerPropsInterface {
     info: TriggerConfig;
 
     /**
@@ -116,7 +116,7 @@ type UnCookedTriggerEventItem = {
     data: any;
 };
 
-export class RCRETrigger<Config extends BasicConfig> extends BasicContainer<TriggerConfig, TriggerProps, {}> {
+export class RCRETrigger<Config extends BasicConfig> extends BasicContainer<TriggerProps, {}> {
     private debounceCache: {
         isRunning: boolean;
         data: any
@@ -130,8 +130,8 @@ export class RCRETrigger<Config extends BasicConfig> extends BasicContainer<Trig
 
     private async runTaskQueue(taskQueue: TRIGGER_SET_DATA_PAYLOAD[]) {
         let runTime = this.getRuntimeContext();
-        let state = store.getState();
-        runTime.$trigger = state.trigger[this.props.model];
+        let state: RootState = this.context.store.getState();
+        runTime.$trigger = state.$rcre.trigger[this.props.model];
         let prev = null;
 
         while (taskQueue.length > 0) {
@@ -259,12 +259,12 @@ export class RCRETrigger<Config extends BasicConfig> extends BasicContainer<Trig
                 }
             }
 
-            store.dispatch(actionCreators.triggerSetData(triggerItems));
+            this.context.store.dispatch(actionCreators.triggerSetData(triggerItems));
             return this.runTaskQueue(taskQueue);
         });
     }
 
-    private async eventHandle(eventName: string, args: Object, options: {index?: number, preventSubmit?: boolean} = {}) {
+    private async eventHandle(eventName: string, args: Object, options: { index?: number, preventSubmit?: boolean } = {}) {
         let eventList = this.props.info.trigger;
         let validEventList = eventList.filter(event => event.event === eventName);
 

@@ -1,7 +1,7 @@
-import * as React from 'react';
-import {mount} from 'enzyme';
-import {clearStore, store, waitForDataProviderComplete, Render, filter, CoreKind, DataCustomer} from 'rcre';
-import {Provider} from 'react-redux';
+// import * as React from 'react';
+// import {mount} from 'enzyme';
+import {clearStore, DataCustomer, waitForDataProviderComplete, CoreKind, filter} from 'rcre';
+// import {Provider} from 'react-redux';
 import {RCRETestUtil} from 'rcre-test-tools';
 
 class LocalStorageMock {
@@ -84,7 +84,6 @@ describe('Container Component', () => {
 
         let test = new RCRETestUtil(info);
         test.unmount();
-        expect(test.getState().container).toEqual({'__TMP_MODEL__DO_NO_USE_IT': {}});
     });
 
     it('merge with exist $data', () => {
@@ -105,11 +104,9 @@ describe('Container Component', () => {
             }]
         };
 
-        let component = <Render code={JSON.stringify(info)}/>;
-        let wrapper = mount(component);
-        let state = store.getState();
+        let test = new RCRETestUtil(info);
+        let state = test.getState();
         expect(state.container[containerModal].name).toBe('andycall');
-        wrapper.unmount();
     });
 
     it('[export]: inner container can export value using ExpressionString', () => {
@@ -152,10 +149,8 @@ describe('Container Component', () => {
             ]
         };
 
-        let component = <Render code={JSON.stringify(info)}/>;
-
-        const wrapper = mount(component);
-        let inputs = wrapper.find('input');
+        let test = new RCRETestUtil(info);
+        let inputs = test.wrapper.find('input');
         let firstInput = inputs.at(0);
         let secondInput = inputs.at(1);
 
@@ -171,14 +166,12 @@ describe('Container Component', () => {
             }
         });
 
-        let state = store.getState();
+        let state = test.getState();
         let container = state.container;
 
         expect(container[exportModel].name).toBe('12');
         expect(container[innerModel].subName).toBe('1');
         expect(container[innerModel].anoSubName).toBe('2');
-
-        wrapper.unmount();
     });
 
     it('[$parent]: inner container can access parent container\'s property with $parent', () => {
@@ -210,13 +203,11 @@ describe('Container Component', () => {
             ]
         };
 
-        const component = <Render code={JSON.stringify(info)}/>;
+        let test = new RCRETestUtil(info);
+        const innerElement = test.wrapper.find('.inner').at(0);
+        const outerElement = test.wrapper.find('.outer').at(0);
 
-        const wrapper = mount(component);
-        const innerElement = wrapper.find('.inner').at(0);
-        const outerElement = wrapper.find('.outer').at(0);
-
-        let state = store.getState();
+        let state = test.getState();
         let container = state.container;
         expect(container['inner'].name).toBe('inner');
         expect(container['outer'].name).toBe('outer');
@@ -224,7 +215,7 @@ describe('Container Component', () => {
         expect(innerElement.html()).toBe('<span class="rcre-text inner">inner</span>');
         expect(outerElement.html()).toBe('<span class="rcre-text outer">outer</span>');
 
-        wrapper.unmount();
+        test.unmount();
     });
 
     it('[$parent]: three nest container', () => {
@@ -272,9 +263,9 @@ describe('Container Component', () => {
                 }
             ]
         };
-        const component = <Render code={JSON.stringify(info)} />;
-        let wrapper = mount(component);
-        let state = store.getState();
+        const test = new RCRETestUtil(info);
+        let wrapper = test.wrapper;
+        let state = test.getState();
         let container = state.container;
         expect(container['root'].name).toBe('root');
         expect(container['left-1'].name).toBe('left-1');
@@ -334,15 +325,8 @@ describe('Container Component', () => {
             ]
         };
 
-        const connectContainer = <Render code={JSON.stringify(info)}/>;
-
-        const component = (
-            <Provider store={store}>
-                {connectContainer}
-            </Provider>
-        );
-
-        const wrapper = mount(component);
+        const test = new RCRETestUtil(info);
+        const wrapper = test.wrapper;
         let inputs = wrapper.find('input');
         let firstInput = inputs.at(0);
         let secondInput = inputs.at(1);
@@ -359,7 +343,7 @@ describe('Container Component', () => {
             }
         });
 
-        let state = store.getState();
+        let state = test.getState();
         let container = state.container;
 
         expect(container['bindContainer'].username).toBe('mike');
@@ -430,16 +414,8 @@ describe('Container Component', () => {
             ]
         };
 
-        const connectContainer = <Render code={JSON.stringify(info)}/>;
-
-        const component = (
-            <Provider store={store}>
-                {connectContainer}
-            </Provider>
-        );
-
-        const wrapper = mount(component);
-        let inputs = wrapper.find('input');
+        const test = new RCRETestUtil(info);
+        let inputs = test.wrapper.find('input');
         let firstInput = inputs.at(0);
         let secondInput = inputs.at(1);
 
@@ -455,14 +431,12 @@ describe('Container Component', () => {
             }
         });
 
-        let state = store.getState();
+        let state = test.getState();
         let container = state.container;
 
         expect(container['bindContainer'].username).toBe('mike');
         expect(container['bindContainer'].password).toBe('1234');
         expect(container['childBindContainer'].password).toBe('1234');
-
-        wrapper.unmount();
     });
 
     it('[$parent + $export] sync container in 3th nest container', async () => {
@@ -515,23 +489,22 @@ describe('Container Component', () => {
                 }
             ]
         };
-        const component = <Render code={JSON.stringify(info)}/>;
-
-        const wrapper = mount(component);
+        let test = new RCRETestUtil(info);
+        let wrapper = test.wrapper;
 
         let inputs = wrapper.find('RCREConnect(input)');
         let firstInput: any = inputs.at(0).instance();
 
         firstInput.TEST_setData('23');
 
-        let state = store.getState();
+        let state = test.getState();
         let container = state.container;
         expect(container['root'].age).toBe('23');
         let textElement = wrapper.find('.textContainer').at(0);
         expect(textElement.html()).toBe('<span class="rcre-text textContainer">23</span>');
 
         firstInput.TEST_setData('2');
-        state = store.getState();
+        state = test.getState();
         container = state.container;
         expect(container['root'].age).toBe('2');
         textElement = wrapper.find('.textContainer').at(0);
@@ -540,7 +513,7 @@ describe('Container Component', () => {
         let button: any = wrapper.find('RCREConnect(button)').at(0).instance();
 
         await button.TEST_simulateEvent('onClick', {});
-        state = store.getState();
+        state = test.getState();
 
         expect(state.container.otherContainer.innerAge).toBe('button');
         expect(state.container.root.age).toBe('button');
@@ -590,15 +563,8 @@ describe('Container Component', () => {
             ]
         };
 
-        const connectContainer = <Render code={JSON.stringify(info)}/>;
-
-        const component = (
-            <Provider store={store}>
-                {connectContainer}
-            </Provider>
-        );
-
-        const wrapper = mount(component);
+        let test = new RCRETestUtil(info);
+        let wrapper = test.wrapper;
         let inputs = wrapper.find('input');
         let firstInput = inputs.at(0);
         let secondInput = inputs.at(1);
@@ -615,7 +581,7 @@ describe('Container Component', () => {
             }
         });
 
-        let state = store.getState();
+        let state = test.getState();
         let container = state.container;
 
         expect(container[exportModel].subName).toBe('1');
@@ -686,17 +652,11 @@ describe('Container Component', () => {
                 }
             ]
         };
-        const connectContainer = <Render code={JSON.stringify(info)}/>;
-
-        const component = (
-            <Provider store={store}>
-                {connectContainer}
-            </Provider>
-        );
-        const wrapper = mount(component);
+        let test = new RCRETestUtil(info);
+        let wrapper = test.wrapper;
         const innerElement = wrapper.find('form').at(0);
         innerElement.simulate('submit', {});
-        let state = store.getState();
+        let state = test.getState();
         let container = state.container;
 
         expect(container['outer'].username).toBe('');
@@ -993,17 +953,9 @@ describe('Container Component', () => {
             }]
         };
 
-        const component = (
-            <Render
-                code={JSON.stringify(info)}
-                options={{
-                    oldNestContainerCompatible: true
-                }}
-            />
-        );
-
-        let wrapper = mount(component);
-        let state = store.getState();
+        let test = new RCRETestUtil(info);
+        let wrapper = test.wrapper;
+        let state = test.getState();
         let container = state.container;
 
         expect(container[exportModel].name).toBe('outer');
@@ -1043,11 +995,10 @@ describe('Container Component', () => {
             ]
         };
 
-        const component = <Render code={JSON.stringify(info)}/>;
-
-        let wrapper = mount(component);
+        let test = new RCRETestUtil(info);
+        let wrapper = test.wrapper;
         let texts = wrapper.find('span');
-        let state = store.getState();
+        let state = test.getState();
         let container = state.container;
 
         expect(container['component'].name).toBe('andycall');
@@ -1087,11 +1038,10 @@ describe('Container Component', () => {
             ]
         };
 
-        const component = <Render code={JSON.stringify(info)}/>;
-
-        let wrapper = mount(component);
+        let test = new RCRETestUtil(info);
+        let wrapper = test.wrapper;
         let texts = wrapper.find('span');
-        let state = store.getState();
+        let state = test.getState();
         let container = state.container;
 
         expect(container['component'].name).toBe('andycall');
@@ -1133,10 +1083,9 @@ describe('Container Component', () => {
             }]
         };
 
-        const component = <Render code={JSON.stringify(info)}/>;
-
-        let wrapper = mount(component);
-        let state = store.getState();
+        let test = new RCRETestUtil(info);
+        let wrapper = test.wrapper;
+        let state = test.getState();
         let container = state.container;
         let texts = wrapper.find('span');
 
@@ -1183,10 +1132,9 @@ describe('Container Component', () => {
             ]
         };
 
-        const component = <Render code={JSON.stringify(info)}/>;
-
-        let wrapper = mount(component);
-        let state = store.getState();
+        let test = new RCRETestUtil(info);
+        let wrapper = test.wrapper;
+        let state = test.getState();
         let container = state.container;
         let texts = wrapper.find('span');
         let input = wrapper.find('input');
@@ -1287,8 +1235,8 @@ describe('Container Component', () => {
             }]
         };
 
-        let component = <Render code={JSON.stringify(info)}/>;
-        let wrapper = mount(component);
+        let test = new RCRETestUtil(info);
+        let wrapper = test.wrapper;
 
         let input = wrapper.find('input').at(0);
 
@@ -1298,7 +1246,7 @@ describe('Container Component', () => {
             }
         });
 
-        let state = store.getState();
+        let state = test.getState();
         expect(state.container.outer.username).toBe('helloworld');
         expect(state.container.child1.username).toBe('helloworld');
         expect(state.container.child2.username).toBe('helloworld');
@@ -1368,7 +1316,7 @@ describe('Container Component', () => {
         let buttonElement = test.wrapper.find('RCREConnect(button)').at(0);
         await test.simulate(buttonElement, 'onClick');
 
-        state = store.getState();
+        state = test.getState();
         container = state.container;
         expect(container['receiveData'].text).toBe('data from dataPass');
         test.unmount();
@@ -1439,11 +1387,11 @@ describe('Container Component', () => {
         let show = test.wrapper.find('RCREConnect(button)').at(1);
         await test.simulate(hidden, 'onClick');
 
-        state = store.getState();
+        state = test.getState();
         expect(state.container.nestInitTest).toBe(undefined);
         await test.simulate(show, 'onClick');
 
-        state = store.getState();
+        state = test.getState();
         expect(typeof state.container.nestInitTest).toBe('object');
         expect(state.container.nestInitTest.name).toBe('andycall');
 
@@ -1531,7 +1479,7 @@ describe('Container Component', () => {
             test.setContainer('localStorageCustomer');
 
             setTimeout(() => {
-                let state = store.getState();
+                let state = test.getState();
                 let container = state.container;
                 expect(container['localStorageCustomer'].username).toBe(null);
                 expect(container['localStorageCustomer'].password).toBe(123);
@@ -1541,15 +1489,12 @@ describe('Container Component', () => {
 
                 test.setData(firstInput, 'mike');
 
-                state = store.getState();
+                state = test.getState();
                 container = state.container;
                 expect(container['localStorageCustomer'].username).toBe('mike');
                 expect(container['localStorageCustomer'].password).toBe(123);
 
                 test.unmount();
-                state = store.getState();
-                container = state.container;
-                expect(Object.keys(container).length).toBe(1);
                 resolve();
             });
         });
@@ -1584,12 +1529,9 @@ describe('Container Component', () => {
             }]
         };
 
-        let component = (
-            <Render code={JSON.stringify(config)}/>
-        );
-
-        let wrapper = mount(component);
-        let state = store.getState();
+        let test = new RCRETestUtil(config);
+        let wrapper = test.wrapper;
+        let state = test.getState();
         expect(state.container.initTest.name).toBe('andycall');
 
         let text = wrapper.find('span').at(0);
@@ -1621,10 +1563,10 @@ describe('Container Component', () => {
                 }]
             }]
         };
-        let component = <Render code={JSON.stringify(config)}/>;
-        let wrapper = mount(component);
+        let test = new RCRETestUtil(config);
+        let wrapper = test.wrapper;
         await waitForDataProviderComplete();
-        let state = store.getState();
+        let state = test.getState();
         let demo = state.container.dataProviderResponseTest.demo;
         expect(demo.list.length).toBe(5);
         wrapper.unmount();
@@ -1666,11 +1608,11 @@ describe('Container Component', () => {
                 ]
             };
 
-            let component = <Render code={JSON.stringify(config)}/>;
-            let wrapper = mount(component);
+            let test = new RCRETestUtil(config);
+            let wrapper = test.wrapper;
 
             setTimeout(() => {
-                let state = store.getState();
+                let state = test.getState();
                 expect(typeof state.container.dataProviderTest.DataSource).toBe('object');
                 expect(typeof state.container.innerSource.datasource).toBe('object');
                 wrapper.unmount();
@@ -1706,12 +1648,9 @@ describe('Container Component', () => {
             }]
         };
 
-        let component = (
-            <Render code={JSON.stringify(config)}/>
-        );
-
-        let wrapper = mount(component);
-        let state = store.getState();
+        let test = new RCRETestUtil(config);
+        let wrapper = test.wrapper;
+        let state = test.getState();
         expect(state.container.initTest.name).toBe('andycall');
 
         let input = wrapper.find('input');
@@ -1722,7 +1661,7 @@ describe('Container Component', () => {
             }
         });
 
-        state = store.getState();
+        state = test.getState();
         expect(state.container.initTest.name).toBe('test');
 
         wrapper.unmount();
@@ -1770,11 +1709,9 @@ describe('Container Component', () => {
             ]
         };
 
-        let component = (
-            <Render code={JSON.stringify(info)}/>
-        );
+        let test = new RCRETestUtil(info);
+        let wrapper = test.wrapper;
 
-        let wrapper = mount(component);
         let text = wrapper.find('span').at(0);
         expect(text.text()).toBe('andycall');
 
@@ -1833,7 +1770,7 @@ describe('Container Component', () => {
         let button = test.wrapper.find('RCREConnect(button)').at(0);
         await test.simulate(button, 'onClick');
 
-        let state = store.getState();
+        let state = test.getState();
         expect(state.container.root.name).toBe('andycall');
         expect(state.container.middle.name).toBe('andycall');
 
@@ -1916,7 +1853,7 @@ describe('Container Component', () => {
         let username = test.getComponentByName('username');
         test.setData(username, 'helloworld');
 
-        let state = store.getState();
+        let state = test.getState();
         expect(state.container.outer.outerUserName).toBe('helloworld');
         expect(state.container.outer.test).toBe(10);
         expect(state.container.outer.mixed).toBe('helloworldhelloworld');
@@ -1925,7 +1862,7 @@ describe('Container Component', () => {
         let radio = test.getComponentByName('input_type');
         test.setData(radio, 'b');
 
-        state = store.getState();
+        state = test.getState();
         expect(state.container.outer.outerUserName).toBe(undefined);
         expect(state.container.outer.test).toBe(10);
         expect(state.container.outer.mixed).toBe(undefined);
@@ -2009,7 +1946,7 @@ describe('Container Component', () => {
         let username = test.getComponentByName('username');
         test.setData(username, 'helloworld');
 
-        let state = store.getState();
+        let state = test.getState();
         expect(state.container.outer.outerUserName).toBe('helloworld');
         expect(state.container.outer.test).toBe(10);
         expect(state.container.outer.mixed).toBe('helloworldhelloworld');
@@ -2018,7 +1955,7 @@ describe('Container Component', () => {
         let radio = test.getComponentByName('input_type');
         test.setData(radio, 'b');
 
-        state = store.getState();
+        state = test.getState();
         expect(state.container.outer.outerUserName).toBe(undefined);
         expect(state.container.outer.test).toBe(10);
         expect(state.container.outer.mixed).toBe(undefined);
@@ -2061,7 +1998,7 @@ describe('Container Component', () => {
 
         let test = new RCRETestUtil(config);
         test.setContainer('inner');
-        let state = store.getState();
+        let state = test.getState();
         // expect(state.container.parent.innerData.username).toBe('');
 
         let switchInput = test.getComponentByName('switch');
@@ -2070,7 +2007,7 @@ describe('Container Component', () => {
         test.setData(username, 'helloworld');
         test.setData(switchInput, '2');
 
-        state = store.getState();
+        state = test.getState();
         expect(state.container.inner.switch).toBe('2');
         expect(state.container.inner.basic.username).toBe(undefined);
         expect(state.container.parent.innerData.username).toBe(undefined);
@@ -2156,7 +2093,7 @@ describe('Container Component', () => {
         let username = test.getComponentByName('username');
         test.setData(username, 'helloworld');
 
-        let state = store.getState();
+        let state = test.getState();
         expect(state.container.outer.outerUserName).toBe('helloworld');
         expect(state.container.outer.test).toBe('helloworld');
         expect(state.container.outer.mixed).toBe('helloworldhelloworld');
@@ -2165,7 +2102,7 @@ describe('Container Component', () => {
         test.setContainer('formContainer');
         let radio = test.getComponentByName('input_type');
         test.setData(radio, 'b');
-        state = store.getState();
+        state = test.getState();
         expect(state.container.outer.outerUserName).toBe(undefined);
         expect(state.container.outer.test).toBe(undefined);
         expect(state.container.outer.mixed).toBe(undefined);
@@ -2236,10 +2173,10 @@ describe('Container Component', () => {
         let hide = test.wrapper.find('RCREConnect(button)').at(0);
         let show = test.wrapper.find('RCREConnect(button)').at(1);
         await test.simulate(hide, 'onClick');
-        let state = store.getState();
+        let state = test.getState();
         expect(state.container.containerModel).toBe(undefined);
         await test.simulate(show, 'onClick');
-        state = store.getState();
+        state = test.getState();
         expect(state.container.containerModel.username).toBe('andycall');
 
         test.unmount();
@@ -2306,13 +2243,13 @@ describe('Container Component', () => {
 
         test.setData(input, 'andycall');
 
-        let state = store.getState();
+        let state = test.getState();
         expect(state.container.outer.username).toBe('andycall');
         expect(state.container.child.username).toBe('andycall');
 
         await test.simulate(button, 'onClick');
 
-        state = store.getState();
+        state = test.getState();
         expect(state.container.outer.username).toBe(undefined);
         expect(state.container.child).toBe(undefined);
 
@@ -2346,14 +2283,11 @@ describe('Container Component', () => {
             }]
         };
 
-        let component = <Render code={JSON.stringify(info)}/>;
-        let wrapper = mount(component);
-
-        let state = store.getState();
+        let test = new RCRETestUtil(info);
+        let state = test.getState();
         expect(state.container.defaultCollect.showInput).toBe('showValue');
         expect(state.container.defaultCollect.hideInput).toBe(undefined);
-
-        wrapper.unmount();
+        test.unmount();
     });
 
     it('set defaultValue with multiname', () => {
@@ -2393,14 +2327,11 @@ describe('Container Component', () => {
             }]
         };
 
-        let component = <Render code={JSON.stringify(info)}/>;
-        let wrapper = mount(component);
-
-        let state = store.getState();
+        let test = new RCRETestUtil(info);
+        let state = test.getState();
         expect(state.container.defaultCollect.scope.showInput).toBe('showValue');
         expect(state.container.defaultCollect.scope.hideInput).toBe(undefined);
         expect(state.container.defaultCollect.arr[0].name).toBe('test');
-        wrapper.unmount();
     });
 
     it('sync data with dataProvider in nest Container', async () => {
@@ -2513,7 +2444,7 @@ describe('Container Component', () => {
         let A = test.getComponentByType('button', 0);
         let B = test.getComponentByType('button', 1);
 
-        let state = store.getState();
+        let state = test.getState();
 
         expect(state.container.outer.username).toBe('andycall');
 
@@ -2521,7 +2452,7 @@ describe('Container Component', () => {
 
         await waitForDataProviderComplete();
 
-        state = store.getState();
+        state = test.getState();
         expect(state.container.childA.username).toBe('andycall');
         expect(state.container.childA.total).toBe(13);
         expect(state.container.childA.showChildChild).toBe(true);
@@ -2531,7 +2462,7 @@ describe('Container Component', () => {
 
         await waitForDataProviderComplete();
 
-        state = store.getState();
+        state = test.getState();
 
         expect(state.container.childB.username).toBe('andycall');
         expect(state.container.childB.showChildChild).toBe(true);
@@ -2580,15 +2511,13 @@ describe('Container Component', () => {
                 ]
             }]
         };
-        const component = <Render code={JSON.stringify(config)}/>;
-        const wrapper = mount(component);
+
+        let test = new RCRETestUtil(config);
 
         await waitForDataProviderComplete();
-        wrapper.update();
-        let textElement = wrapper.find('.rcre-text');
-        expect(textElement.at(0).text()).toBe('test');
-
-        wrapper.unmount();
+        test.setContainer('test');
+        let textElement = test.getComponentByType('text');
+        expect(textElement.text()).toBe('test');
     });
 
     it('trigger wont cause container update', async () => {

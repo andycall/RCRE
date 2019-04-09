@@ -1,12 +1,10 @@
 import * as React from 'react';
 import './Container.css';
-import {BasicContainer, ContainerProps, defaultData} from './BasicComponent';
+import {ContainerProps, defaultData} from './BasicComponent';
 import {ContainerNodeOptions} from '../Service/ContainerDepGraph';
-import {CustomerSourceConfig} from '../DataCustomer/index';
 import Container from './Container';
-import {createChild} from '../util/createChild';
-import {ProviderSourceConfig} from '../DataProvider/Controller';
-import {BasicConfig, COREConfig, CoreKind} from '../../types';
+import {createChild, renderChildren} from '../util/createChild';
+import {BasicConfig, CoreKind, CustomerSourceConfig, ProviderSourceConfig} from '../../types';
 import {componentLoader} from '../util/componentLoader';
 
 export type BindItem = {
@@ -15,7 +13,7 @@ export type BindItem = {
     transform?: string
 };
 
-export interface ContainerConfig<Config> extends BasicConfig, ContainerNodeOptions {
+export interface ContainerConfig extends BasicConfig, ContainerNodeOptions {
     /**
      * Container的类型
      */
@@ -24,7 +22,7 @@ export interface ContainerConfig<Config> extends BasicConfig, ContainerNodeOptio
     /**
      * 字级组件
      */
-    children: (Config | COREConfig<Config>)[];
+    children?: any[];
 
     /**
      * 数据模型Key
@@ -64,26 +62,26 @@ export interface ContainerConfig<Config> extends BasicConfig, ContainerNodeOptio
     dataCustomer?: CustomerSourceConfig;
 }
 
-export class AbstractContainer<Config extends ContainerConfig<Config>> extends BasicContainer<Config, ContainerProps<Config>, {}> {
-    constructor(props: ContainerProps<Config>) {
+export class AbstractContainer extends React.Component<ContainerProps, {}> {
+    constructor(props: ContainerProps) {
         super(props);
     }
 
     render() {
         let children;
 
-        if (Array.isArray(this.props.info.children)) {
-            children = this.props.info.children.map((child, index) => {
+        if (this.props.info.children && Array.isArray(this.props.info.children)) {
+            children = this.props.info.children.map((child: any, index: number) => {
                 return this.renderChild(child, index);
             });
         }
 
         let childElement = React.createElement(Container, this.props, children);
 
-        return this.renderChildren(this.props.info, childElement);
+        return renderChildren(this.props.info, childElement);
     }
 
-    private renderChild(info: Config | COREConfig<Config>, index: number) {
+    private renderChild(info: any, index: number) {
         return createChild(info, {
             ...this.props,
             key: `${info.type}_${index}`,

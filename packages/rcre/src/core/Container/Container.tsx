@@ -11,11 +11,9 @@ import {
     isObjectLike,
     each
 } from 'lodash';
-import {store} from '../../render';
-import {BasicContainerSetDataOptions, runTimeType} from '../../types';
+import {BasicConfig, BasicContainerSetDataOptions, BasicContextType, runTimeType} from '../../types';
 import {
     BasicContainer,
-    BasicContextType,
     ContainerProps
 } from './BasicComponent';
 import {connect} from 'react-redux';
@@ -37,7 +35,7 @@ import {setWith, getRuntimeContext} from '../util/util';
 const propsBlackList = ['children', 'data', 'dataCustomer', 'dataProvider', 'export', 'props'];
 // Component Update Life Circle:
 // componentWillReceiveProps -> shouldComponentUpdate -> ComponentWillUpdate -> Render -> ComponentDidMount
-export class RCREContainer<Config extends ContainerConfig<Config>> extends BasicContainer<Config, ContainerProps<Config>, {}> {
+export class RCREContainer<Config extends ContainerConfig> extends BasicContainer<ContainerProps, {}> {
     private dataProvider: DataProvider<Config>;
     private dataCustomer: DataCustomer<Config>;
     public CONTAINER_UPDATE_COUNT: number;
@@ -45,7 +43,7 @@ export class RCREContainer<Config extends ContainerConfig<Config>> extends Basic
     private isUnmount: boolean;
     private model: string;
 
-    constructor(props: ContainerProps<Config>, context: BasicContextType) {
+    constructor(props: ContainerProps, context: BasicContextType) {
         super(props);
         this.dataProvider = new DataProvider(props.info.dataProvider || []);
         this.dataCustomer = new DataCustomer(props.dataCustomer);
@@ -102,7 +100,7 @@ export class RCREContainer<Config extends ContainerConfig<Config>> extends Basic
         });
     }
 
-    private initDataCustomer(info: ContainerConfig<Config>, props: ContainerProps<Config>) {
+    private initDataCustomer(info: ContainerConfig, props: ContainerProps) {
         const defaultCustomer = {
             mode: 'pass',
             name: '$SELF_PASS_CUSTOMER',
@@ -143,7 +141,7 @@ export class RCREContainer<Config extends ContainerConfig<Config>> extends Basic
         this.dataCustomer.initCustomerConfig(info.dataCustomer);
     }
 
-    private initDefaultData(info: ContainerConfig<Config>, props: ContainerProps<Config>, context: object) {
+    private initDefaultData(info: ContainerConfig, props: ContainerProps, context: BasicContextType) {
         let defaultValue = {};
         let runTime = this.getRuntimeContext(props, context);
         this.collectDefaultValue(info.children, defaultValue, runTime);
@@ -159,7 +157,7 @@ export class RCREContainer<Config extends ContainerConfig<Config>> extends Basic
         }
     }
 
-    private initContainerGraph(info: ContainerConfig<Config>) {
+    private initContainerGraph(info: ContainerConfig) {
         if (!containerGraph.has(info.model)) {
             let node = new ContainerNode(info.model, info.props, info.export, info.bind, info);
             containerGraph.set(info.model, node);
@@ -172,7 +170,7 @@ export class RCREContainer<Config extends ContainerConfig<Config>> extends Basic
         }
     }
 
-    componentWillReceiveProps(nextProps: ContainerProps<Config>) {
+    componentWillUpdate(nextProps: ContainerProps) {
         const providerActions = {
             asyncLoadDataProgress: this.props.asyncLoadDataProgress,
             asyncLoadDataSuccess: this.props.asyncLoadDataSuccess,
@@ -186,10 +184,6 @@ export class RCREContainer<Config extends ContainerConfig<Config>> extends Basic
         }
 
         // this.event.trigger('componentWillUpdate');
-    }
-
-    componentDidUpdate() {
-        // this.event.trigger('componentDidUpdate');
     }
 
     componentWillUnmount() {
@@ -210,8 +204,8 @@ export class RCREContainer<Config extends ContainerConfig<Config>> extends Basic
 
         containerGraph.delete(info.model);
         this.isUnmount = true;
-        // this.dataProvider.depose();
-        // this.dataCustomer.depose();
+        this.dataProvider.depose();
+        this.dataCustomer.depose();
         this.depose();
         // this.event.trigger('componentWillUnMount');
     }
@@ -299,8 +293,8 @@ export class RCREContainer<Config extends ContainerConfig<Config>> extends Basic
             return <div className="err-text">Container: children props must be specific in Container Component</div>;
         }
 
-        let state = store.getState();
-        let $data = clone(state.container[info.model] || {});
+        let state: RootState = this.context.store.getState();
+        let $data = clone(state.$rcre.container[info.model] || {});
         let $tmp = clone(this.props.$tmp);
 
         const $setMultiData = (items: { name: string, value: any, isTmp: boolean }[]) => {
@@ -351,7 +345,7 @@ export class RCREContainer<Config extends ContainerConfig<Config>> extends Basic
 
         // Container Component no long compile expression string for child
         // instead, AbstractComponent should compile it by themSelf
-        let childElements = info.children.map((child, index) => {
+        let childElements = info.children.map((child: BasicConfig, index: number) => {
             child = this.getPropsInfo(child, this.props, [], false, ['show', 'hidden']);
             let childElement = createChild(child, {
                 ...props,
@@ -389,14 +383,14 @@ export class RCREContainer<Config extends ContainerConfig<Config>> extends Basic
     }
 }
 
-const mapStateToProps = (state: RootState, ownProps: ContainerProps<any>) => {
+const mapStateToProps = (state: RootState, ownProps: ContainerProps) => {
     let runTime = getRuntimeContext(ownProps, {});
     // direct compile
     let info = compileExpressionString(ownProps.info, runTime,
         ['children', 'data', 'dataCustomer', 'dataProvider'], false);
 
-    let $data = state.container[info.model] || {};
-    let $tmp = state.container[TMP_MODEL] || {};
+    let $data = state.$rcre.container[info.model] || {};
+    let $tmp = state.$rcre.container[TMP_MODEL] || {};
 
     return {
         $data: $data,
@@ -426,9 +420,9 @@ const mapDispatchToProps = (dispatch: Dispatch<IContainerAction>) => bindActionC
  * @param {ContainerProps} dispatchProps
  * @returns {any}
  */
-function oldNestContainerCompatible(ownProps: ContainerProps<any>, stateProps: {
+function oldNestContainerCompatible(ownProps: ContainerProps, stateProps: {
     $data: Object
-}, dispatchProps: ContainerProps<any>) {
+}, dispatchProps: ContainerProps) {
     let parentProps = ownProps.$data || {};
     let stateData = stateProps.$data;
     if (isObject(ownProps.info.parentMapping)) {
@@ -464,7 +458,7 @@ let hasWarn = false;
 export const mergeProps =
     (stateProps: {
         $data: Object
-    }, dispatchProps: ContainerProps<any>, ownProps: ContainerProps<any>): ContainerProps<any> => {
+    }, dispatchProps: ContainerProps, ownProps: ContainerProps): ContainerProps => {
         // 启用兼容模式， 父级优先
         if (ownProps.options && ownProps.options.oldNestContainerCompatible) {
             if (!hasWarn) {
@@ -494,6 +488,15 @@ export default connect(mapStateToProps, mapDispatchToProps, mergeProps, {
         return nextStateProps.$data === prevStateProps.$data && nextStateProps.$tmp === prevStateProps.$tmp;
     },
     areMergedPropsEqual: (nextMergedProps, prevMergedProps) => {
-        return nextMergedProps.$data === prevMergedProps.$data && nextMergedProps.$parent === prevMergedProps.$parent;
+        let buildInEqual = nextMergedProps.$data === prevMergedProps.$data && nextMergedProps.$parent === prevMergedProps.$parent;
+        if (prevMergedProps.$form && nextMergedProps.$form) {
+            buildInEqual = buildInEqual && prevMergedProps.$form === nextMergedProps.$form;
+        }
+
+        if (prevMergedProps.$item && nextMergedProps.$item) {
+            buildInEqual = buildInEqual && prevMergedProps.$item === nextMergedProps.$item;
+        }
+
+        return buildInEqual;
     }
 })(RCREContainer);

@@ -1,7 +1,8 @@
 import React from 'react';
 import {mount} from 'enzyme';
-import {clearStore, Render, store} from 'rcre';
+import {clearStore, rcreReducer, Render} from 'rcre';
 import {RCRETestUtil} from 'rcre-test-tools';
+import {combineReducers, createStore} from 'redux';
 // import {RCRECore} from '../../packages/rcre/src/types';
 // import {RCRENativeAntd} from '../../rcre-components-nativeads-antd/types';
 
@@ -16,7 +17,7 @@ describe('Page', function () {
             ]
         };
 
-        let case1 = mount(<Render code={config} />);
+        let case1 = mount(<Render code={config}/>);
         expect(case1.text()).toBe('helloworld');
 
         // dynamic push code
@@ -25,7 +26,7 @@ describe('Page', function () {
             text: 'abc'
         });
 
-        let case2 = mount(<Render code={config} />);
+        let case2 = mount(<Render code={config}/>);
         expect(case2.text()).toBe('helloworldabc');
     });
 
@@ -38,6 +39,7 @@ describe('Page', function () {
                 }
             ]
         };
+
         class Demo extends React.Component<any, any> {
             constructor(props: any) {
                 super(props);
@@ -53,11 +55,11 @@ describe('Page', function () {
             }
 
             render() {
-                return <Render code={config} />;
+                return <Render code={config}/>;
             }
         }
 
-        let instance = <Demo />;
+        let instance = <Demo/>;
         let wrapper = mount(instance);
         expect(wrapper.text()).toBe('helloworld');
 
@@ -69,55 +71,77 @@ describe('Page', function () {
         wrapper.instance().forceUpdate();
         expect(wrapper.text()).toBe('helloworldabc');
     });
+});
 
-    it('change code will also clear all state', () => {
+describe('Store', () => {
+    it('use buildIn redux store', () => {
         let config = {
-            body: [
-                {
-                    type: 'container',
-                    model: 'test',
-                    data: {
-                        username: 'andycall'
-                    },
-                    children: [
-                        {
-                            type: 'container',
-                            model: 'innerContainer',
-                            data: {
-                                username: 'yhtree'
-                            },
-                            children: [
-                                {
-                                    type: 'text',
-                                    text: '#ES{$data.username}'
-                                }
-                            ]
-                        },
-                        {
-                            type: 'text',
-                            text: '#ES{$data.username}'
-                        }
-                    ]
-                }
-            ]
+            body: [{
+                type: 'container',
+                model: 'demo',
+                data: {
+                    username: 'helloworld'
+                },
+                children: [{
+                    type: 'input',
+                    name: 'username'
+                }]
+            }]
         };
+        let test = new RCRETestUtil(config);
+        test.setContainer('demo');
+        let state = test.getState();
+        expect(state.container.demo.username).toBe('helloworld');
 
-        let oneWrapper = mount(<Render code={config} />);
-        let oneText = oneWrapper.text();
-        expect(oneText).toBe('yhtreeandycall');
+        let username = test.getComponentByName('username');
 
-        let state = store.getState();
-        expect(state.container.test.username).toBe('andycall');
-        expect(state.container.innerContainer.username).toBe('yhtree');
+        test.setData(username, 'abc');
+        state = test.getState();
+        expect(state.container.demo.username).toBe('abc');
+        test.unmount();
+    });
 
-        config.body = [];
-        oneWrapper.instance().forceUpdate();
-        state = store.getState();
-
-        expect(state.container.test).toBe(undefined);
-        expect(state.container.innerContainer).toBe(undefined);
-
-        expect(oneWrapper.text()).toBe('');
+    it('use external redux store', () => {
+        let demoReducer = (state: any = {test: '1234'}) => state;
+        let store = createStore(combineReducers({
+            demo: demoReducer,
+            $rcre: rcreReducer
+        }));
+        let config = {
+            body: [{
+                type: 'container',
+                model: 'demo',
+                data: {
+                    username: 'helloworld'
+                },
+                children: [{
+                    type: 'input',
+                    name: 'username'
+                }]
+            }]
+        };
+        let test = new RCRETestUtil(config, {}, store);
+        let rcreState = test.getState();
+        expect(rcreState).toEqual({
+            container: {
+                __TMP_MODEL__DO_NO_USE_IT: {},
+                demo: {
+                    username: 'helloworld'
+                }
+            },
+            trigger: {},
+            form: {}
+        });
+        test.unmount();
+        let rootState: any = store.getState();
+        expect(rootState.demo).toEqual({
+            test: '1234'
+        });
+        expect(rootState.$rcre).toEqual({
+            container: {__TMP_MODEL__DO_NO_USE_IT: {}},
+            trigger: {},
+            form: {}
+        });
     });
 });
 
@@ -126,63 +150,42 @@ describe('CLEAR', () => {
         clearStore();
     });
 
+    let config = {
+        body: [{
+            type: 'container',
+            model: 'repeat',
+            children: [{
+                type: 'form',
+                name: 'repeatForm',
+                children: [{
+                    type: 'input',
+                    name: 'username'
+                }]
+            }]
+        }]
+    };
+
     it('init a container and form', () => {
-        let config = {
-            body: [{
-                type: 'container',
-                model: 'repeat',
-                children: [{
+        let test = new RCRETestUtil(config);
+        test.setContainer('repeat');
+        let username = test.getComponentByName('username');
+        test.setData(username, 'helloworld');
+    });
+
+    it('state should be clear automatically', () => {
+        let test = new RCRETestUtil(config);
+        let state = test.getState();
+        expect(state.container).toEqual({__TMP_MODEL__DO_NO_USE_IT: {}, repeat: {}});
+        expect(state.form).toEqual({
+            repeatForm:
+                {
                     type: 'form',
                     name: 'repeatForm',
-                    children: [{
-                        type: 'text',
-                        text: '1234'
-                    }]
-                }]
-            }]
-        };
-        // @ts-ignore
-        let test = new RCRETestUtil(config);
-    });
-
-    it('state should be empty', () => {
-        let state = store.getState();
-        expect(state).toEqual({
-            container: {
-                __TMP_MODEL__DO_NO_USE_IT: {}
-            },
-            trigger: {},
-            form: {}
+                    validateFirst: false,
+                    clearAfterSubmit: false,
+                    control: {}
+                }
         });
-    });
-
-    it('repeat container and form', () => {
-        let config = {
-            body: [{
-                type: 'container',
-                model: 'repeat',
-                children: [{
-                    type: 'form',
-                    name: 'repeatForm',
-                    children: [{
-                        type: 'text',
-                        text: '1234'
-                    }]
-                }]
-            }]
-        };
-        // @ts-ignore
-        let test = new RCRETestUtil(config);
-    });
-
-    it('state should be empty', () => {
-        let state = store.getState();
-        expect(state).toEqual({
-            container: {
-                __TMP_MODEL__DO_NO_USE_IT: {}
-            },
-            trigger: {},
-            form: {}
-        });
+        test.unmount();
     });
 });

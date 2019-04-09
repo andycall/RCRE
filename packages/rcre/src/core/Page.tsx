@@ -5,12 +5,13 @@
 
 import React from 'react';
 import PropsTypes from 'prop-types';
+import {Store} from 'redux';
 import {BasicConfig} from '../types';
 import {createChild} from './util/createChild';
 import URL from 'url';
 import querystring from 'querystring';
-import {containerGraph, ContainerNode} from './Service/ContainerDepGraph';
-import {ContainerConfig} from './Container/AbstractContainer';
+// import {containerGraph, ContainerNode} from './Service/ContainerDepGraph';
+// import {ContainerConfig} from './Container/AbstractContainer';
 import {Events} from './Events';
 
 export type RCREOptions = {
@@ -25,9 +26,12 @@ export type RCREOptions = {
     safari10Layout?: boolean;
 };
 
-export class PageProps<T extends BasicConfig> {
+export interface PageConfig<T extends BasicConfig> {
     title?: string;
     body: T[];
+}
+
+export interface PageProps<T extends BasicConfig> extends PageConfig<T> {
     // 外部注入的全局对象
     global?: Object;
     // 调试模式
@@ -37,6 +41,7 @@ export class PageProps<T extends BasicConfig> {
     loadMode?: string;
     options?: RCREOptions;
     events?: Events;
+    store: Store<any>;
 }
 
 class Page<T extends BasicConfig> extends React.Component<PageProps<T>, {}> {
@@ -55,6 +60,7 @@ class Page<T extends BasicConfig> extends React.Component<PageProps<T>, {}> {
         debug: PropsTypes.bool,
         lang: PropsTypes.string,
         events: PropsTypes.object,
+        store: PropsTypes.object,
         options: PropsTypes.object
     };
 
@@ -74,7 +80,7 @@ class Page<T extends BasicConfig> extends React.Component<PageProps<T>, {}> {
 
     constructor(props: PageProps<T>) {
         super(props);
-        this.buildContainerGraph();
+        // this.buildContainerGraph();
         this.logOptionTips(props);
     }
 
@@ -103,60 +109,61 @@ class Page<T extends BasicConfig> extends React.Component<PageProps<T>, {}> {
             $global: this.props.global,
             $location,
             $query,
+            store: this.props.store,
             debug: this.props.debug,
             events: this.props.events
         };
     }
 
-    private buildContainerGraph() {
-        let config = this.props.body;
-
-        function find(conf: any, parent?: string) {
-            if ('show' in conf || 'hidden' in conf) {
-                return;
-            }
-
-            if (conf.type === 'container') {
-                let node = new ContainerNode(
-                    conf.model,
-                    conf.props,
-                    conf.export,
-                    conf.bind,
-                    conf as Partial<ContainerConfig<T>>
-                );
-
-                if (containerGraph.has(conf.model)) {
-                    let existNode = containerGraph.get(conf.model);
-
-                    if (existNode && existNode.parent && existNode.parent.model === parent) {
-                        console.warn('检测到页面中有重复model的container，正确的使用RCRE是保证页面中每个container的model都不一样');
-                        return;
-                    }
-                }
-
-                containerGraph.set(conf.model, node);
-
-                if (parent) {
-                    let parentNode = containerGraph.get(parent);
-                    if (parentNode) {
-                        parentNode.addChild(node);
-                    }
-                }
-
-                parent = conf.model;
-            }
-
-            if (conf.children instanceof Array && conf.children.length > 0) {
-                conf.children.forEach((c: any) => {
-                    find(c, parent);
-                });
-            }
-        }
-
-        if (config instanceof Array) {
-            config.forEach(conf => find(conf));
-        }
-    }
+    // private buildContainerGraph() {
+    //     let config = this.props.body;
+    //
+    //     function find(conf: any, parent?: string) {
+    //         if ('show' in conf || 'hidden' in conf) {
+    //             return;
+    //         }
+    //
+    //         if (conf.type === 'container') {
+    //             let node = new ContainerNode(
+    //                 conf.model,
+    //                 conf.props,
+    //                 conf.export,
+    //                 conf.bind,
+    //                 conf as Partial<ContainerConfig<T>>
+    //             );
+    //
+    //             if (containerGraph.has(conf.model)) {
+    //                 let existNode = containerGraph.get(conf.model);
+    //
+    //                 if (existNode && existNode.parent && existNode.parent.model === parent) {
+    //                     console.warn('检测到页面中有重复model的container，正确的使用RCRE是保证页面中每个container的model都不一样');
+    //                     return;
+    //                 }
+    //             }
+    //
+    //             containerGraph.set(conf.model, node);
+    //
+    //             if (parent) {
+    //                 let parentNode = containerGraph.get(parent);
+    //                 if (parentNode) {
+    //                     parentNode.addChild(node);
+    //                 }
+    //             }
+    //
+    //             parent = conf.model;
+    //         }
+    //
+    //         if (conf.children instanceof Array && conf.children.length > 0) {
+    //             conf.children.forEach((c: any) => {
+    //                 find(c, parent);
+    //             });
+    //         }
+    //     }
+    //
+    //     if (config instanceof Array) {
+    //         config.forEach(conf => find(conf));
+    //     }
+    // }
 
     render() {
         let body;

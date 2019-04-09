@@ -13,9 +13,8 @@ import * as Trigger from './core/Trigger';
 import * as Connect from './core/Connect';
 import * as types from './types';
 import * as Form from './core/Form';
-import {Render, store} from './render';
+import {Render} from './render';
 
-import './core/Container/AbstractContainer';
 import './core/Layout/Div/Div';
 import './core/Layout/Text/Text';
 import './core/Layout/ForEach/Foreach';
@@ -24,6 +23,7 @@ import './core/Layout/Row/Row';
 import {dataProviderEvent} from './core/Events/dataProviderEvent';
 
 export * from './types';
+export * from './core/Container/AbstractContainer';
 export * from './core/util/util';
 export * from './core/Service/api';
 export * from './core/Container/BasicComponent';
@@ -38,9 +38,6 @@ export * from './data/events';
 export * from './data/reducers';
 
 export function clearStore() {
-    store.dispatch({
-        type: '_RESET_STORE_'
-    });
     dataProviderEvent.clear();
     containerGraph.clear();
 }
@@ -54,7 +51,6 @@ export {
     containerGraph,
     vm,
     Form,
-    store,
     Render,
     types,
     Connect

@@ -3,18 +3,16 @@
  * @author dongtiancheng
  */
 
-import {BasicConfig, BasicContainerPropsInterface, BasicContainerSetDataOptions} from '../../types';
+import {BasicConfig, BasicContainerPropsInterface, BasicContainerSetDataOptions, BasicContextType} from '../../types';
+import {renderChildren} from '../util/createChild';
 import {getRuntimeContext} from '../util/util';
 import {actionCreators} from './action';
 import PropTypes from 'prop-types';
 import React from 'react';
-import {isPlainObject, isEmpty, clone, isObjectLike} from 'lodash';
+import {isPlainObject, isEmpty, clone} from 'lodash';
 import {compileExpressionString, isExpression, parseExpressionString} from '../util/vm';
 import {RCREOptions} from '../Page';
 import {gridPositionItems} from '../Layout/Row/Row';
-import {UrlWithStringQuery} from 'url';
-import {ParsedUrlQuery} from 'querystring';
-import {Events} from '../Events';
 // import {ContainerConfig} from './AbstractContainer';
 
 export type rawJSONType = string | number | null | boolean | Object;
@@ -35,8 +33,8 @@ export class GridItem {
     gridHeight?: number | string;
 }
 
-export interface ContainerProps<Config extends BasicConfig> extends BasicContainerPropsInterface<Config> {
-    info: Config;
+export interface ContainerProps extends BasicContainerPropsInterface {
+    info: any;
 
     $data: {};
     $tmp: {};
@@ -101,17 +99,9 @@ export const BasicContext = {
     $query: PropTypes.object,
     debug: PropTypes.bool,
     lang: PropTypes.string,
+    store: PropTypes.object,
     events: PropTypes.object
 };
-
-export interface BasicContextType {
-    $global: object;
-    $location: UrlWithStringQuery;
-    $query: ParsedUrlQuery;
-    debug: boolean;
-    lang: string;
-    events: Events;
-}
 
 /**
  * 获取ExpressionString 嵌入的上下文
@@ -122,7 +112,7 @@ export interface BasicContextType {
 
 export type ParseInfoOptions<T> = {
     props?: T
-    context?: object;
+    context?: BasicContextType;
     blackList?: string[];
     isDeep?: boolean;
     whiteList?: string[];
@@ -131,10 +121,10 @@ export type ParseInfoOptions<T> = {
 /**
  * 所有子级组件的基类
  */
-export abstract class BasicContainer<Q extends BasicConfig, T extends BasicContainerPropsInterface<Q>, P> extends React.Component<T, P> {
+export abstract class BasicContainer<T extends BasicContainerPropsInterface, P> extends React.Component<T, P> {
     static contextTypes = BasicContext;
     public isUnMounted: boolean;
-    public TEST_INFO: Q;
+    public TEST_INFO: any;
 
     constructor(props: T) {
         super(props);
@@ -190,7 +180,7 @@ export abstract class BasicContainer<Q extends BasicConfig, T extends BasicConta
     /**
      * 在Connect组件上清除不需要传递到RCRE之外的属性
      */
-    public muteParentInfo(mute: Q) {
+    public muteParentInfo(mute: any) {
         mute = clone(mute);
         delete mute.type;
         delete mute.trigger;
@@ -215,7 +205,7 @@ export abstract class BasicContainer<Q extends BasicConfig, T extends BasicConta
      * @param {Q} config
      * @returns {Q}
      */
-    public transformInnerProperty(config: Q) {
+    public transformInnerProperty(config: any) {
         for (let key in config) {
             if (config.hasOwnProperty(key)) {
                 if (key[0] === '~') {
@@ -249,7 +239,7 @@ export abstract class BasicContainer<Q extends BasicConfig, T extends BasicConta
                                      blackList?: string[],
                                      isDeep?: boolean,
                                      whiteList?: string[],
-                                     context?: object
+                                     context?: BasicContextType
     ) {
         // do not deep copy info. it is dangerous, Find another way out!!!
         let runTime = this.getRuntimeContext(props, context);
@@ -288,26 +278,7 @@ export abstract class BasicContainer<Q extends BasicConfig, T extends BasicConta
      * @returns {any}
      */
     public renderChildren(info: BasicConfig, children: React.ReactNode) {
-        let show = info.show;
-        let hidden = info.hidden;
-
-        if (isObjectLike(show) || (info.hasOwnProperty('show') && info.show === undefined)) {
-            show = !!show;
-        }
-
-        if (isObjectLike(hidden)) {
-            hidden = !!hidden;
-        }
-
-        if (hidden === true || show === false) {
-            return (
-                <div className="rcre-hidden-element" key={info.type + '_' + Math.random()} style={{display: 'none'}}>
-                    {process.env.NODE_ENV === 'test' ? JSON.stringify(info) : ''}
-                </div>
-            );
-        }
-
-        return children;
+        return renderChildren(info, children);
     }
 
     /**
@@ -350,12 +321,12 @@ export abstract class BasicContainer<Q extends BasicConfig, T extends BasicConta
         if (!info) {
             let runTime = this.getRuntimeContext(props, this.context);
             info = props.info;
-            if (isExpression(props.info.disableSync)) {
+            if (info && isExpression(props.info.disableSync)) {
                 info.disableSync = parseExpressionString(info.disableSync, runTime);
             }
         }
 
-        if (!info.disableSync) {
+        if (info && !info.disableSync) {
             if (!nameStr) {
                 console.error('实时同步的组件需要提供name属性');
                 return null;
@@ -364,7 +335,7 @@ export abstract class BasicContainer<Q extends BasicConfig, T extends BasicConta
             return this.props.$getData(nameStr, props, isTmp);
         }
 
-        return info.value;
+        return info ? info.value : null;
     }
 
     /**

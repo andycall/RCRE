@@ -1,9 +1,13 @@
+import {ParsedUrlQuery} from "querystring";
 import {CSSProperties} from 'react';
+import {Store} from "redux";
+import {UrlWithStringQuery} from "url";
 import {ContainerConfig} from './core/Container/AbstractContainer';
 import {
     GridItem
 } from './core/Container/BasicComponent';
 import {DataCustomer} from './core/DataCustomer/index';
+import {Events} from "./core/Events/index";
 import {RowConfig} from './core/Layout/Row/Row';
 import {DivConfig} from './core/Layout/Div/Div';
 import {BasicConnectProps} from './core/Connect/basicConnect';
@@ -31,7 +35,7 @@ export enum CoreKind {
 }
 
 export type COREConfig<T> =
-    ContainerConfig<T>
+    ContainerConfig
     | TextConfig
     | RowConfig<T>
     | DivConfig<T>
@@ -43,7 +47,7 @@ export type DriverPropsFactory<Config extends BasicConfig, Props, Collection ext
     BasicConfig &
     Props &
     Extend &
-    BasicConnectProps<BasicContainerPropsInterface<Config>, Collection>;
+    BasicConnectProps<BasicContainerPropsInterface, Collection>;
 
 export type RunTimeType = runTimeType;
 export type runTimeType = {
@@ -214,11 +218,11 @@ export type BasicContainerSetDataOptions = {
     noTransform?: boolean;
 };
 
-export class BasicContainerPropsInterface<Config extends BasicConfig> {
+export class BasicContainerPropsInterface {
     // 调试模式
     debug?: boolean;
 
-    info: Config;
+    info: any;
 
     /**
      * 当前Container的数据模型对象
@@ -272,7 +276,7 @@ export class BasicContainerPropsInterface<Config extends BasicConfig> {
     /**
      * 底层组件获取数据模型值使用
      */
-    $getData?: (name: string | number, props: BasicContainerPropsInterface<Config>, isTmp?: boolean) => any | null;
+    $getData?: (name: string | number, props: BasicContainerPropsInterface, isTmp?: boolean) => any | null;
 
     /**
      * 底层组件清除某个字段的数据
@@ -310,4 +314,129 @@ export class BasicContainerPropsInterface<Config extends BasicConfig> {
     injectEvents: {
         [fc: string]: Function
     };
+}
+
+/**
+ * Provider 对象数据源配置
+ */
+export interface ProviderSourceConfig {
+    /**
+     * provider模式
+     */
+    mode: string;
+    /**
+     * Provider配置
+     */
+    config?: any;
+
+    /**
+     * 请求发起所依赖的参数
+     */
+    requiredParams?: string[] | string;
+
+    /**
+     * 不仅判断参数的key，同样如果每个参数的value转义之后都是true
+     */
+    strictRequired?: boolean | string;
+
+    /**
+     * 使用ExpressionString来决定是否请起数据
+     */
+    condition?: string;
+
+    /**
+     * Provider命名空间
+     */
+    namespace: string;
+
+    /**
+     * Provider返回值映射[弃用]
+     */
+    retMapping?: Object;
+
+    /**
+     * Provider返回值映射
+     */
+    responseRewrite?: Object;
+
+    /**
+     * 返回值检查Expression String
+     */
+    retCheckPattern?: string;
+
+    /**
+     * 错误弹出的错误提示
+     */
+    retErrMsg?: string;
+
+    /**
+     * 自动触发
+     */
+    autoInterval?: number;
+
+    /**
+     * 调试默认
+     */
+    debug?: boolean;
+}
+
+export interface CustomerItem {
+    /**
+     * customer名称
+     */
+    name: string;
+
+    /**
+     * customer执行模式
+     */
+    mode?: string;
+
+    /**
+     * customer配置
+     */
+    config?: any;
+
+    /**
+     * customer 函数
+     */
+    func?: string;
+}
+
+export interface CustomerGroup {
+    /**
+     * 组合名称
+     */
+    name: string;
+
+    /**
+     * 执行顺序
+     */
+    steps: string[];
+
+    /**
+     * 当发生错误的时候，继续执行
+     */
+    keepWhenError?: boolean;
+}
+
+export interface CustomerSourceConfig {
+    /**
+     * 单个customer配置
+     */
+    customers: CustomerItem[];
+
+    /**
+     * 业务组合
+     */
+    groups?: CustomerGroup[];
+}
+
+export interface BasicContextType {
+    $global: object;
+    $location: UrlWithStringQuery;
+    $query: ParsedUrlQuery;
+    debug: boolean;
+    lang: string;
+    events: Events;
+    store: Store<any>;
 }

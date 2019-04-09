@@ -1,4 +1,3 @@
-import {store} from '../../../render';
 import {runTimeType} from '../../../types';
 import {CustomerParams} from '../index';
 import {compileExpressionString, isExpression, parseExpressionString} from '../../util/vm';
@@ -155,7 +154,7 @@ export async function submitCustomer(config: SubmitCustomerExecConfig, params: C
             value: exportValue[key]
         }));
 
-        store.dispatch(actionCreators.setMultiData(multiItems, params.model, params.context));
+        params.context.store.dispatch(actionCreators.setMultiData(multiItems, params.model, params.context));
     }
 
     return ret.data;

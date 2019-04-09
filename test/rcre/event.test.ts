@@ -24,7 +24,7 @@ describe('Event', () => {
     it('add logger', () => {
         addEventListener('SET_DATA', (action, state) => {
             expect(action.type).toBe('SET_DATA');
-            expect(state.container.demo.username).toBe('helloworld');
+            expect(state.$rcre.container.demo.username).toBe('helloworld');
         });
 
         let config: any = {
@@ -48,7 +48,7 @@ describe('Event', () => {
     it('async middleware', async () => {
         addEventListener('ASYNC_LOAD_DATA_SUCCESS', (action, state) => {
             expect(action.type).toBe('ASYNC_LOAD_DATA_SUCCESS');
-            expect(state.container.demo).toMatchSnapshot();
+            expect(state.$rcre.container.demo).toMatchSnapshot();
         });
 
         let config: any = {
@@ -102,7 +102,7 @@ describe('Event', () => {
     it('removeEventListener', () => {
         let setDataOne: ListenerFnItem = (action, state) => {
             expect(action.type).toBe('SET_DATA');
-            expect(state.container.demo.username).toBe('helloworld');
+            expect(state.$rcre.container.demo.username).toBe('helloworld');
         };
 
         let setDataTwo: ListenerFnItem = (action, state) => {

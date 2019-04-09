@@ -1,6 +1,5 @@
-import {runTimeType} from '../../../types';
+import {ProviderSourceConfig, runTimeType} from '../../../types';
 import {SyncAdaptor} from '../adaptors/sync';
-import {ProviderSourceConfig} from '../Controller';
 
 interface LocalStorageConfig extends ProviderSourceConfig {
     config: string[];

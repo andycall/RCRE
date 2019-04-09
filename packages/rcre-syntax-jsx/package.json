@@ -1,0 +1,11 @@
+{
+    "name": "rcre-syntax-jsx",
+    "version": "0.1.0",
+    "description": "the jax syntax of RCRE",
+    "main": "dist/index.js",
+    "scripts": {
+        "test": "npm test"
+    },
+    "author": "andycall",
+    "license": "MIT"
+}

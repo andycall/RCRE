@@ -18,6 +18,7 @@ describe('Container State', () => {
         let updateAction = actionCreators.setData({
             name: 'datepicker',
             value: '2017-12-20'
+            // @ts-ignore
         }, KEY, {});
         let state = reducer(initState, updateAction);
 
@@ -30,6 +31,7 @@ describe('Container State', () => {
         let updateAction = actionCreators.setData({
             name: 'datepicker.0.year',
             value: '2018'
+            // @ts-ignore
         }, KEY, {});
         let state = reducer(initState, updateAction);
 
@@ -46,6 +48,7 @@ describe('Container State', () => {
         let updateAction = actionCreators.setData({
             name: 'datepicker.0.year',
             value: '2018'
+            // @ts-ignore
         }, KEY, {});
         let state = reducer(initState, updateAction);
 
@@ -62,11 +65,13 @@ describe('Container State', () => {
         let oneUpdate = actionCreators.setData({
             name: 'str',
             value: 'a'
+            // @ts-ignore
         }, KEY, {});
 
         let twoUpdate = actionCreators.setData({
             name: 'str',
             value: 'b'
+            // @ts-ignore
         }, KEY, {});
 
         let state = reducer(initState, oneUpdate);
@@ -78,10 +83,12 @@ describe('Container State', () => {
         let updateAction = actionCreators.setData({
             name: 'datepicker',
             value: '2017-12-20'
+            // @ts-ignore
         }, KEY, {});
         let repeatAction = actionCreators.setData({
             name: 'datepicker',
             value: '2018-01-01'
+            // @ts-ignore
         }, KEY, {});
         let state = reducer(initState, updateAction);
         state = reducer(state, repeatAction);
@@ -94,6 +101,7 @@ describe('Container State', () => {
         let updateAction = actionCreators.setData({
             name: 'datepicker',
             value: '2017-12-20'
+            // @ts-ignore
         }, 'UNKNOWN', {});
         let state = reducer(initState, updateAction);
 
@@ -104,10 +112,12 @@ describe('Container State', () => {
         let updateAction = actionCreators.setData({
             name: 'datepicker.startTime.timestamp',
             value: '2017-12-20'
+            // @ts-ignore
         }, KEY, {});
         let repeateAction = actionCreators.setData({
             name: 'datepicker.startTime.timestamp',
             value: '2018-01-01'
+            // @ts-ignore
         }, KEY, {});
 
         let state = reducer(initState, updateAction);
@@ -148,6 +158,7 @@ describe('Container State', () => {
             data: {
                 name: 1
             },
+            // @ts-ignore
             context: {}
         });
         let state = reducer(initState, updateAction);
@@ -163,6 +174,7 @@ describe('Container State', () => {
             data: {
                 name: 1
             },
+            // @ts-ignore
             context: {}
         });
         let state = reducer(initState, updateAction);
@@ -188,6 +200,7 @@ describe('Container State', () => {
             data: {
                 name: 1
             }
+            // @ts-ignore
         }, {});
         let state = reducer(initState, updateAction);
         expect(state[KEY]).toEqual({
@@ -199,9 +212,11 @@ describe('Container State', () => {
         let addAction = actionCreators.setData({
             name: 'name',
             value: 1
+            // @ts-ignore
         }, KEY, {});
         let updateAction = actionCreators.clearData({
             model: KEY,
+            // @ts-ignore
             context: {}
         });
         let state = reducer(initState, addAction);
@@ -213,9 +228,11 @@ describe('Container State', () => {
         let addAction = actionCreators.setData({
             name: 'name',
             value: 1
+            // @ts-ignore
         }, KEY, {});
         let updateAction = actionCreators.clearData({
             model: KEY,
+            // @ts-ignore
             context: {}
         });
         let state = reducer(initState, addAction);
@@ -227,9 +244,11 @@ describe('Container State', () => {
         let addAction = actionCreators.setData({
             name: 'name',
             value: 1
+            // @ts-ignore
         }, KEY, {});
         let deleteAction = actionCreators.deleteData({
             name: 'name'
+            // @ts-ignore
         }, KEY, {});
         let state = reducer(initState, addAction);
         state = reducer(state, deleteAction);
@@ -240,9 +259,11 @@ describe('Container State', () => {
         let addAction = actionCreators.setData({
             name: 'name.age.a.b.c.d',
             value: 1
+            // @ts-ignore
         }, KEY, {});
         let deleteAction = actionCreators.deleteData({
             name: 'name.age.a.b.c.d'
+            // @ts-ignore
         }, KEY, {});
         let state = reducer(initState, addAction);
         state = reducer(state, deleteAction);

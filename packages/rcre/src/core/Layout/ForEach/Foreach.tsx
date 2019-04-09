@@ -17,11 +17,11 @@ export interface ForeachConfig<Config> extends BasicConfig {
     control: BasicConfig;
 }
 
-export class ForeachPropsInterface<Config extends BasicConfig> extends BasicContainerPropsInterface<Config> {
+export class ForeachPropsInterface<Config extends BasicConfig> extends BasicContainerPropsInterface {
     info: Config;
 }
 
-export class Foreach<Config extends ForeachConfig<Config>> extends BasicContainer<Config, ForeachPropsInterface<Config>, {}> {
+export class Foreach<Config extends ForeachConfig<Config>> extends BasicContainer<ForeachPropsInterface<Config>, {}> {
     constructor(props: ForeachPropsInterface<Config>) {
         super(props);
     }
