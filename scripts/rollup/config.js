@@ -60,8 +60,15 @@ const packages = {
             file: path.join(workspace, 'rcre-test-tools/dist/index.js'),
             format: 'cjs'
         },
-        tsconfig: path.join(workspace, 'rcre-test-tools/tsconfig.json'
-            )
+        tsconfig: path.join(workspace, 'rcre-test-tools/tsconfig.json')
+    },
+    'rcre-syntax-jsx': {
+        input: path.join(workspace, 'rcre-syntax-jsx/src/index.tsx'),
+        output: {
+            file: path.join(workspace, 'rcre-syntax-jsx/dist/index.js'),
+            format: 'cjs'
+        },
+        tsconfig: path.join(workspace, 'rcre-syntax-jsx/tsconfig.json')
     }
 };
 

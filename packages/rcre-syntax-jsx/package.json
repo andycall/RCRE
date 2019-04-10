@@ -7,5 +7,8 @@
         "test": "npm test"
     },
     "author": "andycall",
-    "license": "MIT"
+    "license": "MIT",
+    "dependencies": {
+        "rcre": "^0.19.152"
+    }
 }

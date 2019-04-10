@@ -4,10 +4,10 @@
  */
 
 import {BasicConfig, BasicContainerPropsInterface, BasicContainerSetDataOptions, BasicContextType} from '../../types';
+import {RCREContext} from '../RCREProvider';
 import {renderChildren} from '../util/createChild';
 import {getRuntimeContext} from '../util/util';
 import {actionCreators} from './action';
-import PropTypes from 'prop-types';
 import React from 'react';
 import {isPlainObject, isEmpty, clone} from 'lodash';
 import {compileExpressionString, isExpression, parseExpressionString} from '../util/vm';
@@ -93,15 +93,16 @@ export interface ContainerProps extends BasicContainerPropsInterface {
     syncLoadDataFail: typeof actionCreators.syncLoadDataFail;
 }
 
-export const BasicContext = {
-    $global: PropTypes.object,
-    $location: PropTypes.object,
-    $query: PropTypes.object,
-    debug: PropTypes.bool,
-    lang: PropTypes.string,
-    store: PropTypes.object,
-    events: PropTypes.object
-};
+// export const BasicContext = {
+//     $global: PropTypes.object,
+//     $location: PropTypes.object,
+//     $query: PropTypes.object,
+//     debug: PropTypes.bool,
+//     lang: PropTypes.string,
+//     store: PropTypes.object,
+//     events: PropTypes.object,
+//     containerGraph: PropTypes.object
+// };
 
 /**
  * 获取ExpressionString 嵌入的上下文
@@ -122,7 +123,8 @@ export type ParseInfoOptions<T> = {
  * 所有子级组件的基类
  */
 export abstract class BasicContainer<T extends BasicContainerPropsInterface, P> extends React.Component<T, P> {
-    static contextTypes = BasicContext;
+    // static contextTypes = BasicContext;
+    static contextType = RCREContext;
     public isUnMounted: boolean;
     public TEST_INFO: any;
 

@@ -1,13 +1,13 @@
-import {ParsedUrlQuery} from "querystring";
+import {ParsedUrlQuery} from 'querystring';
 import {CSSProperties} from 'react';
-import {Store} from "redux";
-import {UrlWithStringQuery} from "url";
+import {Store} from 'redux';
+import {UrlWithStringQuery} from 'url';
 import {ContainerConfig} from './core/Container/AbstractContainer';
 import {
     GridItem
 } from './core/Container/BasicComponent';
 import {DataCustomer} from './core/DataCustomer/index';
-import {Events} from "./core/Events/index";
+import {Events} from './core/Events/index';
 import {RowConfig} from './core/Layout/Row/Row';
 import {DivConfig} from './core/Layout/Div/Div';
 import {BasicConnectProps} from './core/Connect/basicConnect';
@@ -15,6 +15,7 @@ import {TextConfig} from './core/Layout/Text/Text';
 import {FormConfig, FormItemConfig} from './core/Form';
 import moment from 'moment';
 import {RCREOptions} from './core/Page';
+import {ContainerNode} from "./core/Service/ContainerDepGraph";
 import {TriggerEventItem} from './core/Trigger/Trigger';
 
 export type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
@@ -49,26 +50,36 @@ export type DriverPropsFactory<Config extends BasicConfig, Props, Collection ext
     Extend &
     BasicConnectProps<BasicContainerPropsInterface, Collection>;
 
-export type RunTimeType = runTimeType;
-export type runTimeType = {
+export type runTimeType = RunTimeType;
+export interface RunTimeType {
     $data: any;
-    $query?: Object;
+    $query?: any;
     $global?: any;
-    $item?: Object;
-    $trigger?: {
-        $SELF_PASS_CUSTOMER?: Object;
-        $PARENT_PASS_CUSTOMER?: Object;
-    };
+    $item?: any;
+    $trigger?: any;
     $index?: number;
     $now?: moment.Moment;
     $moment?: typeof moment;
-    $args?: Object;
-    $output?: Object;
-    $iterator?: Object;
-    $parent?: Object;
-    $form?: Object;
+    $args?: any;
+    $output?: any;
+    $iterator?: any;
+    $parent?: any;
+    $form?: any;
     $prev?: any;
-};
+}
+
+export interface PropsRunTimeType extends RunTimeType {
+    $parent: any;
+}
+
+export interface TriggerRunTimeType extends RunTimeType {
+    $trigger: any;
+}
+
+export interface InteratorRunTimeType extends RunTimeType {
+    $item: any;
+    $index: number;
+}
 
 export type ExpressionStringType = string;
 
@@ -438,5 +449,7 @@ export interface BasicContextType {
     debug: boolean;
     lang: string;
     events: Events;
+    options?: RCREOptions;
     store: Store<any>;
+    containerGraph: Map<string, ContainerNode>;
 }

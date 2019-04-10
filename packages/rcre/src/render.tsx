@@ -1,7 +1,7 @@
 // import {Store} from 'redux';
 import {Store} from 'redux';
 import {dataProviderEvent} from './core/Events/dataProviderEvent';
-import {containerGraph} from './core/Service/ContainerDepGraph';
+import {ContainerNode} from './core/Service/ContainerDepGraph';
 import {RootState} from './data/reducers';
 import configureStore from './data/store';
 import {BasicConfig} from './types';
@@ -45,6 +45,7 @@ export class Render<T extends BasicConfig> extends React.Component<RenderPropsIn
 
     public events: Events;
     private store: Store<RootState>;
+    private containerGraph: Map<string, ContainerNode>;
 
     constructor(props: RenderPropsInterface<T>) {
         super(props);
@@ -53,6 +54,7 @@ export class Render<T extends BasicConfig> extends React.Component<RenderPropsIn
         } else {
             this.store = configureStore();
         }
+        this.containerGraph = new Map();
         this.events = props.events || new Events();
     }
 
@@ -61,7 +63,9 @@ export class Render<T extends BasicConfig> extends React.Component<RenderPropsIn
             type: '_RESET_STORE_'
         });
         dataProviderEvent.clear();
-        containerGraph.clear();
+        this.containerGraph.clear();
+        // @ts-ignore
+        this.containerGraph = null;
         // @ts-ignore
         this.store = null;
     }
@@ -92,6 +96,7 @@ export class Render<T extends BasicConfig> extends React.Component<RenderPropsIn
                     global={this.props.global}
                     loadMode={this.props.loadMode}
                     options={this.props.options}
+                    containerGraph={this.containerGraph}
                     events={this.events}
                     store={this.store}
                 />

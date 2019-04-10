@@ -1,6 +1,6 @@
 {
     "compilerOptions": {
-        "module": "es6",
+        "module": "esnext",
         "target": "es6",
         "lib": [
             "es6",
@@ -19,28 +19,10 @@
         "noUnusedLocals": true,
         "experimentalDecorators": true,
         "emitDecoratorMetadata": true,
-        "esModuleInterop": true,
         "jsx": "react",
         "allowSyntheticDefaultImports": true,
-        "declaration": true,
-        "baseUrl": "./",
-        "paths": {
-            "rcre-test-tools": [
-                "packages/rcre-test-tools/src/index.tsx"
-            ],
-            "rcre-runtime-syntax-transform": [
-                "packages/rcre-runtime-syntax-transform/src/index.ts"
-            ],
-            "rcre": [
-                "packages/rcre/src/index.tsx"
-            ],
-            "rcre-runtime": [
-                "packages/rcre-runtime/src/index.ts"
-            ],
-            "rcre-syntax-jsx": [
-                "packages/rcre-syntax-jsx/src/index.tsx"
-            ]
-        }
+        "baseUrl": "./src",
+        "declaration": true
     },
     "exclude": [
         "node_modules",
@@ -49,7 +31,7 @@
         "acceptance-tests",
         "webpack",
         "jest",
-        "test/setupTests.ts"
+        "src/setupTests.ts"
     ],
     "types": [
         "typePatches"

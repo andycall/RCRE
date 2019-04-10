@@ -8,7 +8,7 @@ const composeEnhancers = ((
     triggerEvents
 ));
 
-function configureStore(): Store<RootState> {
+export function createReduxStore(): Store<RootState> {
     return createStore<RootState>(
         combineReducers({
             $rcre: rcreReducer
@@ -17,4 +17,4 @@ function configureStore(): Store<RootState> {
     );
 }
 
-export default configureStore;
+export default createReduxStore;

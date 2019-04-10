@@ -25,7 +25,7 @@ import {compileExpressionString, isExpression, parseExpressionString} from '../u
 import {DataCustomer} from '../DataCustomer/index';
 import {createChild} from '../util/createChild';
 import {TMP_MODEL} from './reducer';
-import {containerGraph, ContainerNode} from '../Service/ContainerDepGraph';
+import {ContainerNode} from '../Service/ContainerDepGraph';
 import {ContainerConfig} from './AbstractContainer';
 import {setWith, getRuntimeContext} from '../util/util';
 
@@ -56,7 +56,7 @@ export class RCREContainer<Config extends ContainerConfig> extends BasicContaine
             blackList: propsBlackList
         });
         this.CONTAINER_UPDATE_COUNT = 0;
-        this.initContainerGraph(info);
+        this.initContainerGraph(context, info);
         this.initDataCustomer(info, props);
         this.initDefaultData(info, props, context);
         this.model = info.model;
@@ -157,16 +157,16 @@ export class RCREContainer<Config extends ContainerConfig> extends BasicContaine
         }
     }
 
-    private initContainerGraph(info: ContainerConfig) {
-        if (!containerGraph.has(info.model)) {
+    private initContainerGraph(context: BasicContextType, info: ContainerConfig) {
+        if (!context.containerGraph.has(info.model)) {
             let node = new ContainerNode(info.model, info.props, info.export, info.bind, info);
-            containerGraph.set(info.model, node);
-            if (this.props.model && containerGraph.has(this.props.model)) {
-                let parentNode = containerGraph.get(this.props.model)!;
+            context.containerGraph.set(info.model, node);
+            if (this.props.model && context.containerGraph.has(this.props.model)) {
+                let parentNode = context.containerGraph.get(this.props.model)!;
                 parentNode.addChild(node);
             }
         } else {
-            // console.warn('检测到有重复的container组件。model: ' + info.model);
+            console.warn('检测到有重复的container组件。model: ' + info.model);
         }
     }
 
@@ -195,14 +195,14 @@ export class RCREContainer<Config extends ContainerConfig> extends BasicContaine
             });
         }
         this.dataProvider.providerCache = {};
-        let node = containerGraph.get(info.model);
+        let node = this.context.containerGraph.get(info.model);
 
         if (node && node.parent) {
             let parentNode = node.parent;
             parentNode.removeChild(node);
         }
 
-        containerGraph.delete(info.model);
+        this.context.containerGraph.delete(info.model);
         this.isUnmount = true;
         this.dataProvider.depose();
         this.dataCustomer.depose();
@@ -343,30 +343,34 @@ export class RCREContainer<Config extends ContainerConfig> extends BasicContaine
             ...props
         } = this.props;
 
-        // Container Component no long compile expression string for child
-        // instead, AbstractComponent should compile it by themSelf
-        let childElements = info.children.map((child: BasicConfig, index: number) => {
-            child = this.getPropsInfo(child, this.props, [], false, ['show', 'hidden']);
-            let childElement = createChild(child, {
-                ...props,
-                info: child,
-                model: info.model,
-                $data: $data,
-                $tmp: $tmp,
-                $parent: this.props.$parent,
-                options: this.props.options,
-                dataCustomer: this.dataCustomer,
-                $index: this.props.$index,
-                $item: this.props.$item,
-                $setData: this.childSetData,
-                $getData: this.getData,
-                $deleteData: $deleteData,
-                $setMultiData: $setMultiData,
-                key: `${child.type}_${index}`
-            });
+        let childElements = this.props.children;
 
-            return this.renderChildren(child, childElement);
-        });
+        if (Array.isArray(info.children)) {
+            // Container Component no long compile expression string for child
+            // instead, AbstractComponent should compile it by themSelf
+            childElements = info.children.map((child: BasicConfig, index: number) => {
+                child = this.getPropsInfo(child, this.props, [], false, ['show', 'hidden']);
+                let childElement = createChild(child, {
+                    ...props,
+                    info: child,
+                    model: info.model,
+                    $data: $data,
+                    $tmp: $tmp,
+                    $parent: this.props.$parent,
+                    options: this.props.options,
+                    dataCustomer: this.dataCustomer,
+                    $index: this.props.$index,
+                    $item: this.props.$item,
+                    $setData: this.childSetData,
+                    $getData: this.getData,
+                    $deleteData: $deleteData,
+                    $setMultiData: $setMultiData,
+                    key: `${child.type}_${index}`
+                });
+
+                return this.renderChildren(child, childElement);
+            });
+        }
 
         const containerStyle = {
             border: this.props.debug ? '1px dashed #3398FC' : '',

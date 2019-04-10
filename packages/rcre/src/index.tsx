@@ -6,7 +6,6 @@ import {createChild} from './core/util/createChild';
 import * as vm from './core/util/vm';
 
 import './index.css';
-import {containerGraph} from './core/Service/ContainerDepGraph';
 import * as Container from './core/Container';
 import * as DataProvider from './core/DataProvider/index';
 import * as Trigger from './core/Trigger';
@@ -34,12 +33,13 @@ export * from './core/DataCustomer/index';
 export * from './core/util/componentLoader';
 export * from './core/util/stringToPath';
 export * from './data/events';
+export * from './core/RCREProvider';
 
 export * from './data/reducers';
+export * from './data/store';
 
 export function clearStore() {
     dataProviderEvent.clear();
-    containerGraph.clear();
 }
 
 export {
@@ -48,7 +48,6 @@ export {
     DataProvider,
     createChild,
     filter,
-    containerGraph,
     vm,
     Form,
     Render,

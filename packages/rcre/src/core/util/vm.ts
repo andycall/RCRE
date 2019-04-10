@@ -146,7 +146,7 @@ export function compileExpressionString<T>(data: T,
  * @returns {boolean}
  */
 export function isExpression(str: any) {
-    if (process.env.NODE_ENV === 'test' && typeof str === 'function') {
+    if (typeof str === 'function') {
         return true;
     }
 

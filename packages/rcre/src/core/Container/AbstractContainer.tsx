@@ -68,7 +68,7 @@ export class AbstractContainer extends React.Component<ContainerProps, {}> {
     }
 
     render() {
-        let children;
+        let children = this.props.children;
 
         if (this.props.info.children && Array.isArray(this.props.info.children)) {
             children = this.props.info.children.map((child: any, index: number) => {

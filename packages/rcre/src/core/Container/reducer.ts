@@ -20,7 +20,6 @@ import {
 } from './action';
 import {clone, each, get} from 'lodash';
 import {
-    containerGraph,
     syncExportContainerState,
     syncDeleteContainerState, syncPropsContainerState, ContainerNode
 } from '../Service/ContainerDepGraph';
@@ -41,6 +40,7 @@ export const reducer: Reducer<IContainerState> =
             case INIT_CONTAINER: {
                 let model = actions.payload.model;
                 let data = actions.payload.data;
+                let context = actions.context;
 
                 if (!state[model]) {
                     state = setWith(state, model, data);
@@ -51,7 +51,7 @@ export const reducer: Reducer<IContainerState> =
                     });
                 }
 
-                let container = containerGraph.get(model);
+                let container = context.containerGraph.get(model);
 
                 if (!container) {
                     return clone(state);
@@ -73,6 +73,7 @@ export const reducer: Reducer<IContainerState> =
             case SET_DATA: {
                 let name = actions.payload.name;
                 let newValue = actions.payload.value;
+                let context = actions.context;
                 let options = actions.payload.options || {};
 
                 let model = actions.model;
@@ -114,7 +115,7 @@ export const reducer: Reducer<IContainerState> =
 
                 state[model] = setWith(state[model], name, newValue);
 
-                let container = containerGraph.get(model);
+                let container = context.containerGraph.get(model);
                 let affectNode: ContainerNode[] = [];
 
                 syncExportContainerState(state, affectNode, actions.context, container);
@@ -131,6 +132,7 @@ export const reducer: Reducer<IContainerState> =
             case SET_MULTI_DATA: {
                 let payload = actions.payload;
                 let model = actions.model;
+                let context = actions.context;
 
                 if (!(model in state)) {
                     state[model] = {};
@@ -149,7 +151,7 @@ export const reducer: Reducer<IContainerState> =
                     state[model] = setWith(state[model], name, value);
                 });
 
-                let container = containerGraph.get(model);
+                let container = context.containerGraph.get(model);
                 let affectNode: ContainerNode[] = [];
                 syncExportContainerState(state, affectNode, actions.context, container);
                 affectNode.forEach(node => {
@@ -175,6 +177,7 @@ export const reducer: Reducer<IContainerState> =
             case ASYNC_LOAD_DATA_SUCCESS: {
                 let payload = actions.payload;
                 let model = payload.model;
+                let context = payload.context;
                 let data = payload.data;
 
                 if (!state[model]) {
@@ -190,7 +193,7 @@ export const reducer: Reducer<IContainerState> =
                 state = clone(state);
                 state[model] = clone(state[model]);
 
-                let container = containerGraph.get(model);
+                let container = context.containerGraph.get(model);
                 let affectNode: ContainerNode[] = [];
 
                 // 初次挂载的时候，继承父级的数据
@@ -223,6 +226,7 @@ export const reducer: Reducer<IContainerState> =
                 let payload = actions.payload;
                 let model = payload.model;
                 let data = payload.data;
+                let context = payload.context;
 
                 if (!(model in state)) {
                     state[model] = {};
@@ -232,7 +236,7 @@ export const reducer: Reducer<IContainerState> =
                 state[model] = clone(state[model]);
                 Object.assign(state[model], data);
 
-                let container = containerGraph.get(model);
+                let container = context.containerGraph.get(model);
                 let affectNode: ContainerNode[] = [];
 
                 // 初次挂载的时候，继承父级的数据
@@ -266,6 +270,7 @@ export const reducer: Reducer<IContainerState> =
                 let payload = actions.payload;
                 let model = payload.model;
                 let data = payload.data;
+                let context = actions.context;
 
                 if (!(model in state)) {
                     console.error(`DataCustomerPass: ${model} is not exist`);
@@ -279,7 +284,7 @@ export const reducer: Reducer<IContainerState> =
                     state[model] = setWith(state[model], key, val);
                 });
 
-                let container = containerGraph.get(model);
+                let container = context.containerGraph.get(model);
                 let affectNode: ContainerNode[] = [];
                 syncExportContainerState(state, affectNode, actions.context, container);
                 affectNode.forEach(node => {
@@ -290,7 +295,8 @@ export const reducer: Reducer<IContainerState> =
             }
             case CLEAR_DATA: {
                 let delKey = actions.payload.model;
-                let node = containerGraph.get(delKey);
+                let context = actions.payload.context;
+                let node = context.containerGraph.get(delKey);
 
                 if (node && node.options.clearDataToParentsWhenDestroy) {
                     syncDeleteContainerState(state, actions.payload.context, node);
@@ -310,7 +316,7 @@ export const reducer: Reducer<IContainerState> =
                 let model = actions.model;
                 let isTmp = payload.isTmp;
                 let context = actions.context;
-                let container = containerGraph.get(model);
+                let container = context.containerGraph.get(model);
 
                 if (!(model in state)) {
                     return state;

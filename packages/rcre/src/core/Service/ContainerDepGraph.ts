@@ -92,8 +92,6 @@ export class ContainerNode {
     }
 }
 
-export const containerGraph: Map<string, ContainerNode> = new Map();
-
 /**
  * 自动根据Container组件的export或者bind属性。来同步数据到state。
  * @param {IContainerState} state

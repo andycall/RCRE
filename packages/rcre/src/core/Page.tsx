@@ -7,11 +7,10 @@ import React from 'react';
 import PropsTypes from 'prop-types';
 import {Store} from 'redux';
 import {BasicConfig} from '../types';
+import {ContainerNode} from './Service/ContainerDepGraph';
 import {createChild} from './util/createChild';
 import URL from 'url';
 import querystring from 'querystring';
-// import {containerGraph, ContainerNode} from './Service/ContainerDepGraph';
-// import {ContainerConfig} from './Container/AbstractContainer';
 import {Events} from './Events';
 
 export type RCREOptions = {
@@ -42,6 +41,7 @@ export interface PageProps<T extends BasicConfig> extends PageConfig<T> {
     options?: RCREOptions;
     events?: Events;
     store: Store<any>;
+    containerGraph: Map<string, ContainerNode>;
 }
 
 class Page<T extends BasicConfig> extends React.Component<PageProps<T>, {}> {
@@ -61,7 +61,8 @@ class Page<T extends BasicConfig> extends React.Component<PageProps<T>, {}> {
         lang: PropsTypes.string,
         events: PropsTypes.object,
         store: PropsTypes.object,
-        options: PropsTypes.object
+        options: PropsTypes.object,
+        containerGraph: PropsTypes.object
     };
 
     static getLocationService() {
@@ -111,7 +112,8 @@ class Page<T extends BasicConfig> extends React.Component<PageProps<T>, {}> {
             $query,
             store: this.props.store,
             debug: this.props.debug,
-            events: this.props.events
+            events: this.props.events,
+            containerGraph: this.props.containerGraph
         };
     }
 
