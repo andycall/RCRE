@@ -6,7 +6,7 @@
 version: 2
 
 defaults: &defaults
-    working_directory: ~/repo
+    working_directory: ~/RCRE
     docker:
         - image: circleci/node:8.9.1
 
@@ -47,7 +47,7 @@ jobs:
                   name: build packages
                   command: yarn run build
             - persist_to_workspace:
-                  root: ~/repo
+                  root: ~/RCRE
                   paths: .
 
     deploy:
