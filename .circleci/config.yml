@@ -11,11 +11,10 @@ defaults: &defaults
         - image: circleci/node:8.9.1
 
 jobs:
-    test:
+    install:
         <<: *defaults
         steps:
-            - checkout
-            # Download and cache dependencies
+            - checkbox
             - restore_cache:
                   keys:
                       - v1-dependencies-{{ checksum "yarn.lock" }}
@@ -24,6 +23,18 @@ jobs:
             - run:
                   name: install dependencies
                   command: yarn install
+            - save_cache:
+                  paths:
+                      - node_modules
+                      key: v1-dependencies-{{ checksum "yarn.lock" }}
+            - persist_to_workspace:
+                  root: ~/RCRE
+                  paths: .
+    test:
+        <<: *defaults
+        steps:
+            - attach_workspace:
+                  at: ~/RCRE
             - run:
                   name: running test mock server
                   command: node test/__mock__/server.js
@@ -31,10 +42,6 @@ jobs:
             - run:
                   name: unit test
                   command: yarn test
-            - save_cache:
-                  paths:
-                      - node_modules
-                  key: v1-dependencies-{{ checksum "yarn.lock" }}
             - persist_to_workspace:
                   root: ~/RCRE
                   paths: .
@@ -67,11 +74,19 @@ workflows:
     version: 2
     test-deploy:
         jobs:
+            - install:
+                  filters:
+                      tags:
+                          only: /^v.*/
             - test:
+                  requires:
+                      - install
                   filters:
                       tags:
                           only: /^v.*/
             - build:
+                  requires:
+                      - install
                   filters:
                       tags:
                           only: /^v.*/
