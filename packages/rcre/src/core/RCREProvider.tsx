@@ -3,26 +3,16 @@ import React from 'react';
 import {Store} from 'redux';
 import {Provider} from 'react-redux';
 import URL from 'url';
+import {RootState} from '../data/reducers';
 import createReduxStore from '../data/store';
-import {BasicContextType} from '../types';
+import {BasicContextType, RCREOptions} from '../types';
+import {dataProviderEvent} from './Events/dataProviderEvent';
 import {Events} from './Events/index';
-import {RCREOptions} from './Page';
-
-export const RCREContext = React.createContext<BasicContextType>({
-    $global: {},
-    $location: URL.parse(''),
-    lang: '',
-    $query: {},
-    debug: false,
-    // lang: PropsTypes.string,
-    events: new Events(),
-    store: createReduxStore(),
-    options: {},
-    containerGraph: new Map()
-});
+import {RCREContext} from './context';
+import {ContainerNode} from './Service/ContainerDepGraph';
 
 export interface RCREProviderProps {
-    $global?: any;
+    global?: any;
     debug?: boolean;
     events?: Events;
     store?: Store<any>;
@@ -31,7 +21,9 @@ export interface RCREProviderProps {
 
 export class RCREProvider extends React.Component<RCREProviderProps, {}> {
     private contextValue: BasicContextType;
-    public store: Store<any>;
+    public events: Events;
+    private store: Store<RootState>;
+    private containerGraph: Map<string, ContainerNode>;
 
     constructor(props: RCREProviderProps) {
         super(props);
@@ -47,17 +39,32 @@ export class RCREProvider extends React.Component<RCREProviderProps, {}> {
 
         // for test use
         this.store = store;
+        this.containerGraph = new Map();
+        this.events = props.events || new Events();
 
         this.contextValue = {
             ...location,
             lang: '',
-            $global: props.$global || {},
+            $global: props.global || {},
             debug: props.debug || false,
             store: store,
+            mode: 'React',
             options: props.options || {},
-            events: props.events || new Events(),
-            containerGraph: new Map()
+            events: this.events,
+            containerGraph: this.containerGraph
         };
+    }
+
+    componentWillUnmount(): void {
+        this.store.dispatch({
+            type: '_RESET_STORE_'
+        });
+        dataProviderEvent.clear();
+        this.containerGraph.clear();
+        // @ts-ignore
+        this.containerGraph = null;
+        // @ts-ignore
+        this.store = null;
     }
 
     getLocationService() {

@@ -1,6 +1,5 @@
 import React from 'react';
-import {CustomerSourceConfig, defaultData, ProviderSourceConfig, createChild, PropsRunTimeType} from 'rcre';
-import {runTimeType} from "../../rcre/src/types";
+import {CustomerSourceConfig, defaultData, ProviderSourceConfig, createChild, PropsRunTimeType, runTimeType} from 'rcre';
 const ContainerContext = React.createContext('');
 
 interface ContainerProps {

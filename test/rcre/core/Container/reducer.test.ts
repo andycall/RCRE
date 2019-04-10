@@ -1,6 +1,6 @@
 import {reducer} from '../../../../packages/rcre/src/core/Container/reducer';
 import {actionCreators} from '../../../../packages/rcre/src/core/Container/action';
-import {setWith, deleteWith} from 'rcre';
+import {setWith, deleteWith, BasicContextType, Events, createReduxStore} from 'rcre';
 
 describe('Container State', () => {
     let initState: {
@@ -14,12 +14,26 @@ describe('Container State', () => {
         };
     });
 
+    const context: BasicContextType = {
+        $global: {},
+        $location: {
+            query: '123'
+        },
+        $query: {},
+        debug: false,
+        lang: '',
+        events: new Events(),
+        store: createReduxStore(),
+        containerGraph: new Map(),
+        mode: 'React'
+    };
+
     it('setData', () => {
         let updateAction = actionCreators.setData({
             name: 'datepicker',
             value: '2017-12-20'
             // @ts-ignore
-        }, KEY, {});
+        }, KEY, context);
         let state = reducer(initState, updateAction);
 
         expect(state[KEY]).toEqual({
@@ -32,7 +46,7 @@ describe('Container State', () => {
             name: 'datepicker.0.year',
             value: '2018'
             // @ts-ignore
-        }, KEY, {});
+        }, KEY, context);
         let state = reducer(initState, updateAction);
 
         expect(state[KEY]).toEqual({
@@ -49,7 +63,7 @@ describe('Container State', () => {
             name: 'datepicker.0.year',
             value: '2018'
             // @ts-ignore
-        }, KEY, {});
+        }, KEY, context);
         let state = reducer(initState, updateAction);
 
         expect(state[KEY]).toEqual({
@@ -66,13 +80,13 @@ describe('Container State', () => {
             name: 'str',
             value: 'a'
             // @ts-ignore
-        }, KEY, {});
+        }, KEY, context);
 
         let twoUpdate = actionCreators.setData({
             name: 'str',
             value: 'b'
             // @ts-ignore
-        }, KEY, {});
+        }, KEY, context);
 
         let state = reducer(initState, oneUpdate);
         expect(initState[KEY] === state).toBe(false);
@@ -84,12 +98,12 @@ describe('Container State', () => {
             name: 'datepicker',
             value: '2017-12-20'
             // @ts-ignore
-        }, KEY, {});
+        }, KEY, context);
         let repeatAction = actionCreators.setData({
             name: 'datepicker',
             value: '2018-01-01'
             // @ts-ignore
-        }, KEY, {});
+        }, KEY, context);
         let state = reducer(initState, updateAction);
         state = reducer(state, repeatAction);
         expect(state[KEY]).toEqual({
@@ -102,7 +116,7 @@ describe('Container State', () => {
             name: 'datepicker',
             value: '2017-12-20'
             // @ts-ignore
-        }, 'UNKNOWN', {});
+        }, 'UNKNOWN', context);
         let state = reducer(initState, updateAction);
 
         expect(state).toEqual(state);
@@ -113,12 +127,12 @@ describe('Container State', () => {
             name: 'datepicker.startTime.timestamp',
             value: '2017-12-20'
             // @ts-ignore
-        }, KEY, {});
+        }, KEY, context);
         let repeateAction = actionCreators.setData({
             name: 'datepicker.startTime.timestamp',
             value: '2018-01-01'
             // @ts-ignore
-        }, KEY, {});
+        }, KEY, context);
 
         let state = reducer(initState, updateAction);
         state = reducer(state, repeateAction);
@@ -159,7 +173,7 @@ describe('Container State', () => {
                 name: 1
             },
             // @ts-ignore
-            context: {}
+            context: context
         });
         let state = reducer(initState, updateAction);
         expect(state[KEY]).toEqual({
@@ -175,7 +189,7 @@ describe('Container State', () => {
                 name: 1
             },
             // @ts-ignore
-            context: {}
+            context: context
         });
         let state = reducer(initState, updateAction);
         expect(state[KEY]).toEqual({
@@ -201,7 +215,7 @@ describe('Container State', () => {
                 name: 1
             }
             // @ts-ignore
-        }, {});
+        }, context);
         let state = reducer(initState, updateAction);
         expect(state[KEY]).toEqual({
             name: 1
@@ -213,11 +227,11 @@ describe('Container State', () => {
             name: 'name',
             value: 1
             // @ts-ignore
-        }, KEY, {});
+        }, KEY, context);
         let updateAction = actionCreators.clearData({
             model: KEY,
             // @ts-ignore
-            context: {}
+            context: context
         });
         let state = reducer(initState, addAction);
         state = reducer(state, updateAction);
@@ -229,11 +243,11 @@ describe('Container State', () => {
             name: 'name',
             value: 1
             // @ts-ignore
-        }, KEY, {});
+        }, KEY, context);
         let updateAction = actionCreators.clearData({
             model: KEY,
             // @ts-ignore
-            context: {}
+            context: context
         });
         let state = reducer(initState, addAction);
         state = reducer(state, updateAction);
@@ -245,11 +259,11 @@ describe('Container State', () => {
             name: 'name',
             value: 1
             // @ts-ignore
-        }, KEY, {});
+        }, KEY, context);
         let deleteAction = actionCreators.deleteData({
             name: 'name'
             // @ts-ignore
-        }, KEY, {});
+        }, KEY, context);
         let state = reducer(initState, addAction);
         state = reducer(state, deleteAction);
         expect(state[KEY]).toEqual({});
@@ -260,11 +274,11 @@ describe('Container State', () => {
             name: 'name.age.a.b.c.d',
             value: 1
             // @ts-ignore
-        }, KEY, {});
+        }, KEY, context);
         let deleteAction = actionCreators.deleteData({
             name: 'name.age.a.b.c.d'
             // @ts-ignore
-        }, KEY, {});
+        }, KEY, context);
         let state = reducer(initState, addAction);
         state = reducer(state, deleteAction);
         expect(state[KEY]).toEqual({

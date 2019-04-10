@@ -11,7 +11,12 @@ import {
     isObjectLike,
     each
 } from 'lodash';
-import {BasicConfig, BasicContainerSetDataOptions, BasicContextType, runTimeType} from '../../types';
+import {
+    BasicConfig,
+    BasicContainerSetDataOptions,
+    BasicContextType,
+    runTimeType
+} from '../../types';
 import {
     BasicContainer,
     ContainerProps
@@ -27,6 +32,7 @@ import {createChild} from '../util/createChild';
 import {TMP_MODEL} from './reducer';
 import {ContainerNode} from '../Service/ContainerDepGraph';
 import {ContainerConfig} from './AbstractContainer';
+import {ComponentContext} from '../context';
 import {setWith, getRuntimeContext} from '../util/util';
 
 // First Init Life Circle:
@@ -345,7 +351,7 @@ export class RCREContainer<Config extends ContainerConfig> extends BasicContaine
 
         let childElements = this.props.children;
 
-        if (Array.isArray(info.children)) {
+        if (this.context.mode === 'json' && Array.isArray(info.children)) {
             // Container Component no long compile expression string for child
             // instead, AbstractComponent should compile it by themSelf
             childElements = info.children.map((child: BasicConfig, index: number) => {
@@ -370,6 +376,23 @@ export class RCREContainer<Config extends ContainerConfig> extends BasicContaine
 
                 return this.renderChildren(child, childElement);
             });
+        } else {
+            // 通过这样的方式强制子级组件更新
+            const context = {
+                model: info.model,
+                $data: $data,
+                $tmp: $tmp,
+                dataCustomer: this.dataCustomer,
+                $setData: this.childSetData,
+                $getData: this.getData,
+                $deleteData: $deleteData,
+                $setMultiData: $setMultiData,
+            };
+            childElements = (
+                <ComponentContext.Provider value={context}>
+                    {childElements}
+                </ComponentContext.Provider>
+            );
         }
 
         const containerStyle = {
@@ -378,12 +401,16 @@ export class RCREContainer<Config extends ContainerConfig> extends BasicContaine
             width: '100%'
         };
 
-        return (
-            <div className={'rcre-container ' + (info.className || '')} style={containerStyle}>
-                {this.props.debug && <span>container: {info.model}</span>}
-                {childElements}
-            </div>
-        );
+        if (this.context.debug || this.context.mode === 'json') {
+            return (
+                <div className={'rcre-container ' + (info.className || '')} style={containerStyle}>
+                    {this.props.debug && <span>container: {info.model}</span>}
+                    {childElements}
+                </div>
+            );
+        }
+
+        return childElements;
     }
 }
 

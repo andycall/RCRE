@@ -14,8 +14,7 @@ import {BasicConnectProps} from './core/Connect/basicConnect';
 import {TextConfig} from './core/Layout/Text/Text';
 import {FormConfig, FormItemConfig} from './core/Form';
 import moment from 'moment';
-import {RCREOptions} from './core/Page';
-import {ContainerNode} from "./core/Service/ContainerDepGraph";
+import {ContainerNode} from './core/Service/ContainerDepGraph';
 import {TriggerEventItem} from './core/Trigger/Trigger';
 
 export type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
@@ -442,6 +441,21 @@ export interface CustomerSourceConfig {
     groups?: CustomerGroup[];
 }
 
+export type RCREOptions = {
+    /**
+     * 启动0.15.0版本之前的container数据合并策略
+     */
+    oldNestContainerCompatible?: boolean;
+
+    /**
+     * 兼容Safari10的兼容代码
+     */
+    safari10Layout?: boolean;
+};
+
+/**
+ * 内部基础组件的context变量
+ */
 export interface BasicContextType {
     $global: object;
     $location: UrlWithStringQuery;
@@ -450,6 +464,40 @@ export interface BasicContextType {
     lang: string;
     events: Events;
     options?: RCREOptions;
+    store: Store<any>;
+    containerGraph: Map<string, ContainerNode>;
+    mode: 'React' | 'json';
+}
+
+/**
+ * Container为底层组件提供的Context
+ */
+export interface ComponentContextType {
+    model: string;
+    $data: any;
+    $tmp: any;
+    dataCustomer: DataCustomer<any>;
+    $setData: (name: string, value: any, options: any) => void;
+    $getData: (nameStr: string, props: any, isTmp?: boolean) => any;
+    $deleteData: (name: string, isTmp?: boolean) => void;
+    $setMultiData: (items: { name: string, value: any, isTmp: boolean }[]) => void;
+}
+
+export interface PageConfig<T extends BasicConfig> {
+    title?: string;
+    body: T[];
+}
+
+export interface PageProps<T extends BasicConfig> extends PageConfig<T> {
+    // 外部注入的全局对象
+    global?: Object;
+    // 调试模式
+    debug?: boolean;
+    // 报错的信息语言
+    lang?: string;
+    loadMode?: string;
+    options?: RCREOptions;
+    events?: Events;
     store: Store<any>;
     containerGraph: Map<string, ContainerNode>;
 }

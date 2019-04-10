@@ -3,15 +3,20 @@
  * @author dongtiancheng
  */
 
-import {BasicConfig, BasicContainerPropsInterface, BasicContainerSetDataOptions, BasicContextType} from '../../types';
-import {RCREContext} from '../RCREProvider';
+import {RCREContext} from '../context';
+import {
+    BasicConfig,
+    BasicContainerPropsInterface,
+    BasicContainerSetDataOptions,
+    BasicContextType,
+    RCREOptions
+} from '../../types';
 import {renderChildren} from '../util/createChild';
 import {getRuntimeContext} from '../util/util';
 import {actionCreators} from './action';
 import React from 'react';
 import {isPlainObject, isEmpty, clone} from 'lodash';
 import {compileExpressionString, isExpression, parseExpressionString} from '../util/vm';
-import {RCREOptions} from '../Page';
 import {gridPositionItems} from '../Layout/Row/Row';
 // import {ContainerConfig} from './AbstractContainer';
 

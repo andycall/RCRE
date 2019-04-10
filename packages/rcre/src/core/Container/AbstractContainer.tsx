@@ -1,5 +1,6 @@
 import * as React from 'react';
 import './Container.css';
+import {RCREContext} from "../context";
 import {ContainerProps, defaultData} from './BasicComponent';
 import {ContainerNodeOptions} from '../Service/ContainerDepGraph';
 import Container from './Container';
@@ -63,6 +64,7 @@ export interface ContainerConfig extends BasicConfig, ContainerNodeOptions {
 }
 
 export class AbstractContainer extends React.Component<ContainerProps, {}> {
+    static contextType = RCREContext;
     constructor(props: ContainerProps) {
         super(props);
     }
@@ -70,7 +72,7 @@ export class AbstractContainer extends React.Component<ContainerProps, {}> {
     render() {
         let children = this.props.children;
 
-        if (this.props.info.children && Array.isArray(this.props.info.children)) {
+        if (this.context === 'json' && this.props.info.children && Array.isArray(this.props.info.children)) {
             children = this.props.info.children.map((child: any, index: number) => {
                 return this.renderChild(child, index);
             });

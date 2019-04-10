@@ -6,7 +6,7 @@
  */
 import {clone, isObject} from 'lodash';
 import {Global} from 'rcre-runtime';
-import {BasicConfig, BasicContainerPropsInterface, runTimeType} from '../../types';
+import {BasicConfig, runTimeType} from '../../types';
 import {dataProviderEvent} from '../Events/dataProviderEvent';
 import {filter} from './filter';
 import {stringToPath} from './stringToPath';
@@ -148,7 +148,7 @@ export function deleteWith<T>(path: string, obj: T): T {
 }
 
 export function getRuntimeContext<T extends BasicConfig>(
-    props: BasicContainerPropsInterface | any,
+    props: any,
     context: any
 ): runTimeType {
     let runtime: runTimeType = {

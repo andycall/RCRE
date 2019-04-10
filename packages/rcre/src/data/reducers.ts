@@ -21,7 +21,6 @@ const appReducer: Reducer<RootState> = combineReducers<RootState>({
 
 export const rcreReducer: Reducer<any> = (state, action) => {
     if (action.type === '_RESET_STORE_') {
-        console.log('reset');
         return {
             container: {
                 [TMP_MODEL]: {}
