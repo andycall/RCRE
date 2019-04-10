@@ -1,6 +1,6 @@
 {
     "name": "rcre-syntax-jsx",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "description": "the jax syntax of RCRE",
     "main": "dist/index.js",
     "scripts": {
@@ -9,6 +9,6 @@
     "author": "andycall",
     "license": "MIT",
     "dependencies": {
-        "rcre": "^0.19.152"
+        "rcre": "^0.20.0"
     }
 }
