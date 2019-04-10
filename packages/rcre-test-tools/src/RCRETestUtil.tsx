@@ -3,7 +3,7 @@ import {get, flatten} from 'lodash';
 import chalk from 'chalk';
 import {mount, ReactWrapper} from 'enzyme';
 import {ReactElement} from 'react';
-import {PageConfig, Render, RootState, vm, RCREState} from 'rcre';
+import {PageConfig, JSONRender, RootState, vm, RCREState} from 'rcre';
 import {Store} from 'redux';
 
 const format = require('json-format');
@@ -35,7 +35,7 @@ export class RCRETestUtil {
         } else {
             this.config = config as PageConfig<any>;
             this.component = (
-                <Render
+                <JSONRender
                     code={config as PageConfig<any>}
                     global={global}
                     store={store}
