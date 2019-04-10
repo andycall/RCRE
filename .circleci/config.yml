@@ -26,7 +26,7 @@ jobs:
             - save_cache:
                   paths:
                       - node_modules
-                      key: v1-dependencies-{{ checksum "yarn.lock" }}
+                  key: v1-dependencies-{{ checksum "yarn.lock" }}
             - persist_to_workspace:
                   root: ~/RCRE
                   paths: .
