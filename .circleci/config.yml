@@ -33,5 +33,8 @@ jobs:
                   key: v1-dependencies-{{ checksum "package.json" }}
 
             # run tests!
-            - run: yarn run testMockServer
+            - run:
+                name: running test mock server
+                command: node test/__mock__/server.js
+                background: true
             - run: yarn test
