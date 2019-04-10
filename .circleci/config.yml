@@ -2,39 +2,86 @@
 #
 # Check https://circleci.com/docs/2.0/language-javascript/ for more details
 #
+
 version: 2
+
+defaults: &defaults
+    working_directory: ~/repo
+    docker:
+        - image: circleci/node:8.9.1
+
 jobs:
-    build:
-        docker:
-            # specify the version you desire here
-            - image: circleci/node:lts
-
-            # Specify service dependencies here if necessary
-            # CircleCI maintains a library of pre-built images
-            # documented at https://circleci.com/docs/2.0/circleci-images/
-            # - image: circleci/mongo:3.4.4
-
-        working_directory: ~/RCRE
-
+    test:
+        <<: *defaults
         steps:
             - checkout
-
             # Download and cache dependencies
             - restore_cache:
                   keys:
-                      - v1-dependencies-{{ checksum "package.json" }}
+                      - v1-dependencies-{{ checksum "yarn.lock" }}
                       # fallback to using the latest cache if no exact match is found
                       - v1-dependencies-
-
-            - run: yarn install
+            - run:
+                  name: install dependencies
+                  command: yarn install
+            - run:
+                  name: running test mock server
+                  command: node test/__mock__/server.js
+                  background: true
+            - run:
+                  name: unit test
+                  command: yarn test
             - save_cache:
                   paths:
                       - node_modules
-                  key: v1-dependencies-{{ checksum "package.json" }}
-
-            # run tests!
+                  key: v1-dependencies-{{ checksum "yarn.lock" }}
+            - persist_to_workspace:
+                  root: ~/RCRE
+                  paths: .
+    build:
+        <<: *defaults
+        steps:
+            - attach_workspace:
+                  at: ~/RCRE
             - run:
-                name: running test mock server
-                command: node test/__mock__/server.js
-                background: true
-            - run: yarn test
+                  name: build packages
+                  command: yarn run build
+            - persist_to_workspace:
+                  root: ~/repo
+                  paths: .
+
+    deploy:
+        <<: *defaults
+        steps:
+            - attach_workspace:
+                  at: ~/RCRE
+            - run:
+                  name: Authenticate with registry
+                  command: echo "//registry.npmjs.org/:_authToken=$npm_TOKEN" > ~/RCRE/.npmrc
+            - run:
+                  name: Publish package
+                  command: ./node_modules/.bin/lerna publish --conventional-commits --yes
+
+
+workflows:
+    version: 2
+    test-deploy:
+        jobs:
+            - test:
+                  filters:
+                      tags:
+                          only: /^v.*/
+            - build:
+                  filters:
+                      tags:
+                          only: /^v.*/
+            - deploy:
+                  requires:
+                      - test
+                      - build
+                  filters:
+                      tags:
+                          only: /^v.*/
+                      branches:
+                          ignore: /.*/
+
