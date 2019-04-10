@@ -1,6 +1,6 @@
 import React from 'react';
 import {mount} from 'enzyme';
-import {clearStore, filter, Render, FuncCustomerArgs, waitForDataProviderComplete} from 'rcre';
+import {clearStore, filter, JSONRender, FuncCustomerArgs, waitForDataProviderComplete} from 'rcre';
 import {RCRETestUtil} from 'rcre-test-tools';
 import moxios from 'moxios';
 import axios from 'axios';
@@ -232,7 +232,7 @@ describe('FormItem', () => {
                 }]
             };
             let wrapper = mount(
-                <Render code={JSON.stringify(config)}/>
+                <JSONRender code={JSON.stringify(config)}/>
             );
             expect(wrapper.html()).toBe('<div class="page-container"><div class="page-body"><div></div></div></div>');
             wrapper.unmount();
@@ -250,7 +250,7 @@ describe('FormItem', () => {
             };
 
             let wrapper = mount(
-                <Render code={JSON.stringify(config)}/>
+                <JSONRender code={JSON.stringify(config)}/>
             );
             expect(wrapper.text()).toBe('control property is required for FormItem');
             wrapper.unmount();
@@ -900,7 +900,7 @@ describe('FormItem', () => {
     //         }]
     //     };
     //
-    //     let component = <Render code={JSON.stringify(config)}/>;
+    //     let component = <JSONRender code={JSON.stringify(config)}/>;
     //     let wrapper = mount(component);
     //
     //     // 同页面下的两个表单
@@ -1049,7 +1049,7 @@ describe('FormItem', () => {
     //         }]
     //     };
     //
-    //     let component = <Render code={JSON.stringify(config)}/>;
+    //     let component = <JSONRender code={JSON.stringify(config)}/>;
     //     let wrapper = mount(component);
     //
     //     // 同页面下的两个表单
@@ -1135,7 +1135,7 @@ describe('FormItem', () => {
             ]
         };
 
-        let component = <Render code={JSON.stringify(config)}/>;
+        let component = <JSONRender code={JSON.stringify(config)}/>;
         let wrapper = mount(component);
 
         let input = wrapper.find('RCREForm').at(0).find('input');
@@ -1196,7 +1196,7 @@ describe('FormItem', () => {
     //             ]
     //         };
     //
-    //         let component = <Render code={JSON.stringify(config)}/>;
+    //         let component = <JSONRender code={JSON.stringify(config)}/>;
     //         let wrapper = mount(component);
     //         const fileList = [{
     //             uid: -1,

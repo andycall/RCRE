@@ -14,7 +14,7 @@ jobs:
             # documented at https://circleci.com/docs/2.0/circleci-images/
             # - image: circleci/mongo:3.4.4
 
-        working_directory: ~/repo
+        working_directory: ~/RCRE
 
         steps:
             - checkout
@@ -27,11 +27,11 @@ jobs:
                       - v1-dependencies-
 
             - run: yarn install
-
             - save_cache:
                   paths:
                       - node_modules
                   key: v1-dependencies-{{ checksum "package.json" }}
 
             # run tests!
+            - run: yarn run testMockServer
             - run: yarn test

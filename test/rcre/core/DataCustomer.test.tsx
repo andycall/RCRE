@@ -3,7 +3,7 @@ import {
     clearStore,
     CustomerParams,
     DataCustomer,
-    Render,
+    JSONRender,
     filter,
     FuncCustomerArgs
 } from 'rcre';
@@ -464,7 +464,7 @@ describe('DataCustomer', () => {
                 ]
             };
 
-            let component = <Render code={config}/>;
+            let component = <JSONRender code={config}/>;
             let wrapper = mount(component);
             let button = wrapper.find('RCREConnect(button)');
 
@@ -543,7 +543,7 @@ describe('DataCustomer', () => {
                 ]
             };
 
-            let component = <Render code={config}/>;
+            let component = <JSONRender code={config}/>;
             let wrapper = mount(component);
             let button = wrapper.find('RCREConnect(button)');
 
@@ -619,7 +619,7 @@ describe('DataCustomer', () => {
                 ]
             };
 
-            let component = <Render code={config}/>;
+            let component = <JSONRender code={config}/>;
             let wrapper = mount(component);
             let button = wrapper.find('RCREConnect(button)');
 
@@ -968,7 +968,7 @@ describe('DataCustomer', () => {
             ]
         };
 
-        let component = <Render code={config}/>;
+        let component = <JSONRender code={config}/>;
         let wrapper = mount(component);
 
         let button = wrapper.find('RCREConnect(text)');

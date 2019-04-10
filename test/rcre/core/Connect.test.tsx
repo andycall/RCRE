@@ -871,7 +871,7 @@ describe('CommonConnect', () => {
     //         ]
     //     };
     //
-    //     let wrapper = mount(<Render code={JSON.stringify(config)}/>);
+    //     let wrapper = mount(<JSONRender code={JSON.stringify(config)}/>);
     //     let select = wrapper.find('.ant-select').at(0);
     //     select.simulate('click');
     //

@@ -1,6 +1,6 @@
 import React from 'react';
 import axios from 'axios';
-import {clearStore, PageConfig, Render, waitForDataProviderComplete} from 'rcre';
+import {clearStore, PageConfig, JSONRender, waitForDataProviderComplete} from 'rcre';
 import {mount} from 'enzyme';
 import moxios from 'moxios';
 import {RCRETestUtil, setData} from 'rcre-test-tools';
@@ -306,7 +306,7 @@ describe('DataProvider', () => {
                 ]
             };
 
-            let component = <Render code={config}/>;
+            let component = <JSONRender code={config}/>;
             let wrapper = mount(component);
 
             let checkbox = wrapper.find('RCREConnect(checkbox)');

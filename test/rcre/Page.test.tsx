@@ -1,6 +1,6 @@
 import React from 'react';
 import {mount} from 'enzyme';
-import {clearStore, rcreReducer, Render} from 'rcre';
+import {clearStore, rcreReducer, JSONRender} from 'rcre';
 import {RCRETestUtil} from 'rcre-test-tools';
 import {combineReducers, createStore} from 'redux';
 // import {RCRECore} from '../../packages/rcre/src/types';
@@ -17,7 +17,7 @@ describe('Page', function () {
             ]
         };
 
-        let case1 = mount(<Render code={config}/>);
+        let case1 = mount(<JSONRender code={config}/>);
         expect(case1.text()).toBe('helloworld');
 
         // dynamic push code
@@ -26,7 +26,7 @@ describe('Page', function () {
             text: 'abc'
         });
 
-        let case2 = mount(<Render code={config}/>);
+        let case2 = mount(<JSONRender code={config}/>);
         expect(case2.text()).toBe('helloworldabc');
     });
 
@@ -55,7 +55,7 @@ describe('Page', function () {
             }
 
             render() {
-                return <Render code={config}/>;
+                return <JSONRender code={config}/>;
             }
         }
 
