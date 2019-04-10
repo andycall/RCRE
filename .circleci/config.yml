@@ -41,7 +41,7 @@ jobs:
                   background: true
             - run:
                   name: unit test
-                  command: yarn test
+                  command: jest --env=jsdom -c ./jest.config.json --maxWorkers=2
             - persist_to_workspace:
                   root: ~/RCRE
                   paths: .
