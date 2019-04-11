@@ -8,7 +8,7 @@ version: 2
 defaults: &defaults
     working_directory: ~/RCRE
     docker:
-        - image: circleci/node:8.9.1
+        - image: circleci/node:lts
 
 jobs:
     install:
@@ -22,9 +22,6 @@ jobs:
                       - v1-dependencies-{{ checksum "yarn.lock" }}
                       # fallback to using the latest cache if no exact match is found
                       - v1-dependencies-
-            - run:
-                  name: update yarn
-                  command: npm i -g yarn
             - run:
                   name: install dependencies
                   command: yarn install
