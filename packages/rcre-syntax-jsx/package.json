@@ -3,6 +3,7 @@
     "version": "0.1.1",
     "description": "the jax syntax of RCRE",
     "main": "dist/index.js",
+    "typings": "dist/index.d.ts",
     "scripts": {
         "test": "npm test"
     },
