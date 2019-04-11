@@ -21,6 +21,10 @@
     "transformIgnorePatterns": [
         "[/\\\\]node_modules[/\\\\].+\\.(js|jsx|ts|tsx)$"
     ],
+    "collectCoverage": true,
+    "collectCoverageFrom": [
+        "<rootDir>/packages"
+    ],
     "moduleNameMapper": {
         "^rcre$": "<rootDir>/packages/rcre/src/index.tsx",
         "^rcre-runtime$": "<rootDir>/packages/rcre-runtime/src/index.ts",
