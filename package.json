@@ -39,6 +39,7 @@
         "@types/request": "^2.48.1",
         "body-parser": "^1.18.3",
         "cors": "^2.8.5",
+        "cz-conventional-changelog": "^2.1.0",
         "enzyme": "^3.9.0",
         "enzyme-adapter-react-16": "^1.10.0",
         "express": "^4.16.4",
@@ -57,7 +58,8 @@
         "dev": "node scripts/rollup/watch.js",
         "build": "node scripts/rollup/build.js",
         "testMockServer": "node test/__mock__/server.js &",
-        "test": "jest --env=jsdom -c ./jest.config.json"
+        "test": "jest --env=jsdom -c ./jest.config.json",
+        "commit": "npx git-cz"
     },
     "dependencies": {
         "@types/react-redux": "^7.0.3",
@@ -75,5 +77,10 @@
         "redux": "^3.7.2",
         "rollup": "^1.6.0",
         "typescript": "^3.3.3333"
+    },
+    "config": {
+        "commitizen": {
+            "path": "./node_modules/cz-conventional-changelog"
+        }
     }
 }
