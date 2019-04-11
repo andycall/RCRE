@@ -23,7 +23,8 @@
     ],
     "collectCoverage": true,
     "collectCoverageFrom": [
-        "<rootDir>/packages"
+        "<rootDir>/packages/**/*.{tsx,ts}",
+        "!<rootDir>/packages/**/*.d.{tsx,ts}"
     ],
     "moduleNameMapper": {
         "^rcre$": "<rootDir>/packages/rcre/src/index.tsx",
