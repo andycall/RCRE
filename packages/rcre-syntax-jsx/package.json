@@ -1,9 +1,9 @@
 {
     "name": "rcre-syntax-jsx",
     "version": "0.1.1",
-    "description": "the jax syntax of RCRE",
-    "main": "dist/index.js",
-    "typings": "dist/index.d.ts",
+    "description": "RCRE jsx syntax support",
+    "main": "./dist/index.js",
+    "typings": "./dist/src/index.d.ts",
     "scripts": {
         "test": "npm test"
     },

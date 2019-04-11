@@ -25,6 +25,9 @@ jobs:
             - run:
                   name: install dependencies
                   command: yarn install
+            - run:
+                  name: lerna bootstrap
+                  command: ./node_modules/.bin/lerna bootstrap
             - save_cache:
                   paths:
                       - node_modules
