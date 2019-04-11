@@ -25,7 +25,8 @@
         "^rcre$": "<rootDir>/packages/rcre/src/index.tsx",
         "^rcre-runtime$": "<rootDir>/packages/rcre-runtime/src/index.ts",
         "^rcre-test-tools$": "<rootDir>/packages/rcre-test-tools/src/index.tsx",
-        "^rcre-runtime-syntax-transform$": "<rootDir>/packages/rcre-runtime-syntax-transform/src/index.ts"
+        "^rcre-runtime-syntax-transform$": "<rootDir>/packages/rcre-runtime-syntax-transform/src/index.ts",
+        "^rcre-syntax-jsx$": "<rootDir>/packages/rcre-syntax-jsx/src/index.tsx"
     },
     "globals": {
         "__VERSION__": "0.1.0"
