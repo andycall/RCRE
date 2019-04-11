@@ -26,6 +26,9 @@ jobs:
                   name: install dependencies
                   command: yarn install
             - run:
+                  name: enable yarn workspace
+                  command: yarn config set workspaces-experimental true
+            - run:
                   name: lerna bootstrap
                   command: ./node_modules/.bin/lerna bootstrap
             - save_cache:
