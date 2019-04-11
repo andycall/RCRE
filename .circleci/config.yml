@@ -101,6 +101,7 @@ jobs:
                   name: Publish package
                   command: ./node_modules/.bin/lerna publish --conventional-commits --yes
 
+
 workflows:
     version: 2
     test-deploy:
