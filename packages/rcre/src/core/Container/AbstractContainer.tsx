@@ -1,6 +1,6 @@
 import * as React from 'react';
 import './Container.css';
-import {RCREContext} from "../context";
+import {RCREContext} from '../context';
 import {ContainerProps, defaultData} from './BasicComponent';
 import {ContainerNodeOptions} from '../Service/ContainerDepGraph';
 import Container from './Container';
@@ -64,7 +64,7 @@ export interface ContainerConfig extends BasicConfig, ContainerNodeOptions {
 }
 
 export class AbstractContainer extends React.Component<ContainerProps, {}> {
-    static contextType = RCREContext;
+    static contextType = RCREContext as any;
     constructor(props: ContainerProps) {
         super(props);
     }

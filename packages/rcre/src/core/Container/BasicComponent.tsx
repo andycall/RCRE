@@ -129,7 +129,7 @@ export type ParseInfoOptions<T> = {
  */
 export abstract class BasicContainer<T extends BasicContainerPropsInterface, P> extends React.Component<T, P> {
     // static contextTypes = BasicContext;
-    static contextType = RCREContext;
+    static contextType = RCREContext as any;
     public isUnMounted: boolean;
     public TEST_INFO: any;
 

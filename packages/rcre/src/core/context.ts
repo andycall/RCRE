@@ -1,11 +1,11 @@
-import React from 'react';
+import createReactContext from 'create-react-context';
 import URL from 'url';
 import {DataCustomer} from './DataCustomer/index';
 import {Events} from './Events/index';
 import createReduxStore from '../data/store';
 import {BasicContextType, ComponentContextType} from '../types';
 
-export const RCREContext = React.createContext<BasicContextType>({
+export const RCREContext = createReactContext<BasicContextType>({
     $global: {},
     $location: URL.parse(''),
     lang: '',
@@ -19,7 +19,7 @@ export const RCREContext = React.createContext<BasicContextType>({
     containerGraph: new Map()
 });
 
-export const ComponentContext = React.createContext<ComponentContextType>({
+export const ComponentContext = createReactContext<ComponentContextType>({
     model: '',
     $data: null,
     $tmp: null,

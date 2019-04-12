@@ -44,7 +44,7 @@ export class JSONRender<T extends BasicConfig> extends React.Component<RenderPro
         code: '{"title": "空数据", "body": []}',
         global: {}
     };
-    static contextType = RCREContext;
+    static contextType = RCREContext as any;
 
     private contextValue: BasicContextType;
     public events: Events;
