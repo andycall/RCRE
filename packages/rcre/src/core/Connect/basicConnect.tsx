@@ -233,7 +233,7 @@ export abstract class BasicConnect<Config extends BasicConfig> extends BasicCont
         if ((props.info.hasOwnProperty('defaultValue') &&
             props.info.defaultValue !== null &&
             props.info.defaultValue !== undefined) &&
-            props.info.name) {
+            name) {
             let defaultValue = props.info.defaultValue;
             let runtime = this.getRuntimeContext(props, context);
             let state: RootState = context.store.getState();
@@ -246,8 +246,8 @@ export abstract class BasicConnect<Config extends BasicConfig> extends BasicCont
                 defaultValue = options.getDefaultValue(defaultValue, props);
             }
 
-            if (!has(runtime.$data, props.info.name)) {
-                this.setData(props.info.name, defaultValue, props, {
+            if (!has(runtime.$data, name)) {
+                this.setData(name, defaultValue, props, {
                     noTransform: true
                 });
             }

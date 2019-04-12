@@ -12,7 +12,9 @@ interface RequestCache {
 
 let requestCache: RequestCache = {
     get: {},
-    post: {}
+    post: {},
+    put: {},
+    head: {}
 };
 
 if (process.env.NODE_ENV === 'test') {
@@ -99,7 +101,9 @@ export async function request(url: string, config: AxiosRequestConfig & {
         });
     } else {
         ret = await axios(url, config);
-        requestCache[method][cachedUrl] = ret;
+        if (process.env.NODE_ENV === 'test') {
+            requestCache[method][cachedUrl] = ret;
+        }
     }
 
     return ret;
