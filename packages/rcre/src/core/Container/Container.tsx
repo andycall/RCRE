@@ -383,10 +383,10 @@ export class RCREContainer<Config extends ContainerConfig> extends BasicContaine
                 $data: $data,
                 $tmp: $tmp,
                 dataCustomer: this.dataCustomer,
-                $setData: this.childSetData,
-                $getData: this.getData,
-                $deleteData: $deleteData,
-                $setMultiData: $setMultiData,
+                setData: this.childSetData,
+                getData: this.getData,
+                deleteData: $deleteData,
+                setMultiData: $setMultiData,
             };
             childElements = (
                 <ComponentContext.Provider value={context}>

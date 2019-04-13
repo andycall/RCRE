@@ -24,8 +24,8 @@ export const ComponentContext = createReactContext<ComponentContextType>({
     $data: null,
     $tmp: null,
     dataCustomer: new DataCustomer(),
-    $setData: (name: string, value: any, options: any) => {},
-    $getData: (nameStr: string, props: any, isTmp?: boolean) => {},
-    $deleteData: (name: string, isTmp?: boolean) => {},
-    $setMultiData: (items: { name: string, value: any, isTmp: boolean }[]) => {}
+    setData: (name: string, value: any) => {},
+    getData: (nameStr: string, props: any, isTmp?: boolean) => {},
+    deleteData: (name: string, isTmp?: boolean) => {},
+    setMultiData: (items: { name: string, value: any, isTmp: boolean }[]) => {}
 });

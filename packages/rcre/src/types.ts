@@ -53,6 +53,8 @@ export type runTimeType = RunTimeType;
 export interface RunTimeType {
     $data: any;
     $query?: any;
+    $value?: any;
+    $name?: any;
     $global?: any;
     $item?: any;
     $trigger?: any;
@@ -477,10 +479,10 @@ export interface ComponentContextType {
     $data: any;
     $tmp: any;
     dataCustomer: DataCustomer<any>;
-    $setData: (name: string, value: any, options: any) => void;
-    $getData: (nameStr: string, props: any, isTmp?: boolean) => any;
-    $deleteData: (name: string, isTmp?: boolean) => void;
-    $setMultiData: (items: { name: string, value: any, isTmp: boolean }[]) => void;
+    setData: (name: string, value: any) => void;
+    getData: (nameStr: string, props: any, isTmp?: boolean) => any;
+    deleteData: (name: string, isTmp?: boolean) => void;
+    setMultiData: (items: { name: string, value: any, isTmp: boolean }[]) => void;
 }
 
 export interface PageConfig<T extends BasicConfig> {

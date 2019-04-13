@@ -49,7 +49,7 @@ jobs:
                   background: true
             - run:
                   name: unit test
-                  command: ./node_modules/.bin/jest --env=jsdom -c ./jest.config.json --maxWorkers=2 --silent --verbose
+                  command: ./node_modules/.bin/jest --env=jsdom -c ./jest.config.json --maxWorkers=2 --silent --verbose --coverage
             - run:
                   name: upload coverage report
                   command: ./node_modules/.bin/codecov

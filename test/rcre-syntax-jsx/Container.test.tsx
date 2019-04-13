@@ -104,6 +104,49 @@ describe('jsx syntax', function () {
         test.unmount();
     });
 
+    it('Can use context from ES component to set value directly', () => {
+        const store = createReduxStore();
+
+        let component = (
+            <RCREProvider store={store}>
+                <Container
+                    model={'demo'}
+                    data={{
+                        username: 'helloworld'
+                    }}
+                >
+                    <div>
+                        <div>Helloworld: <ES>{({$data}) => $data.username}</ES></div>
+                        <ES name={'username'}>
+                            {(runTime, context) => {
+                                return (
+                                    <input
+                                        value={runTime.$value}
+                                        onChange={event => {
+                                            context.setData(runTime.$name, event.target.value);
+                                        }}
+                                    />
+                                );
+                            }}
+                        </ES>
+                    </div>
+                </Container>
+            </RCREProvider>
+        );
+
+        let test = new RCRETestUtil(component);
+        let input = test.wrapper.find('input');
+        input.simulate('change', {
+            target: {
+                value: 'abc'
+            }
+        });
+
+        test.setContainer('demo');
+        let state = test.getContainerState();
+        expect(state.username).toBe('abc');
+    });
+
     it('[export]: inner container can export value using ExpressionString', () => {
         // let store = createReduxStore();
         // let component = (

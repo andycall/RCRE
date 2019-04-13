@@ -1,4 +1,4 @@
-import {each, isPlainObject, get, isEqual, isObjectLike, clone, has, isNil} from 'lodash';
+import {each, isEqual, isObjectLike, clone, has, isNil} from 'lodash';
 import {RootState} from '../../data/reducers';
 import {
     BasicConfig,
@@ -210,14 +210,14 @@ export abstract class BasicConnect<Config extends BasicConfig> extends BasicCont
     protected debounceTimer: any;
     protected isDebouncing: boolean;
     protected info: BasicConfig;
-    private nameIsExpression: boolean = false;
+    // private nameIsExpression: boolean = false;
     // 收集到属性过多也是一种负担
-    private isTooMuchProperty: boolean = false;
+    // private isTooMuchProperty: boolean = false;
     public nameBindEvents: any = null;
     protected constructor(props: BasicConnectPropsInterface<Config>, context: BasicContextType, options: CommonOptions) {
         super(props);
 
-        this.$propertyWatch = [];
+        // this.$propertyWatch = [];
         this.debounceCache = {};
         this.isDebouncing = false;
         this.options = options;
@@ -261,45 +261,45 @@ export abstract class BasicConnect<Config extends BasicConfig> extends BasicCont
             }
         }
 
-        this.findWatchProperty(props.info, '');
+        // this.findWatchProperty(props.info, '');
         this.updateNameValue = this.updateNameValue.bind(this);
         this.createReactNode = this.createReactNode.bind(this);
         this.clearNameValue = this.clearNameValue.bind(this);
         this.getFormItemControl = this.getFormItemControl.bind(this);
         this.hasTriggerEvent = this.hasTriggerEvent.bind(this);
 
-        if (this.$propertyWatch.length > 10) {
-            this.isTooMuchProperty = true;
-        }
+        // if (this.$propertyWatch.length > 10) {
+        //     this.isTooMuchProperty = true;
+        // }
     }
 
-    public findWatchProperty(info: any, path: string, depth: number = 0) {
-        each(info, (value, name) => {
-            if (name === 'trigger') {
-                return;
-            }
-
-            if (depth > 5) {
-                this.isTooMuchProperty = true;
-                return;
-            }
-
-            let key = path;
-            key += '.' + name;
-
-            if (isExpression(value)) {
-                this.$propertyWatch.push(key.substr(1));
-            }
-
-            if (Array.isArray(value) && value.length > 0) {
-                value.forEach((v, i) => this.findWatchProperty(v, key + '[' + i + ']', depth + 1));
-            }
-
-            if (isPlainObject(value)) {
-                this.findWatchProperty(value, key, depth + 1);
-            }
-        });
-    }
+    // public findWatchProperty(info: any, path: string, depth: number = 0) {
+    //     each(info, (value, name) => {
+    //         if (name === 'trigger') {
+    //             return;
+    //         }
+    //
+    //         if (depth > 5) {
+    //             this.isTooMuchProperty = true;
+    //             return;
+    //         }
+    //
+    //         let key = path;
+    //         key += '.' + name;
+    //
+    //         if (isExpression(value)) {
+    //             this.$propertyWatch.push(key.substr(1));
+    //         }
+    //
+    //         if (Array.isArray(value) && value.length > 0) {
+    //             value.forEach((v, i) => this.findWatchProperty(v, key + '[' + i + ']', depth + 1));
+    //         }
+    //
+    //         if (isPlainObject(value)) {
+    //             this.findWatchProperty(value, key, depth + 1);
+    //         }
+    //     });
+    // }
 
     componentDidCatch(error: Error, errInfo: any) {}
 
@@ -315,19 +315,19 @@ export abstract class BasicConnect<Config extends BasicConfig> extends BasicCont
         });
     }
 
-    private isPropertyChanged(nextProps: BasicConnectPropsInterface<Config>, nameKeys: string[]) {
-        // 当没有监听的Key，强制刷新
-        if (this.$propertyWatch.length === 0 && nameKeys.length === 0) {
-            return true;
-        }
-        let nextRunTime = this.getRuntimeContext(nextProps);
-        let prevRunTime = this.getRuntimeContext();
-        return !this.$propertyWatch.every(key => {
-            let nextValue = parseExpressionString(get(nextProps.info, key), nextRunTime);
-            let prevValue = parseExpressionString(get(this.props.info, key), prevRunTime);
-            return nextValue === prevValue;
-        });
-    }
+    // private isPropertyChanged(nextProps: BasicConnectPropsInterface<Config>, nameKeys: string[]) {
+    //     // 当没有监听的Key，强制刷新
+    //     if (this.$propertyWatch.length === 0 && nameKeys.length === 0) {
+    //         return true;
+    //     }
+    //     let nextRunTime = this.getRuntimeContext(nextProps);
+    //     let prevRunTime = this.getRuntimeContext();
+    //     return !this.$propertyWatch.every(key => {
+    //         let nextValue = parseExpressionString(get(nextProps.info, key), nextRunTime);
+    //         let prevValue = parseExpressionString(get(this.props.info, key), prevRunTime);
+    //         return nextValue === prevValue;
+    //     });
+    // }
 
     protected updateNameValue(info: Config, connectOptions: CommonOptions) {
         return (value: any, options: BasicContainerSetDataOptions = {}) => {
@@ -378,106 +378,106 @@ export abstract class BasicConnect<Config extends BasicConfig> extends BasicCont
         return this.props.$form.control[name];
     }
 
-    private collectNameFromChild(control: any[] | any, props: BasicConnectPropsInterface<Config> = this.props): string[] {
-        if (!(control instanceof Array)) {
-            control = [control];
-        }
-        let nameList: string[] = [];
-        let runTime = this.getRuntimeContext(props);
-        let me = this;
-        function _find(controlList: any[]) {
-            if (me.nameIsExpression) {
-                return;
-            }
-            controlList.forEach(con => {
-                if (con.type === 'container') {
-                    return;
-                }
+    // private collectNameFromChild(control: any[] | any, props: BasicConnectPropsInterface<Config> = this.props): string[] {
+    //     if (!(control instanceof Array)) {
+    //         control = [control];
+    //     }
+    //     let nameList: string[] = [];
+    //     let runTime = this.getRuntimeContext(props);
+    //     let me = this;
+    //     function _find(controlList: any[]) {
+    //         if (me.nameIsExpression) {
+    //             return;
+    //         }
+    //         controlList.forEach(con => {
+    //             if (con.type === 'container') {
+    //                 return;
+    //             }
+    //
+    //             if (con.hidden === true || con.show === false) {
+    //                 return;
+    //             }
+    //
+    //             if (isExpression(con.hidden)) {
+    //                 let hidden = parseExpressionString(con.hidden, runTime);
+    //
+    //                 if (hidden === true) {
+    //                     return;
+    //                 }
+    //             }
+    //
+    //             if (isExpression(con.show)) {
+    //                 let show = parseExpressionString(con.show, runTime);
+    //
+    //                 if (show === false) {
+    //                     return;
+    //                 }
+    //             }
+    //
+    //             let name = con.name;
+    //             if (isExpression(name)) {
+    //                 me.nameIsExpression = true;
+    //                 return;
+    //             }
+    //
+    //             if (name && nameList.indexOf(name) < 0) {
+    //                 nameList.push(name);
+    //             }
+    //
+    //             for (let property in con) {
+    //                 if (con.hasOwnProperty(property)) {
+    //                     if (!(me.options.collectNameBlackList && me.options.collectNameBlackList.indexOf(property) > -1)) {
+    //                         if (con[property] instanceof Array && con[property].length > 0) {
+    //                             _find(con[property]);
+    //                         }
+    //                         if (isPlainObject(con[property])) {
+    //                             _find([con[property]]);
+    //                         }
+    //                     }
+    //                 }
+    //             }
+    //         });
+    //     }
+    //
+    //     _find(control);
+    //
+    //     return nameList;
+    // }
 
-                if (con.hidden === true || con.show === false) {
-                    return;
-                }
+    // private isNameListChanged(nextProps: BasicConnectPropsInterface<Config>, prevNameList: string[], nextNameList: string[]) {
+    //     // 判断info中包含的name是否改变的函数
+    //     return nextNameList.some((name: string, index: number) => {
+    //         if (this.isNameChanged(nextProps, prevNameList[index], nextNameList[index])) {
+    //             return true;
+    //         } else {
+    //             return false;
+    //         }
+    //     });
+    // }
 
-                if (isExpression(con.hidden)) {
-                    let hidden = parseExpressionString(con.hidden, runTime);
-
-                    if (hidden === true) {
-                        return;
-                    }
-                }
-
-                if (isExpression(con.show)) {
-                    let show = parseExpressionString(con.show, runTime);
-
-                    if (show === false) {
-                        return;
-                    }
-                }
-
-                let name = con.name;
-                if (isExpression(name)) {
-                    me.nameIsExpression = true;
-                    return;
-                }
-
-                if (name && nameList.indexOf(name) < 0) {
-                    nameList.push(name);
-                }
-
-                for (let property in con) {
-                    if (con.hasOwnProperty(property)) {
-                        if (!(me.options.collectNameBlackList && me.options.collectNameBlackList.indexOf(property) > -1)) {
-                            if (con[property] instanceof Array && con[property].length > 0) {
-                                _find(con[property]);
-                            }
-                            if (isPlainObject(con[property])) {
-                                _find([con[property]]);
-                            }
-                        }
-                    }
-                }
-            });
-        }
-
-        _find(control);
-
-        return nameList;
-    }
-
-    private isNameListChanged(nextProps: BasicConnectPropsInterface<Config>, prevNameList: string[], nextNameList: string[]) {
-        // 判断info中包含的name是否改变的函数
-        return nextNameList.some((name: string, index: number) => {
-            if (this.isNameChanged(nextProps, prevNameList[index], nextNameList[index])) {
-                return true;
-            } else {
-                return false;
-            }
-        });
-    }
-
-    private isNameChanged(nextProps: BasicConnectPropsInterface<Config>, prevName?: string, nextName?: string) {
-        if (!prevName && !nextName) {
-            return false;
-        }
-
-        if (!nextName) {
-            return true;
-        }
-
-        if (isExpression(name)) {
-            prevName = parseExpressionString(name, this.getRuntimeContext());
-            nextName = parseExpressionString(name, this.getRuntimeContext(nextProps));
-        }
-
-        if (prevName !== nextName) {
-            return true;
-        }
-
-        let prevValue = this.getValueFromDataStore(prevName);
-        let nextValue = this.getValueFromDataStore(nextName, nextProps);
-
-        return prevValue !== nextValue;
-    }
+    // private isNameChanged(nextProps: BasicConnectPropsInterface<Config>, prevName?: string, nextName?: string) {
+    //     if (!prevName && !nextName) {
+    //         return false;
+    //     }
+    //
+    //     if (!nextName) {
+    //         return true;
+    //     }
+    //
+    //     if (isExpression(name)) {
+    //         prevName = parseExpressionString(name, this.getRuntimeContext());
+    //         nextName = parseExpressionString(name, this.getRuntimeContext(nextProps));
+    //     }
+    //
+    //     if (prevName !== nextName) {
+    //         return true;
+    //     }
+    //
+    //     let prevValue = this.getValueFromDataStore(prevName);
+    //     let nextValue = this.getValueFromDataStore(nextName, nextProps);
+    //
+    //     return prevValue !== nextValue;
+    // }
 
     public componentWillUpdate(nextProps: BasicConnectPropsInterface<Config>, nextState: BasicContextType, nextContext: any) {
         let nameKey = this.options.nameKey || 'value';
@@ -502,79 +502,79 @@ export abstract class BasicConnect<Config extends BasicConfig> extends BasicCont
         }
     }
 
-    private isGroupNameChanged(nextProps: BasicConnectPropsInterface<Config>, nextContext: any) {
-        if (!this.options.getAllNameKeys) {
-            return {
-                changed: false,
-                names: []
-            };
-        }
+    // private isGroupNameChanged(nextProps: BasicConnectPropsInterface<Config>, nextContext: any) {
+    //     if (!this.options.getAllNameKeys) {
+    //         return {
+    //             changed: false,
+    //             names: []
+    //         };
+    //     }
+    //
+    //     let prevInfo = this.getParsedInfo(this.props.info, {
+    //         props: this.props,
+    //         context: this.context,
+    //         ...this.options.parseOptions
+    //     });
+    //
+    //     let nextInfo = this.getParsedInfo(nextProps.info, {
+    //         props: nextProps,
+    //         context: nextContext,
+    //         ...this.options.parseOptions
+    //     });
+    //
+    //     let prevNameKeys = this.options.getAllNameKeys(prevInfo);
+    //     let nextNameKeys = this.options.getAllNameKeys(nextInfo);
+    //
+    //     if (prevNameKeys.length !== nextNameKeys.length) {
+    //         return {
+    //             changed: true,
+    //             names: []
+    //         };
+    //     }
+    //
+    //     if (!isEqual(prevNameKeys, nextNameKeys)) {
+    //         return {
+    //             changed: true,
+    //             names: prevNameKeys
+    //         };
+    //     }
+    //
+    //     let isChanged = prevNameKeys.some(key => {
+    //         return this.isNameChanged(nextProps, key, key);
+    //     });
+    //
+    //     return {
+    //         changed: isChanged,
+    //         names: prevNameKeys
+    //     };
+    // }
 
-        let prevInfo = this.getParsedInfo(this.props.info, {
-            props: this.props,
-            context: this.context,
-            ...this.options.parseOptions
-        });
-
-        let nextInfo = this.getParsedInfo(nextProps.info, {
-            props: nextProps,
-            context: nextContext,
-            ...this.options.parseOptions
-        });
-
-        let prevNameKeys = this.options.getAllNameKeys(prevInfo);
-        let nextNameKeys = this.options.getAllNameKeys(nextInfo);
-
-        if (prevNameKeys.length !== nextNameKeys.length) {
-            return {
-                changed: true,
-                names: []
-            };
-        }
-
-        if (!isEqual(prevNameKeys, nextNameKeys)) {
-            return {
-                changed: true,
-                names: prevNameKeys
-            };
-        }
-
-        let isChanged = prevNameKeys.some(key => {
-            return this.isNameChanged(nextProps, key, key);
-        });
-
-        return {
-            changed: isChanged,
-            names: prevNameKeys
-        };
-    }
-
-    public shouldComponentUpdate(nextProps: BasicConnectPropsInterface<Config>, nextState: {}) {
-        if (this.options.forceUpdate || this.nameIsExpression || this.isTooMuchProperty) {
-            return true;
-        }
-        let isPropertyChanged;
-        if (typeof this.options.getAllNameKeys === 'function') {
-            let status = this.isGroupNameChanged(nextProps, nextState);
-            isPropertyChanged = this.isPropertyChanged(nextProps, status.names);
-
-            return isPropertyChanged || status.changed;
-        }
-
-        isPropertyChanged = this.isPropertyChanged(nextProps, [this.props.info.name!]);
-
-        let preNameList = this.collectNameFromChild(this.props.info);
-        let nextNameList = this.collectNameFromChild(nextProps.info);
-
-        let isNameListChange;
-        if (this.nameIsExpression) {
-            isNameListChange = true;
-        } else {
-            isNameListChange = this.isNameListChanged(nextProps, preNameList, nextNameList);
-        }
-
-        return isPropertyChanged || isNameListChange;
-    }
+    // public shouldComponentUpdate(nextProps: BasicConnectPropsInterface<Config>, nextState: {}) {
+    //     if (this.options.forceUpdate || this.nameIsExpression || this.isTooMuchProperty) {
+    //         return true;
+    //     }
+    //     let isPropertyChanged;
+    //     if (typeof this.options.getAllNameKeys === 'function') {
+    //         let status = this.isGroupNameChanged(nextProps, nextState);
+    //         isPropertyChanged = this.isPropertyChanged(nextProps, status.names);
+    //
+    //         return isPropertyChanged || status.changed;
+    //     }
+    //
+    //     isPropertyChanged = this.isPropertyChanged(nextProps, [this.props.info.name!]);
+    //
+    //     let preNameList = this.collectNameFromChild(this.props.info);
+    //     let nextNameList = this.collectNameFromChild(nextProps.info);
+    //
+    //     let isNameListChange;
+    //     if (this.nameIsExpression) {
+    //         isNameListChange = true;
+    //     } else {
+    //         isNameListChange = this.isNameListChanged(nextProps, preNameList, nextNameList);
+    //     }
+    //
+    //     return isPropertyChanged || isNameListChange;
+    // }
 
     public createReactNode<C extends BasicConfig>(config: C, props: object) {
         return createChild(config, {
