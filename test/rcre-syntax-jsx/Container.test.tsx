@@ -1,7 +1,8 @@
 import {RCRETestUtil} from 'rcre-test-tools';
 import React from 'react';
-import {createReduxStore, RCREProvider} from 'rcre';
+import {createReduxStore, RCREProvider, runTimeType} from 'rcre';
 import {Container, ES} from 'rcre-syntax-jsx';
+import RCREContainer from "../../packages/rcre/src/core/Container/Container";
 
 describe('jsx syntax', function () {
     it('div', () => {
@@ -145,6 +146,45 @@ describe('jsx syntax', function () {
         test.setContainer('demo');
         let state = test.getContainerState();
         expect(state.username).toBe('abc');
+    });
+
+    it('Can exec DataCustomer from ES Component directly', () => {
+        const store = createReduxStore();
+        let component = (
+            <RCREProvider store={store}>
+                <Container
+                    model={'demo'}
+                    dataCustomer={{
+                        customers: [{
+                            mode: 'pass',
+                            name: 'sendToOther',
+                            config: {
+                                model: 'other',
+                                assign: {
+                                    password: (runTime: runTimeType) => runTime.$trigger.password
+                                }
+                            }
+                        }]
+                    }}
+                >
+                    <div>helloworld</div>
+                    <ES>
+                        {(runTime, context) => {
+                            return (
+                                <button
+                                    onClick={() => {
+
+                                    }}
+                                >
+                                    click
+                                </button>
+                            );
+                        }}
+                    </ES>
+                </Container>
+                <Container model={'other'} />
+            </RCREProvider>
+        );
     });
 
     it('[export]: inner container can export value using ExpressionString', () => {
