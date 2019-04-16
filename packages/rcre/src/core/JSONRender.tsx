@@ -6,7 +6,7 @@ import {RCREContext} from './context';
 import {dataProviderEvent} from './Events/dataProviderEvent';
 import {ContainerNode} from './Service/ContainerDepGraph';
 import {RootState} from '../data/reducers';
-import {BasicConfig, BasicContextType, PageConfig, RCREOptions} from '../types';
+import {BasicConfig, RCREContextType, PageConfig, RCREOptions} from '../types';
 import * as React from 'react';
 import {Provider} from 'react-redux';
 import {Events} from './Events/index';
@@ -19,8 +19,6 @@ interface RenderState {
 export type globalOptions = {
     [s: string]: any
 };
-
-// export let store: Store<RootState> = configureStore();
 
 export interface RenderPropsInterface<T extends BasicConfig> {
     // 配置代码
@@ -46,7 +44,7 @@ export class JSONRender<T extends BasicConfig> extends React.Component<RenderPro
     };
     static contextType = RCREContext as any;
 
-    private contextValue: BasicContextType;
+    private contextValue: RCREContextType;
     public events: Events;
     private store: Store<RootState>;
     private containerGraph: Map<string, ContainerNode>;
@@ -88,6 +86,7 @@ export class JSONRender<T extends BasicConfig> extends React.Component<RenderPro
             $global: props.global || {},
             debug: props.debug || false,
             store: store,
+            loadMode: 'default',
             mode: 'json',
             options: props.options || {},
             events: this.events,
@@ -131,11 +130,8 @@ export class JSONRender<T extends BasicConfig> extends React.Component<RenderPro
 
         let childElements = body.map((item, index) => {
             return createChild(item, {
-                info: item,
-                key: index,
-                loadMode: this.props.loadMode,
-                debug: this.props.debug,
-                options: this.props.options
+                ...item,
+                key: index
             });
         });
 

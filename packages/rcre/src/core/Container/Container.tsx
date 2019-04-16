@@ -6,112 +6,108 @@ import * as React from 'react';
 import {
     clone,
     get,
-    find,
-    isObject,
     isObjectLike,
-    each
 } from 'lodash';
 import {
-    BasicConfig,
-    BasicContainerSetDataOptions,
-    BasicContextType,
-    runTimeType
+    BasicContainerSetDataOptions, BasicProps,
+    ContainerContextType,
+    CustomerSourceConfig,
+    ProviderSourceConfig,
+    RCREContextType
 } from '../../types';
 import {
-    BasicContainer,
-    ContainerProps
+    defaultData
 } from './BasicComponent';
 import {connect} from 'react-redux';
-import {bindActionCreators, Dispatch} from 'redux';
-import {actionCreators, IContainerAction} from './action';
+import {containerActionCreators} from './action';
 import {RootState} from '../../data/reducers';
 import {DataProvider} from '../DataProvider/Controller';
 import {compileExpressionString, isExpression, parseExpressionString} from '../util/vm';
 import {DataCustomer} from '../DataCustomer/index';
-import {createChild} from '../util/createChild';
-import {TMP_MODEL} from './reducer';
-import {ContainerNode} from '../Service/ContainerDepGraph';
-import {ContainerConfig} from './AbstractContainer';
-import {ComponentContext} from '../context';
-import {setWith, getRuntimeContext} from '../util/util';
+import {ContainerNode, ContainerNodeOptions} from '../Service/ContainerDepGraph';
+import {BindItem} from '../Hosts/Container';
+import {ContainerContext} from '../context';
+import {getRuntimeContext} from '../util/util';
 
 // First Init Life Circle:
 // ComponentWillMount -> Render -> ComponentDidMount
 
-const propsBlackList = ['children', 'data', 'dataCustomer', 'dataProvider', 'export', 'props'];
-// Component Update Life Circle:
-// componentWillReceiveProps -> shouldComponentUpdate -> ComponentWillUpdate -> Render -> ComponentDidMount
-export class RCREContainer<Config extends ContainerConfig> extends BasicContainer<ContainerProps, {}> {
-    private dataProvider: DataProvider<Config>;
-    private dataCustomer: DataCustomer<Config>;
-    public CONTAINER_UPDATE_COUNT: number;
-    // private event: EventNode;
-    private isUnmount: boolean;
-    private model: string;
-
-    constructor(props: ContainerProps, context: BasicContextType) {
-        super(props);
-        this.dataProvider = new DataProvider(props.info.dataProvider || []);
-        this.dataCustomer = new DataCustomer(props.dataCustomer);
-        this.isUnmount = false;
-        this.getData = this.getData.bind(this);
-        this.childSetData = this.childSetData.bind(this);
-        let info = this.getParsedInfo(props.info, {
-            props,
-            context,
-            blackList: propsBlackList
-        });
-        this.CONTAINER_UPDATE_COUNT = 0;
-        this.initContainerGraph(context, info);
-        this.initDataCustomer(info, props);
-        this.initDefaultData(info, props, context);
-        this.model = info.model;
-    }
+export interface ContainerProps extends ContainerNodeOptions, BasicProps {
+    /**
+     * 当前Container组件的数据模型
+     */
+    $data: any;
 
     /**
-     * 预先收集defaultValue
-     * @param {BasicConfig[]} info
-     * @param {object} defaultCache
-     * @param {runTimeType} runTime
+     * 数据模型Key
      */
-    private collectDefaultValue(info: any, defaultCache: object, runTime: runTimeType) {
-        if (info.type === 'container' || info.hidden || info.show) {
-            return;
-        }
+    model: string;
 
-        let defaultValue = info.defaultValue;
+    /**
+     * 初始化数据
+     */
+    data?: defaultData;
 
-        if (isExpression(defaultValue)) {
-            defaultValue = parseExpressionString(defaultValue, runTime);
-        }
+    /**
+     * container 继承属性映射
+     */
+    props?: Object;
 
-        if (Array.isArray(defaultValue) || isObject(defaultValue)) {
-            defaultValue = compileExpressionString(defaultValue, runTime, [], true);
-        }
+    /**
+     * 自动同步子级的对应属性的值到父级
+     * @deprecated
+     */
+    bind?: BindItem[];
 
-        if (info.name && defaultValue) {
-            defaultCache = setWith(defaultCache, info.name, defaultValue);
-        }
+    /**
+     * 自定义内部的属性值，只需指定父级的Key，根据ExpressionString来计算出传入到父级的值
+     */
+    export?: {
+        [parent: string]: string;
+    } | string;
 
-        each(info, (value, property) => {
-            if (value instanceof Array) {
-                value.forEach(v => {
-                    if (this.isRCREConfig(v)) {
-                        this.collectDefaultValue(v, defaultCache, runTime);
-                    }
-                });
-            } else if (this.isRCREConfig(value)) {
-                this.collectDefaultValue(value, defaultCache, runTime);
-            }
-        });
+    /**
+     * dataProvider配置
+     */
+    dataProvider?: ProviderSourceConfig[];
+
+    /**
+     * dataCustomer配置
+     */
+    dataCustomer?: CustomerSourceConfig;
+
+    /**
+     * 子级组件
+     */
+    children?: any;
+}
+
+// Component Update Life Circle:
+// componentWillReceiveProps -> shouldComponentUpdate -> ComponentWillUpdate -> Render -> ComponentDidMount
+class Container extends React.Component<ContainerProps, {}> {
+    private dataProvider: DataProvider;
+    private dataCustomer: DataCustomer;
+    // private event: EventNode;
+    private isUnmount: boolean;
+
+    constructor(props: ContainerProps, context: RCREContextType) {
+        super(props);
+        this.dataProvider = new DataProvider(props.dataProvider || []);
+        this.dataCustomer = new DataCustomer(props.containerContext.dataCustomer);
+        this.isUnmount = false;
+        this.getData = this.getData.bind(this);
+        this.$setData = this.$setData.bind(this);
+        this.initContainerGraph(props);
+        this.initDataCustomer(props);
+        this.initDefaultData(props);
     }
 
-    private initDataCustomer(info: ContainerConfig, props: ContainerProps) {
+    private initDataCustomer(props: ContainerProps) {
         const defaultCustomer = {
             mode: 'pass',
             name: '$SELF_PASS_CUSTOMER',
             config: {
-                model: props.info.model,
+                model: props.model,
                 assign: {}
             }
         };
@@ -125,90 +121,108 @@ export class RCREContainer<Config extends ContainerConfig> extends BasicContaine
             }
         };
 
-        if (info.dataCustomer) {
-            if (!Array.isArray(info.dataCustomer.customers)) {
+        let dataCustomer = props.dataCustomer;
+
+        if (dataCustomer) {
+            if (!Array.isArray(dataCustomer.customers)) {
                 console.error('DataCustomer: customer属性必须是个数组');
                 return;
             }
 
-            if (info.dataCustomer.groups && !Array.isArray(info.dataCustomer.groups)) {
+            if (dataCustomer.groups && !Array.isArray(dataCustomer.groups)) {
                 console.error('DataCustomer: groups属性必须是个数组');
                 return;
             }
 
-            info.dataCustomer.customers.unshift(defaultCustomer);
-            info.dataCustomer.customers.unshift(defaultParentCustomer);
+            dataCustomer.customers.unshift(defaultCustomer);
+            dataCustomer.customers.unshift(defaultParentCustomer);
         } else {
-            info.dataCustomer = {
+            dataCustomer = {
                 customers: [defaultCustomer, defaultParentCustomer],
                 groups: []
             };
         }
-        this.dataCustomer.initCustomerConfig(info.dataCustomer);
+        this.dataCustomer.initCustomerConfig(dataCustomer);
     }
 
-    private initDefaultData(info: ContainerConfig, props: ContainerProps, context: BasicContextType) {
+    private getContextCollection() {
+        return {
+            rcre: this.props.rcreContext,
+            container: this.props.containerContext,
+            iterator: this.props.iteratorContext,
+            form: this.props.formContext
+        };
+    }
+
+    private initDefaultData(props: ContainerProps) {
         let defaultValue = {};
-        let runTime = this.getRuntimeContext(props, context);
-        this.collectDefaultValue(info.children, defaultValue, runTime);
-        let data = compileExpressionString(info.data, runTime, [], true);
+        let runTime = getRuntimeContext({
+            $data: this.props.$data,
+            $parent: this.props.containerContext.$data
+        } as ContainerContextType, this.props.rcreContext, {
+            iteratorContext: this.props.iteratorContext
+        });
+
+        let data = compileExpressionString(this.props.data, runTime, [], true);
 
         if (defaultValue) {
             Object.assign(defaultValue, data);
 
-            this.props.initContainer({
-                model: info.model,
+            this.props.rcreContext.store.dispatch(containerActionCreators.initContainer({
+                model: this.props.model,
                 data: defaultValue
-            }, context);
+            }, this.getContextCollection()));
         }
     }
 
-    private initContainerGraph(context: BasicContextType, info: ContainerConfig) {
-        if (!context.containerGraph.has(info.model)) {
-            let node = new ContainerNode(info.model, info.props, info.export, info.bind, info);
-            context.containerGraph.set(info.model, node);
-            if (this.props.model && context.containerGraph.has(this.props.model)) {
-                let parentNode = context.containerGraph.get(this.props.model)!;
+    private initContainerGraph(props: ContainerProps) {
+        let model = props.model;
+        let context = props.rcreContext;
+        if (!context.containerGraph.has(model)) {
+            let node = new ContainerNode(model, props.props, props.export, props.bind, {
+                syncDelete: props.syncDelete,
+                forceSyncDelete: props.forceSyncDelete,
+                clearDataToParentsWhenDestroy: props.clearDataToParentsWhenDestroy,
+                noNilToParent: props.noNilToParent
+            });
+            context.containerGraph.set(model, node);
+            if (this.props.containerContext.model && context.containerGraph.has(this.props.model)) {
+                let parentNode = context.containerGraph.get(this.props.containerContext.model)!;
                 parentNode.addChild(node);
             }
         } else {
-            console.warn('检测到有重复的container组件。model: ' + info.model);
+            console.warn('检测到有重复的container组件。model: ' + this.props.model);
         }
     }
 
     componentWillUpdate(nextProps: ContainerProps) {
         const providerActions = {
-            asyncLoadDataProgress: this.props.asyncLoadDataProgress,
-            asyncLoadDataSuccess: this.props.asyncLoadDataSuccess,
-            asyncLoadDataFail: this.props.asyncLoadDataFail,
-            syncLoadDataSuccess: this.props.syncLoadDataSuccess,
-            syncLoadDataFail: this.props.syncLoadDataFail
+            asyncLoadDataProgress: containerActionCreators.asyncLoadDataProgress,
+            asyncLoadDataSuccess: containerActionCreators.asyncLoadDataSuccess,
+            asyncLoadDataFail: containerActionCreators.asyncLoadDataFail,
+            syncLoadDataSuccess: containerActionCreators.syncLoadDataSuccess,
+            syncLoadDataFail: containerActionCreators.syncLoadDataFail
         };
 
-        if (this.props.info.dataProvider) {
-            this.dataProvider.requestForData(this.props.info.model, this.props.info.dataProvider, providerActions, nextProps, this.context);
+        if (this.props.dataProvider) {
+            this.dataProvider.requestForData(nextProps.model, this.props.dataProvider, providerActions, nextProps, this.getContextCollection());
         }
-
-        // this.event.trigger('componentWillUpdate');
     }
 
     componentWillUnmount() {
-        let info = this.getPropsInfo(this.props.info, this.props, propsBlackList);
-        if (info.model) {
-            this.props.clearData({
-                model: info.model,
-                context: this.context
-            });
-        }
+        this.props.rcreContext.store.dispatch(containerActionCreators.clearData({
+            model: this.props.model,
+            context: this.getContextCollection()
+        }));
         this.dataProvider.providerCache = {};
-        let node = this.context.containerGraph.get(info.model);
+        let node = this.props.rcreContext.containerGraph.get(this.props.model);
 
         if (node && node.parent) {
             let parentNode = node.parent;
             parentNode.removeChild(node);
         }
 
-        this.context.containerGraph.delete(info.model);
+        this.props.rcreContext.containerGraph.delete(this.props.model);
         this.isUnmount = true;
         this.dataProvider.depose();
         this.dataCustomer.depose();
@@ -219,43 +233,26 @@ export class RCREContainer<Config extends ContainerConfig> extends BasicContaine
     private depose() {
         delete this.dataProvider;
         delete this.dataCustomer;
-        delete this.childSetData;
+        delete this.$setData;
         delete this.getData;
         this.isUnmount = true;
     }
 
-    private getData(nameStr: string, props: any = this.props, isTmp?: boolean) {
-        let $data = props.$data;
+    private getData(nameStr: string) {
+        let $data = this.props.$data;
 
         if (!$data) {
             return null;
-        }
-
-        if (isTmp) {
-            $data = props.$tmp;
         }
 
         if (typeof nameStr !== 'string') {
             nameStr = String(nameStr);
         }
 
-        let value = get($data, nameStr);
-
-        if (props.info.transform && isExpression(props.info.transform.in)) {
-            let runTime = this.getRuntimeContext(props);
-            value = parseExpressionString(props.info.transform.in, {
-                ...runTime,
-                $args: {
-                    name: nameStr,
-                    value: value
-                }
-            });
-        }
-
-        return value;
+        return get($data, nameStr);
     }
 
-    childSetData(name: string, value: any, options: BasicContainerSetDataOptions = {}) {
+    $setData(name: string, value: any, options: BasicContainerSetDataOptions = {}) {
         if (this.isUnmount) {
             return;
         }
@@ -265,269 +262,100 @@ export class RCREContainer<Config extends ContainerConfig> extends BasicContaine
             value = clone(value);
         }
 
-        this.props.setData({
+        this.props.rcreContext.store.dispatch(containerActionCreators.setData({
             name: String(name),
             value: value,
             options: options
-        }, this.model, this.context);
+        }, this.props.model, this.getContextCollection()));
 
         if (options.forceUpdate) {
             this.forceUpdate();
         }
     }
 
+    $setMultiData = (items: {name: string, value: any}[]) => {
+        if (this.isUnmount) {
+            return;
+        }
+
+        items = items.map(item => {
+            // IMPORTANT, 删除这个代码会引发严重的Bug
+            if (isObjectLike(item.value)) {
+                item.value = clone(item.value);
+            }
+
+            return item;
+        });
+
+        this.props.rcreContext.store.dispatch(containerActionCreators.setMultiData(
+            items,
+            this.props.model,
+            this.getContextCollection()
+        ));
+    }
+
+    $deleteData = (name: string) => {
+        this.props.rcreContext.store.dispatch(
+            containerActionCreators.deleteData({
+                name: name
+            }, this.props.model, this.getContextCollection())
+        );
+    }
+
     TEST_setData(name: string, value: any) {
-        this.childSetData(name, value);
+        this.$setData(name, value);
     }
 
     render() {
-        let info = this.getPropsInfo(this.props.info, this.props, propsBlackList);
-
-        if (process.env.NODE_ENV === 'test') {
-            // 测试框架支持
-            this.TEST_INFO = info;
-            this.CONTAINER_UPDATE_COUNT++;
-        }
-
-        if (!info.model) {
+        if (!this.props.model) {
             return <div className="err-text">Container: model should defined in container like components</div>;
         }
 
-        this.model = info.model;
-
-        if (!info.children) {
+        if (!this.props.children) {
             return <div className="err-text">Container: children props must be specific in Container Component</div>;
         }
 
-        let state: RootState = this.context.store.getState();
-        let $data = clone(state.$rcre.container[info.model] || {});
-        let $tmp = clone(this.props.$tmp);
-
-        const $setMultiData = (items: { name: string, value: any, isTmp: boolean }[]) => {
-            if (this.isUnmount) {
-                return;
-            }
-
-            items = items.map(item => {
-                // IMPORTANT, 删除这个代码会引发严重的Bug
-                if (isObjectLike(item.value)) {
-                    item.value = clone(item.value);
-                }
-
-                return item;
-            });
-
-            this.props.setMultiData(items, info.model, this.context);
-        };
-
-        const $deleteData = (name: string, isTmp?: boolean) => {
-            if (info.bind && info.bind instanceof Array) {
-                let bindTarget = find(info.bind, o => o.child === name);
-
-                if (bindTarget && this.props.$deleteData) {
-                    this.props.$deleteData(bindTarget.parent);
-                }
-            }
-
-            this.props.deleteData({
-                name: name,
-                isTmp: isTmp
-            }, info.model, this.context);
-        };
-
-        const {
-            initContainer,
-            asyncLoadDataFail,
-            asyncLoadDataProgress,
-            syncLoadDataFail,
-            syncLoadDataSuccess,
-            asyncLoadDataSuccess,
-            clearData,
-            deleteData,
-            setData,
-            setMultiData,
-            ...props
-        } = this.props;
+        let model = this.props.model;
+        let state: RootState = this.props.rcreContext.store.getState();
+        let $data = state.$rcre.container[model] || {};
+        let parentModel = this.props.containerContext.model;
+        let $parent = parentModel ? state.$rcre.container[parentModel] : {};
 
         let childElements = this.props.children;
 
-        if (this.context.mode === 'json' && Array.isArray(info.children)) {
-            // Container Component no long compile expression string for child
-            // instead, AbstractComponent should compile it by themSelf
-            childElements = info.children.map((child: BasicConfig, index: number) => {
-                child = this.getPropsInfo(child, this.props, [], false, ['show', 'hidden']);
-                let childElement = createChild(child, {
-                    ...props,
-                    info: child,
-                    model: info.model,
-                    $data: $data,
-                    $tmp: $tmp,
-                    $parent: this.props.$parent,
-                    options: this.props.options,
-                    dataCustomer: this.dataCustomer,
-                    $index: this.props.$index,
-                    $item: this.props.$item,
-                    $setData: this.childSetData,
-                    $getData: this.getData,
-                    $deleteData: $deleteData,
-                    $setMultiData: $setMultiData,
-                    key: `${child.type}_${index}`
-                });
-
-                return this.renderChildren(child, childElement);
-            });
-        } else {
-            // 通过这样的方式强制子级组件更新
-            const context = {
-                model: info.model,
-                $data: $data,
-                $tmp: $tmp,
-                dataCustomer: this.dataCustomer,
-                setData: this.childSetData,
-                getData: this.getData,
-                deleteData: $deleteData,
-                setMultiData: $setMultiData,
-            };
-            childElements = (
-                <ComponentContext.Provider value={context}>
-                    {childElements}
-                </ComponentContext.Provider>
-            );
-        }
-
-        const containerStyle = {
-            border: this.props.debug ? '1px dashed #3398FC' : '',
-            ...info.style,
-            width: '100%'
+        // 通过这样的方式强制子级组件更新
+        const context = {
+            model: this.props.model,
+            $data: $data,
+            $parent: $parent,
+            dataCustomer: this.dataCustomer,
+            $setData: this.$setData,
+            $getData: this.getData,
+            $deleteData: this.$deleteData,
+            $setMultiData: this.$setMultiData,
         };
 
-        if (this.context.debug || this.context.mode === 'json') {
-            return (
-                <div className={'rcre-container ' + (info.className || '')} style={containerStyle}>
-                    {this.props.debug && <span>container: {info.model}</span>}
-                    {childElements}
-                </div>
-            );
-        }
-
-        return childElements;
+        return (
+            <ContainerContext.Provider value={context}>
+                {childElements}
+            </ContainerContext.Provider>
+        );
     }
 }
 
-const mapStateToProps = (state: RootState, ownProps: ContainerProps) => {
-    let runTime = getRuntimeContext(ownProps, {});
-    // direct compile
-    let info = compileExpressionString(ownProps.info, runTime,
-        ['children', 'data', 'dataCustomer', 'dataProvider'], false);
+const mapStateToProps = (state: RootState, props: ContainerProps) => {
+    let model = props.model;
+    let runTime = getRuntimeContext({} as ContainerContextType, props.rcreContext, {
+        iteratorContext: props.iteratorContext,
+    });
 
-    let $data = state.$rcre.container[info.model] || {};
-    let $tmp = state.$rcre.container[TMP_MODEL] || {};
+    if (isExpression(model)) {
+        model = parseExpressionString(model, runTime);
+    }
 
     return {
-        $data: $data,
-        $tmp: $tmp,
-        selfModel: info.model
+        $data: state.$rcre.container[model]
     };
 };
 
-const mapDispatchToProps = (dispatch: Dispatch<IContainerAction>) => bindActionCreators({
-    initContainer: actionCreators.initContainer,
-    setData: actionCreators.setData,
-    setMultiData: actionCreators.setMultiData,
-    clearData: actionCreators.clearData,
-    deleteData: actionCreators.deleteData,
-    asyncLoadDataProgress: actionCreators.asyncLoadDataProgress,
-    asyncLoadDataSuccess: actionCreators.asyncLoadDataSuccess,
-    asyncLoadDataFail: actionCreators.asyncLoadDataFail,
-    syncLoadDataSuccess: actionCreators.syncLoadDataSuccess,
-    syncLoadDataFail: actionCreators.syncLoadDataFail
-}, dispatch);
-
-/**
- * RCRE 0.15以下版本的父子级兼容策略
- *
- * @param {ContainerPropsInterface} ownProps
- * @param {{$data: Object}} stateProps
- * @param {ContainerProps} dispatchProps
- * @returns {any}
- */
-function oldNestContainerCompatible(ownProps: ContainerProps, stateProps: {
-    $data: Object
-}, dispatchProps: ContainerProps) {
-    let parentProps = ownProps.$data || {};
-    let stateData = stateProps.$data;
-    if (isObject(ownProps.info.parentMapping)) {
-        let runTime = getRuntimeContext(ownProps, {});
-        let parentMappingRet = compileExpressionString(ownProps.info.parentMapping, {
-            ...runTime,
-            $parent: parentProps,
-            $data: stateProps.$data
-        });
-        if (parentMappingRet) {
-            let originalData = stateProps.$data;
-            Object.assign(stateData, originalData);
-        }
-    } else {
-        // 屏蔽$loading属性
-        delete parentProps['$loading'];
-        Object.assign(stateData, parentProps);
-    }
-    return Object.assign({}, ownProps, stateProps, dispatchProps, {
-        $data: stateData
-    });
-}
-
-/**
- * 执行container组件嵌套的逻辑
- *
- * @param stateProps 当前container组件的mapStateToProps返回的对象
- * @param dispatchProps 当前container组件的mapDispatchToProps返回的对象
- * @param parentProps connect组件接收到的props
- * @return 当前container组件的props
- */
-let hasWarn = false;
-export const mergeProps =
-    (stateProps: {
-        $data: Object
-    }, dispatchProps: ContainerProps, ownProps: ContainerProps): ContainerProps => {
-        // 启用兼容模式， 父级优先
-        if (ownProps.options && ownProps.options.oldNestContainerCompatible) {
-            if (!hasWarn) {
-                hasWarn = true;
-                console.warn('oldNestContainerCompatible该配置为兼容老版本功能,不建议使用,会导致container嵌套功能无法使用');
-            }
-            return oldNestContainerCompatible(ownProps, stateProps, dispatchProps);
-        }
-
-        // 子级优先
-        let parentData = ownProps.$data;
-
-        if (ownProps.$parent && parentData) {
-            parentData['$parent'] = ownProps.$parent;
-        }
-
-        let retProps = Object.assign({}, ownProps, stateProps, dispatchProps, {
-            $parent: parentData
-        });
-
-        return retProps;
-    };
-
-export default connect(mapStateToProps, mapDispatchToProps, mergeProps, {
-    pure: true,
-    areStatePropsEqual: (nextStateProps, prevStateProps) => {
-        return nextStateProps.$data === prevStateProps.$data && nextStateProps.$tmp === prevStateProps.$tmp;
-    },
-    areMergedPropsEqual: (nextMergedProps, prevMergedProps) => {
-        let buildInEqual = nextMergedProps.$data === prevMergedProps.$data && nextMergedProps.$parent === prevMergedProps.$parent;
-        if (prevMergedProps.$form && nextMergedProps.$form) {
-            buildInEqual = buildInEqual && prevMergedProps.$form === nextMergedProps.$form;
-        }
-
-        if (prevMergedProps.$item && nextMergedProps.$item) {
-            buildInEqual = buildInEqual && prevMergedProps.$item === nextMergedProps.$item;
-        }
-
-        return buildInEqual;
-    }
-})(RCREContainer);
+export const RCREContainer = connect(mapStateToProps)(Container);

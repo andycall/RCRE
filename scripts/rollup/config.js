@@ -25,6 +25,7 @@ const external = [
     'acorn',
     'rcre-runtime',
     'rcre',
+    'create-react-context',
     'rcre-test-tools',
     'typescript'
 ];

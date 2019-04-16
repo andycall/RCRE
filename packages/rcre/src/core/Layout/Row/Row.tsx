@@ -4,7 +4,7 @@ import {isArray} from 'lodash';
 import {BasicContainer} from '../../Container/BasicComponent';
 import {createChild} from '../../util/createChild';
 import {detect} from 'bowser';
-import {BasicConfig, BasicContainerPropsInterface, COREConfig, CoreKind} from '../../../types';
+import {BasicConfig, BasicContainerPropsInterface, CoreKind} from '../../../types';
 import {componentLoader} from '../../util/componentLoader';
 
 export type gridPositionItems = 'top-left' | 'top-center' | 'top-right' |
@@ -132,7 +132,7 @@ export class RowConfig<Config> extends BasicConfig {
     /**
      * 子级元素
      */
-    children: (Config | COREConfig<Config>)[];
+    children: (Config)[];
 }
 
 export class RowPropsInterface<Config extends RowConfig<Config>> extends BasicContainerPropsInterface {
@@ -258,7 +258,7 @@ export class Row<Config extends RowConfig<Config>> extends BasicContainer<RowPro
             let child = createChild(childInfo, {
                 ...this.props,
                 info: childInfo
-            }, this.props.children);
+            });
 
             let childElement = (
                 <div key={`grid_${childInfo.type}_${index}`} style={gridStyles}>

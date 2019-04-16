@@ -7,15 +7,11 @@ import {RCREContext} from '../context';
 import {
     BasicConfig,
     BasicContainerPropsInterface,
-    BasicContainerSetDataOptions,
-    BasicContextType,
-    RCREOptions
+    BasicContainerSetDataOptions, RCREContextType
 } from '../../types';
-import {renderChildren} from '../util/createChild';
 import {getRuntimeContext} from '../util/util';
-import {actionCreators} from './action';
 import React from 'react';
-import {isPlainObject, isEmpty, clone} from 'lodash';
+import {isPlainObject, isEmpty, clone, isObjectLike} from 'lodash';
 import {compileExpressionString, isExpression, parseExpressionString} from '../util/vm';
 import {gridPositionItems} from '../Layout/Row/Row';
 // import {ContainerConfig} from './AbstractContainer';
@@ -38,77 +34,6 @@ export class GridItem {
     gridHeight?: number | string;
 }
 
-export interface ContainerProps extends BasicContainerPropsInterface {
-    info: any;
-
-    $data: {};
-    $tmp: {};
-    $parent: {};
-
-    options: RCREOptions;
-
-    /**
-     * 初始化Container的数据
-     */
-    initContainer: typeof actionCreators.initContainer;
-
-    /**
-     * 写入数据到数据模型
-     */
-    setData: typeof actionCreators.setData;
-
-    /**
-     * 批量写入多组不同key的数据
-     */
-    setMultiData: typeof actionCreators.setMultiData;
-
-    /**
-     * 清空当前数据模型
-     */
-    clearData: typeof actionCreators.clearData;
-
-    /**
-     * 删除数据模型某一个字段
-     */
-    deleteData: typeof actionCreators.deleteData;
-
-    /**
-     * 异步加载数据中
-     */
-    asyncLoadDataProgress: typeof actionCreators.asyncLoadDataProgress;
-
-    /**
-     * 异步加载数据成功
-     */
-    asyncLoadDataSuccess: typeof actionCreators.asyncLoadDataSuccess;
-
-    /**
-     * 异步加载数据失败
-     */
-    asyncLoadDataFail: typeof actionCreators.asyncLoadDataFail;
-
-    /**
-     * 同步加载数据成功
-     */
-    syncLoadDataSuccess: typeof actionCreators.syncLoadDataSuccess;
-
-    /**
-     * 同步加载数据失败
-     */
-    syncLoadDataFail: typeof actionCreators.syncLoadDataFail;
-}
-
-// export const BasicContext = {
-//     $global: PropTypes.object,
-//     $location: PropTypes.object,
-//     $query: PropTypes.object,
-//     debug: PropTypes.bool,
-//     lang: PropTypes.string,
-//     store: PropTypes.object,
-//     events: PropTypes.object,
-//     containerGraph: PropTypes.object
-// };
-
 /**
  * 获取ExpressionString 嵌入的上下文
  * @param {BasicContainerPropsInterface} props
@@ -118,7 +43,7 @@ export interface ContainerProps extends BasicContainerPropsInterface {
 
 export type ParseInfoOptions<T> = {
     props?: T
-    context?: BasicContextType;
+    context?: RCREContextType;
     blackList?: string[];
     isDeep?: boolean;
     whiteList?: string[];
@@ -142,7 +67,7 @@ export abstract class BasicContainer<T extends BasicContainerPropsInterface, P> 
     }
 
     componentWillUnmount() {
-        let info = this.getPropsInfo(this.props.info);
+        let info = this.getPropsInfo(this.props.info, this.props, [], false, [], this.context);
         if (this.props.$deleteData && info.name) {
             if (this.props.$deleteFormItem && info.clearFormStatusOnlyWhenDestroy) {
                 this.props.$deleteFormItem(info.name);
@@ -168,7 +93,7 @@ export abstract class BasicContainer<T extends BasicContainerPropsInterface, P> 
      * @returns {runTimeType}
      */
     public getRuntimeContext(props: T = this.props, context: any = this.context || {}) {
-        let runTime = getRuntimeContext(props, context);
+        let runTime = getRuntimeContext(props as any, context);
         return runTime;
     }
 
@@ -246,10 +171,10 @@ export abstract class BasicContainer<T extends BasicContainerPropsInterface, P> 
                                      blackList?: string[],
                                      isDeep?: boolean,
                                      whiteList?: string[],
-                                     context?: BasicContextType
+                                     context?: any
     ) {
         // do not deep copy info. it is dangerous, Find another way out!!!
-        let runTime = this.getRuntimeContext(props, context);
+        let runTime = this.getRuntimeContext(props, context || this.context);
         info = compileExpressionString(info, runTime, blackList, isDeep, whiteList);
 
         if (isPlainObject(info['style'])) {
@@ -269,11 +194,11 @@ export abstract class BasicContainer<T extends BasicContainerPropsInterface, P> 
     public getParsedInfo<InfoType>(info: InfoType, options: ParseInfoOptions<T> = {}) {
         return this.getPropsInfo(
             info,
-            options.props,
+            options.props || this.props,
             options.blackList,
             options.isDeep,
             options.whiteList,
-            options.context
+            options.context || this.context
         );
     }
 
@@ -285,7 +210,26 @@ export abstract class BasicContainer<T extends BasicContainerPropsInterface, P> 
      * @returns {any}
      */
     public renderChildren(info: BasicConfig, children: React.ReactNode) {
-        return renderChildren(info, children);
+        let show = info.show;
+        let hidden = info.hidden;
+
+        if (isObjectLike(show) || (info.hasOwnProperty('show') && info.show === undefined)) {
+            show = !!show;
+        }
+
+        if (isObjectLike(hidden)) {
+            hidden = !!hidden;
+        }
+
+        if (hidden === true || show === false) {
+            return (
+                <div className="rcre-hidden-element" key={info.type + '_' + Math.random()} style={{display: 'none'}}>
+                    {process.env.NODE_ENV === 'test' ? JSON.stringify(info) : ''}
+                </div>
+            );
+        }
+
+        return children;
     }
 
     /**
@@ -415,20 +359,5 @@ export abstract class BasicContainer<T extends BasicContainerPropsInterface, P> 
         }
 
         return config.hasOwnProperty('type');
-    }
-
-    /**
-     * 当使用扩展组件来使用的时候才提供参数，正常不提供参数
-     * @param {any[]} args
-     * @deprecated
-     * @param {(event: any) => Object} callback
-     * @returns {Object}
-     */
-    public getExternalCallbackArgs(args: any[], callback?: (event: any) => Object): Object {
-        if (callback) {
-            return callback.apply(this, args) || {};
-        } else {
-            return {};
-        }
     }
 }

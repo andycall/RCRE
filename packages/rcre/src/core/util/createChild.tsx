@@ -3,111 +3,146 @@ import * as _ from 'lodash';
 import {BasicConfig, BasicContainerPropsInterface} from '../../types';
 import {componentLoader} from './componentLoader';
 import {getRuntimeContext} from './util';
-import {isExpression, parseExpressionString} from './vm';
+import {compileExpressionString, isExpression, parseExpressionString} from './vm';
+import {ContainerContext, RCREContext, IteratorContext, FormContext, TriggerContext} from '../context';
 
 export function createChild<Config extends BasicConfig, T extends BasicConfig, P extends BasicContainerPropsInterface>
-(info: T, childProps: any, childElements: React.ReactNode = null): React.ReactNode {
+(info: T, childProps: any): React.ReactNode {
     if (typeof info === 'string') {
         return <span>{info}</span>;
     }
 
-    let runTime = getRuntimeContext(childProps, {});
+    // TODO: do the compile
 
-    if (isExpression(info.show) && parseExpressionString(info.show, runTime) === false) {
-        return '';
-    }
+    return (
+        <RCREContext.Consumer key={childProps.key}>
+            {rootContext => <ContainerContext.Consumer>
+                {containerContext => <IteratorContext.Consumer>
+                    {iteratorContext => <FormContext.Consumer>
+                        {formContext => {
+                            let runTime = getRuntimeContext(containerContext, rootContext, {
+                                iteratorContext: iteratorContext,
+                                formContext: formContext
+                            });
+                            if (Array.isArray(info)) {
+                                return info.map(i => createChild(i, childProps));
+                            }
 
-    if (isExpression(info.hidden) && parseExpressionString(info.hidden, runTime) === true) {
-        return '';
-    }
+                            if (!_.isPlainObject(info)) {
+                                console.error('invalid Info Object', info);
+                                return React.createElement('div', {}, 'invalid Item Object');
+                            }
 
-    if (Array.isArray(info)) {
-        return info.map(i => createChild(i, childProps, childElements));
-    }
+                            let component: any;
+                            let mode = childProps.loadMode;
 
-    if (!_.isPlainObject(info)) {
-        console.error('invalid Info Object', info);
-        return React.createElement('div', {}, 'invalid Item Object');
-    }
+                            try {
+                                component = componentLoader.getComponent(info.type, mode);
+                            } catch (e) {
+                                console.error(e);
+                                return <div key={childProps.key} className="rcre-error">{e.message}</div>;
+                            }
 
-    let component;
-    let mode = childProps.loadMode;
+                            let show = info.show;
+                            let hidden = info.hidden;
 
-    try {
-        component = componentLoader.getComponent(info.type, mode);
-    } catch (e) {
-        console.error(e);
-        return <div key={childProps.index} className="rcre-error">{e.message}</div>;
-    }
+                            debugger;
 
-    let children: React.ReactNode = React.createElement(component, childProps, childElements);
+                            if (isExpression(show)) {
+                                show = parseExpressionString(show, runTime);
+                            }
 
-    if (info.trigger) {
-        let RCRETrigger = componentLoader.getComponent('__TRIGGER__');
-        children = (
-            <RCRETrigger
-                {...childProps}
-                info={childProps.info!}
-                $data={childProps.$data!}
-                $setData={childProps.$setData!}
-                model={childProps.model!}
-                dataCustomer={childProps.dataCustomer!}
-                key={childProps.key!}
-            >
-                {children}
-            </RCRETrigger>
-        );
-    }
+                            if (isExpression(hidden)) {
+                                hidden = parseExpressionString(hidden, runTime);
+                            }
 
-    if (info.name && childProps.debug && info.type !== 'form') {
-        let name = info.name;
-        if (isExpression(name)) {
-            name = parseExpressionString(name, runTime);
-        }
+                            let compileOptions = {
+                                isDeep: false,
+                                blackList: [],
+                                whiteList: []
+                            };
 
-        let value = _.get(childProps.$data, name);
+                            // 组件提供静态方法来自定义属性的编译选项
+                            if ('getComponentParseOptions' in component && typeof component.getComponentParseOptions === 'function') {
+                                compileOptions = component.getComponentParseOptions();
+                            }
 
-        if (_.isObjectLike(value)) {
-            value = JSON.stringify(value);
-        } else if (typeof value === 'boolean') {
-            value = String(value);
-        } else if (typeof value === 'string') {
-            value = '\'' + value + '\'';
-        }
+                            info = compileExpressionString(info, runTime, compileOptions.blackList, compileOptions.isDeep, compileOptions.whiteList);
 
-        children = (
-            <div key={name} className={'rcre-name-card'}>
-                <div className={'rcre-name-card-text'}>
-                    name: <span className={'rcre-name-card-text-name'}>{name}</span>,
-                    value: <span className={'rcre-name-card-text-value'}>{value}</span>
-                </div>
-                {children}
-            </div>
-        );
-    }
+                            let children: React.ReactNode;
 
-    return children;
-}
+                            if (show === false || hidden === true) {
+                                return null;
+                            }
 
-export function renderChildren<Config extends BasicConfig>(info: Config, children: React.ReactNode) {
-    let show = info.show;
-    let hidden = info.hidden;
+                            if (info.trigger) {
+                                let RCRETrigger: any = componentLoader.getComponent('__TRIGGER__');
+                                children = (
+                                    <RCRETrigger
+                                        key={childProps.key}
+                                        model={containerContext.model}
+                                        dataCustomer={containerContext.dataCustomer}
+                                        trigger={info.trigger}
+                                        rcreContext={rootContext}
+                                        containerContext={containerContext}
+                                        iteratorContext={iteratorContext}
+                                    >
+                                        <TriggerContext.Consumer>
+                                            {triggerContext => {
+                                                return React.createElement(component, {
+                                                    ...info,
+                                                    rcreContext: rootContext,
+                                                    containerContext: containerContext,
+                                                    triggerContext: triggerContext,
+                                                    iteratorContext: iteratorContext,
+                                                    key: childProps.key
+                                                });
+                                            }}
+                                        </TriggerContext.Consumer>
+                                    </RCRETrigger>
+                                );
+                            } else {
+                                children = React.createElement(component, {
+                                    ...info,
+                                    rcreContext: rootContext,
+                                    containerContext: containerContext,
+                                    iteratorContext: iteratorContext,
+                                    key: childProps.key
+                                });
+                            }
 
-    if (_.isObjectLike(show) || (info.hasOwnProperty('show') && info.show === undefined)) {
-        show = !!show;
-    }
+                            if (info.name && rootContext.debug && info.type !== 'form') {
+                                let name = info.name;
+                                if (isExpression(name)) {
+                                    name = parseExpressionString(name, runTime);
+                                }
 
-    if (_.isObjectLike(hidden)) {
-        hidden = !!hidden;
-    }
+                                let value = _.get(childProps.$data, name);
 
-    if (hidden === true || show === false) {
-        return (
-            <div className="rcre-hidden-element" key={info.type + '_' + Math.random()} style={{display: 'none'}}>
-                {process.env.NODE_ENV === 'test' ? JSON.stringify(info) : ''}
-            </div>
-        );
-    }
+                                if (_.isObjectLike(value)) {
+                                    value = JSON.stringify(value);
+                                } else if (typeof value === 'boolean') {
+                                    value = String(value);
+                                } else if (typeof value === 'string') {
+                                    value = '\'' + value + '\'';
+                                }
 
-    return children;
+                                children = (
+                                    <div key={name} className={'rcre-name-card'}>
+                                        <div className={'rcre-name-card-text'}>
+                                            name: <span className={'rcre-name-card-text-name'}>{name}</span>,
+                                            value: <span className={'rcre-name-card-text-value'}>{value}</span>
+                                        </div>
+                                        {children}
+                                    </div>
+                                );
+                            }
+
+                            return children;
+                        }}
+                    </FormContext.Consumer>}
+                </IteratorContext.Consumer>}
+            </ContainerContext.Consumer>}
+        </RCREContext.Consumer>
+    );
 }

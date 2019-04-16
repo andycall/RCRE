@@ -75,7 +75,7 @@ function recursionExpressionString<T> (data: T,
                                        runTime: runTimeType,
                                        blackList: string[] = [],
                                        isDeep: boolean = false,
-                                       whiteList?: string[],
+                                       whiteList: string[] = [],
                                        path?: string): T {
     let copy: T = _.clone(data);
     // @ts-ignore
@@ -86,11 +86,11 @@ function recursionExpressionString<T> (data: T,
         } else {
             curPath = key;
         }
-        if (blackList.indexOf(curPath) >= 0) {
+        if (blackList && blackList.indexOf(curPath) >= 0) {
             return;
         }
 
-        if (whiteList && _.isArray(whiteList)) {
+        if (_.isArray(whiteList) && whiteList.length > 0) {
             if (whiteList.indexOf(key) < 0) {
                 return;
             }

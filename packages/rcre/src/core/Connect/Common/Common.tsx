@@ -1,5 +1,5 @@
 import React from 'react';
-import {BasicConfig, BasicContextType} from '../../../types';
+import {BasicConfig, RCREContextType} from '../../../types';
 import {BasicConnect, BasicConnectPropsInterface, CommonOptions, WrapperComponentType} from '../basicConnect';
 
 const defaultMappingProps = {};
@@ -10,7 +10,7 @@ export function commonConnect(options: CommonOptions = {}):
         class CommonConnect<Config extends BasicConfig> extends BasicConnect<Config> {
             static displayName: string;
             private mapping = defaultMappingProps;
-            constructor(props: BasicConnectPropsInterface<Config>, context: BasicContextType) {
+            constructor(props: BasicConnectPropsInterface<Config>, context: RCREContextType) {
                 super(props, context, options);
                 this.mapping = {
                     ...this.mapping,

@@ -1,11 +1,11 @@
-import React from 'react';
+import React, {CSSProperties} from 'react';
 import {map} from 'lodash';
-import {BasicConfig, BasicContainerPropsInterface} from '../../../types';
-import {BasicContainer} from '../../Container/BasicComponent';
+import {BasicConfig, BasicProps} from '../../../types';
+import {IteratorContext} from '../../context';
 import {componentLoader} from '../../util/componentLoader';
 import {createChild} from '../../util/createChild';
 
-export interface ForeachConfig<Config> extends BasicConfig {
+export interface ForeachProps extends BasicProps {
     /**
      * 数据源
      */
@@ -15,46 +15,63 @@ export interface ForeachConfig<Config> extends BasicConfig {
      * 渲染的组件
      */
     control: BasicConfig;
+
+    className?: string;
+    id?: string;
+    style?: CSSProperties;
 }
 
-export class ForeachPropsInterface<Config extends BasicConfig> extends BasicContainerPropsInterface {
-    info: Config;
-}
-
-export class Foreach<Config extends ForeachConfig<Config>> extends BasicContainer<ForeachPropsInterface<Config>, {}> {
-    constructor(props: ForeachPropsInterface<Config>) {
+export class Foreach extends React.PureComponent<ForeachProps, {}> {
+    constructor(props: ForeachProps) {
         super(props);
     }
 
     render() {
-        let info = this.getPropsInfo(this.props.info);
-        let dataSource = info.dataSource || [];
-        let control = info.control;
+        let dataSource = this.props.dataSource || [];
+        let control = this.props.control;
 
         if (!control) {
             console.warn('Foreach: 你必须要提供一个control配置，才能循环输出组件');
-            return <div />;
+            return <div/>;
+        }
+
+        console.log(this.props);
+
+        if (!Array.isArray(dataSource)) {
+            console.warn('Foreach: dataSource 属性必须是个数组');
         }
 
         return (
-            <div className={info.className} style={info.style} id={info.id}>
+            <div className={this.props.className} style={this.props.style} id={this.props.id}>
                 {
                     map(dataSource, (source, index) => {
-                        if (this.props.$item) {
-                            source['$parentItem'] = this.props.$item;
-                        }
-                        let parentIndex = this.props.$index;
-                        if (typeof parentIndex !== 'undefined') {
-                            source['$parentIndex'] = parentIndex;
-                        }
-
-                        return createChild(control, {
-                            ...this.props,
-                            info: control,
-                            $item: source,
-                            $index: source.rowKey || index,
+                        let child = createChild(control, {
                             key: source.rowKey || index
                         });
+
+                        return (
+                            <IteratorContext.Consumer key={source.rowKey || index}>
+                                {
+                                    iteratorContext => {
+                                        if (iteratorContext.$item && iteratorContext.hasOwnProperty('$index')) {
+                                            source['$parentItem'] = iteratorContext.$item;
+                                            source['$parentIndex'] = iteratorContext.$index;
+                                        }
+
+                                        return (
+                                            <IteratorContext.Provider
+                                                value={{
+                                                    $item: source,
+                                                    $index: source.rowKey || index
+                                                }}
+                                            >
+                                                {child}
+                                            </IteratorContext.Provider>
+                                        );
+                                    }
+                                }
+                            </IteratorContext.Consumer>
+                        );
                     })
                 }
             </div>

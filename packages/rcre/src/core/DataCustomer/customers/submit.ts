@@ -3,7 +3,7 @@ import {CustomerParams} from '../index';
 import {compileExpressionString, isExpression, parseExpressionString} from '../../util/vm';
 import {request} from '../../Service/api';
 import * as _ from 'lodash';
-import {actionCreators} from '../../Container/action';
+import {containerActionCreators} from '../../Container/action';
 import {AxiosResponse} from 'axios';
 
 export interface SubmitCustomerExecConfig {
@@ -154,7 +154,13 @@ export async function submitCustomer(config: SubmitCustomerExecConfig, params: C
             value: exportValue[key]
         }));
 
-        params.context.store.dispatch(actionCreators.setMultiData(multiItems, params.model, params.context));
+        params.rcreContext.store.dispatch(
+            containerActionCreators.setMultiData(multiItems, params.model, {
+                container: params.containerContext,
+                iterator: params.iteratorContext,
+                rcre: params.rcreContext
+            })
+        );
     }
 
     return ret.data;

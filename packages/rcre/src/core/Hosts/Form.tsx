@@ -1,17 +1,21 @@
 import React from 'react';
-import {formConnect} from '../Form/Form';
+import {BasicConfig} from '../../types';
+import {FormProps, RCREForm} from '../Form/Form';
 import {componentLoader} from '../util/componentLoader';
+import {createChild} from '../util/createChild';
 
-class RCREForm extends React.Component<any, any> {
-    render() {
-        return (
-            <form
-                {...this.props}
-                onSubmit={this.props.onSubmit}>
-                {this.props.children}
-            </form>
-        );
-    }
+function JSONForm(props: FormProps) {
+    let children = (props.children || []).map((child: BasicConfig, index: number) => {
+        return createChild(child, {
+            key: index
+        });
+    });
+
+    return (
+        <RCREForm {...props}>
+            {children}
+        </RCREForm>
+    );
 }
 
-componentLoader.addComponent('form', formConnect()(RCREForm));
+componentLoader.addComponent('form', JSONForm);

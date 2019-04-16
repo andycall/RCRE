@@ -2,11 +2,11 @@ import {Reducer} from 'redux';
 import {ITriggerAction, RESET_TRIGGER, TRIGGER_SET_DATA} from './actions';
 import {setWith} from '../util/util';
 
-export type IState = any;
+export type TriggerState = any;
 
-export const initialState: IState = {};
+export const triggerInitState: TriggerState = {};
 
-export const reducer: Reducer<IState> = (state: IState = initialState, actions: ITriggerAction): IState => {
+export const triggerReducers: Reducer<TriggerState> = (state: TriggerState = triggerInitState, actions: ITriggerAction): TriggerState => {
     switch (actions.type) {
         case TRIGGER_SET_DATA: {
             let payload = actions.payload;

@@ -1,17 +1,18 @@
 import React from 'react';
-import {RootState} from "../../data/reducers";
-import {BasicConfig, BasicContainerPropsInterface} from '../../types';
-import {BasicContainer} from '../Container/BasicComponent';
+import {RootState} from '../../data/reducers';
+import {
+    BasicConfig,
+    ContainerContextType, IteratorContextType,
+    RCREContextType,
+    TriggerContextType
+} from '../../types';
+import {TriggerContext} from '../context';
 import {componentLoader} from '../util/componentLoader';
-import {isPromise} from '../util/util';
-import {actionCreators, TRIGGER_SET_DATA_OPTIONS, TRIGGER_SET_DATA_PAYLOAD} from './actions';
+import {getRuntimeContext, isPromise} from '../util/util';
+import {formActions, TRIGGER_SET_DATA_OPTIONS, TRIGGER_SET_DATA_PAYLOAD} from './actions';
 import {DataCustomer} from '../DataCustomer/index';
 import {compileExpressionString, isExpression, parseExpressionString} from '../util/vm';
 import {isObject} from 'lodash';
-
-interface TriggerConfig extends BasicConfig {
-    trigger: TriggerEventItem[];
-}
 
 export class TriggerEventItem {
     /**
@@ -60,55 +61,28 @@ export class TriggerEventItem {
     condition?: string;
 }
 
-export interface TriggerPropsInterface extends BasicContainerPropsInterface {
-    info: TriggerConfig;
-
-    /**
-     * 当前Container的数据模型对象
-     */
-    $data: Object;
-
-    /**
-     * 通过表格组件, 渲染之后, 获取到的每一行的数据
-     */
-    $item?: Object;
-
-    /**
-     * 通过表格组件, 渲染之后, 获取到的第几行
-     */
-    $index?: number;
-
-    /**
-     * React组件Key
-     */
-    key: string | number;
-
-    /**
-     * 底层组件设置数据模型值使用
-     */
-    $setData: (name: string, value: any) => void;
-
-    /**
-     * 父级的Container组件的model值
-     */
+export interface TriggerProps {
     model: string;
-
-    /**
-     * 父级Container组件的dataCustomer
-     */
-    dataCustomer: DataCustomer<TriggerConfig>;
-}
-
-export interface TriggerProps extends TriggerPropsInterface {
+    dataCustomer: DataCustomer;
     /**
      * 当前trigger的数据模型
      */
-    $trigger: TriggerEventItem[];
+    trigger: TriggerEventItem[];
 
     /**
-     * 设置触发器的store缓存
+     * 来自RCRE的context对象
      */
-    triggerSetData: typeof actionCreators.triggerSetData;
+    rcreContext: RCREContextType;
+
+    /**
+     * 来自Foreach组件的context对象
+     */
+    iteratorContext: IteratorContextType;
+
+    /**
+     * 来自父级Container的context对象
+     */
+    containerContext: ContainerContextType;
 }
 
 type UnCookedTriggerEventItem = {
@@ -116,7 +90,8 @@ type UnCookedTriggerEventItem = {
     data: any;
 };
 
-export class RCRETrigger<Config extends BasicConfig> extends BasicContainer<TriggerProps, {}> {
+export class RCRETrigger<Config extends BasicConfig> extends React.Component<TriggerProps, {}> {
+    private contextValue: TriggerContextType;
     private debounceCache: {
         isRunning: boolean;
         data: any
@@ -126,11 +101,17 @@ export class RCRETrigger<Config extends BasicConfig> extends BasicContainer<Trig
         super(props);
         this.debounceCache = [];
         this.eventHandle = this.eventHandle.bind(this);
+        this.contextValue = {
+            $trigger: null,
+            eventHandle: this.eventHandle
+        };
     }
 
     private async runTaskQueue(taskQueue: TRIGGER_SET_DATA_PAYLOAD[]) {
-        let runTime = this.getRuntimeContext();
-        let state: RootState = this.context.store.getState();
+        let runTime = getRuntimeContext(this.props.containerContext, this.props.rcreContext, {
+            iteratorContext: this.props.iteratorContext
+        });
+        let state: RootState = this.props.rcreContext.store.getState();
         runTime.$trigger = state.$rcre.trigger[this.props.model];
         let prev = null;
 
@@ -148,9 +129,10 @@ export class RCRETrigger<Config extends BasicConfig> extends BasicContainer<Trig
                 prev: prev,
                 params: runTime.$trigger![item.customer],
                 model: this.props.model,
-                props: this.props,
-                context: this.context,
-                options: item.options
+                options: item.options,
+                rcreContext: this.props.rcreContext,
+                containerContext: this.props.containerContext,
+                iteratorContext: this.props.iteratorContext
             });
 
             if (!prev && !(item.options && item.options.keepWhenError)) {
@@ -162,40 +144,10 @@ export class RCRETrigger<Config extends BasicConfig> extends BasicContainer<Trig
     }
 
     render() {
-        let info = this.props.info;
-
-        if (!this.isUnderContainerEnv()) {
-            console.error('trigger属性只能在container组件内部使用');
-            return this.props.children;
-        }
-
-        if (!info.trigger) {
-            return this.props.children;
-        }
-
-        let trigger = info.trigger;
-        let injectEvents = {};
-
-        trigger.forEach(triggerItem => {
-            injectEvents[triggerItem.event] = (...args: any[]) => this.eventHandle(triggerItem.event, args);
-        });
-
-        let children = React.Children.map(this.props.children, (child: React.ReactElement<any>) => {
-            return React.cloneElement(child, {
-                info: info,
-                $data: this.props.$data,
-                $parent: this.props.$parent,
-                $trigger: this.props.$trigger,
-                $setData: this.props.$setData,
-                dataCustomer: this.props.dataCustomer,
-                eventHandle: this.eventHandle,
-                model: this.props.model,
-                injectEvents: injectEvents
-            });
-        });
-
         return (
-            children
+            <TriggerContext.Provider value={this.contextValue}>
+                {this.props.children}
+            </TriggerContext.Provider>
         );
     }
 
@@ -259,13 +211,13 @@ export class RCRETrigger<Config extends BasicConfig> extends BasicContainer<Trig
                 }
             }
 
-            this.context.store.dispatch(actionCreators.triggerSetData(triggerItems));
+            this.context.store.dispatch(formActions.triggerSetData(triggerItems));
             return this.runTaskQueue(taskQueue);
         });
     }
 
     private async eventHandle(eventName: string, args: Object, options: { index?: number, preventSubmit?: boolean } = {}) {
-        let eventList = this.props.info.trigger;
+        let eventList = this.props.trigger;
         let validEventList = eventList.filter(event => event.event === eventName);
 
         if (validEventList.length === 0) {
@@ -329,7 +281,10 @@ export class RCRETrigger<Config extends BasicConfig> extends BasicContainer<Trig
             }
         }
 
-        let runTime = this.getRuntimeContext(this.props, this.context);
+        let runTime = getRuntimeContext(this.props.containerContext, this.props.rcreContext, {
+            iteratorContext: this.props.iteratorContext
+        });
+
         let context = {
             ...runTime,
             $args: args

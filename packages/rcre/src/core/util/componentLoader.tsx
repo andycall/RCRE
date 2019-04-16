@@ -1,4 +1,3 @@
-import * as React from 'react';
 import {isEmpty} from 'lodash';
 
 let defaultLoadMode = 'default';
@@ -16,7 +15,7 @@ const buildInModule = [
 
 interface ComponentCache {
     [type: string]: {
-        [mode: string]: React.ComponentClass<any>;
+        [mode: string]: any;
     };
 }
 
@@ -50,7 +49,7 @@ export class ComponentLoader {
         return item[mode];
     }
 
-    addComponent(type: string, component: React.ComponentClass<any>, mode?: string) {
+    addComponent(type: string, component: any, mode?: string) {
         if (!component) {
             throw new Error('ComponentLoader: component of type is null type: ' + type);
         }

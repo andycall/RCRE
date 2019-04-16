@@ -4,7 +4,7 @@ import {
     BasicConfig,
     BasicContainerPropsInterface,
     BasicContainerSetDataOptions,
-    BasicContextType,
+    RCREContextType,
     runTimeType
 } from '../../types';
 import {BasicContainer} from '../Container/BasicComponent';
@@ -203,7 +203,7 @@ export interface BasicConnectPropsInterface<T extends BasicConfig> extends Basic
     $getFormItemControl: (formItemName: string) => any;
 }
 
-export abstract class BasicConnect<Config extends BasicConfig> extends BasicContainer<BasicConnectPropsInterface<Config>, BasicContextType> {
+export abstract class BasicConnect<Config extends BasicConfig> extends BasicContainer<BasicConnectPropsInterface<Config>, RCREContextType> {
     public $propertyWatch: string[];
     public options: CommonOptions;
     protected debounceCache: { [key: string]: any };
@@ -214,7 +214,7 @@ export abstract class BasicConnect<Config extends BasicConfig> extends BasicCont
     // 收集到属性过多也是一种负担
     private isTooMuchProperty: boolean = false;
     public nameBindEvents: any = null;
-    protected constructor(props: BasicConnectPropsInterface<Config>, context: BasicContextType, options: CommonOptions) {
+    protected constructor(props: BasicConnectPropsInterface<Config>, context: RCREContextType, options: CommonOptions) {
         super(props);
 
         this.$propertyWatch = [];
@@ -479,7 +479,7 @@ export abstract class BasicConnect<Config extends BasicConfig> extends BasicCont
         return prevValue !== nextValue;
     }
 
-    public componentWillUpdate(nextProps: BasicConnectPropsInterface<Config>, nextState: BasicContextType, nextContext: any) {
+    public componentWillUpdate(nextProps: BasicConnectPropsInterface<Config>, nextState: RCREContextType, nextContext: any) {
         let nameKey = this.options.nameKey || 'value';
         let prevInfo = this.prepareRender(this.options, this.props);
         let nextInfo = this.prepareRender(this.options, nextProps);

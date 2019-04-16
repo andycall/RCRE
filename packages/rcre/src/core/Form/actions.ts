@@ -23,7 +23,7 @@ export type SET_FORM_ITEM_PAYLOAD = {
     /**
      * 表单是否合格
      */
-    status?: 'success' | 'warning' | 'error' | 'validating' | undefined;
+    status?: string;
 
     /**
      * 表单是否合法

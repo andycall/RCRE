@@ -1,5 +1,5 @@
 import {CustomerParams} from '../index';
-import {actionCreators} from '../../Container/action';
+import {containerActionCreators} from '../../Container/action';
 import {compileExpressionString, isExpression, parseExpressionString} from '../../util/vm';
 
 export interface PassCustomerExecConfig {
@@ -37,10 +37,14 @@ export function passCustomer(config: PassCustomerExecConfig, params: CustomerPar
         return;
     }
 
-    params.context.store.dispatch(actionCreators.dataCustomerPass({
+    params.rcreContext.store.dispatch(containerActionCreators.dataCustomerPass({
         model: targetContainerModel,
         data: output
-    }, params.context));
+    }, {
+        rcre: params.rcreContext,
+        container: params.containerContext,
+        iterator: params.iteratorContext
+    }));
 
     return true;
 }

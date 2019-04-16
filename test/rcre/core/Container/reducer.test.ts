@@ -1,6 +1,6 @@
-import {reducer} from '../../../../packages/rcre/src/core/Container/reducer';
-import {actionCreators} from '../../../../packages/rcre/src/core/Container/action';
-import {setWith, deleteWith, BasicContextType, Events, createReduxStore} from 'rcre';
+import {containerReducer} from '../../../../packages/rcre/src/core/Container/reducer';
+import {containerActionCreators} from '../../../../packages/rcre/src/core/Container/action';
+import {setWith, deleteWith, RCREContextType, Events, createReduxStore} from 'rcre';
 
 describe('Container State', () => {
     let initState: {
@@ -14,7 +14,7 @@ describe('Container State', () => {
         };
     });
 
-    const context: BasicContextType = {
+    const context: RCREContextType = {
         $global: {},
         $location: {
             query: '123'
@@ -22,6 +22,7 @@ describe('Container State', () => {
         $query: {},
         debug: false,
         lang: '',
+        loadMode: 'default',
         events: new Events(),
         store: createReduxStore(),
         containerGraph: new Map(),
@@ -29,12 +30,12 @@ describe('Container State', () => {
     };
 
     it('setData', () => {
-        let updateAction = actionCreators.setData({
+        let updateAction = containerActionCreators.setData({
             name: 'datepicker',
             value: '2017-12-20'
             // @ts-ignore
         }, KEY, context);
-        let state = reducer(initState, updateAction);
+        let state = containerReducer(initState, updateAction);
 
         expect(state[KEY]).toEqual({
             datepicker: '2017-12-20'
@@ -42,12 +43,12 @@ describe('Container State', () => {
     });
 
     it('setData with array path', () => {
-        let updateAction = actionCreators.setData({
+        let updateAction = containerActionCreators.setData({
             name: 'datepicker.0.year',
             value: '2018'
             // @ts-ignore
         }, KEY, context);
-        let state = reducer(initState, updateAction);
+        let state = containerReducer(initState, updateAction);
 
         expect(state[KEY]).toEqual({
             datepicker: {
@@ -59,12 +60,12 @@ describe('Container State', () => {
     });
 
     it('setData with number path', () => {
-        let updateAction = actionCreators.setData({
+        let updateAction = containerActionCreators.setData({
             name: 'datepicker.0.year',
             value: '2018'
             // @ts-ignore
         }, KEY, context);
-        let state = reducer(initState, updateAction);
+        let state = containerReducer(initState, updateAction);
 
         expect(state[KEY]).toEqual({
             datepicker: {
@@ -76,66 +77,66 @@ describe('Container State', () => {
     });
 
     it('multiSetData return difference model', () => {
-        let oneUpdate = actionCreators.setData({
+        let oneUpdate = containerActionCreators.setData({
             name: 'str',
             value: 'a'
             // @ts-ignore
         }, KEY, context);
 
-        let twoUpdate = actionCreators.setData({
+        let twoUpdate = containerActionCreators.setData({
             name: 'str',
             value: 'b'
             // @ts-ignore
         }, KEY, context);
 
-        let state = reducer(initState, oneUpdate);
+        let state = containerReducer(initState, oneUpdate);
         expect(initState[KEY] === state).toBe(false);
-        expect(reducer(state, twoUpdate) === state).toBe(false);
+        expect(containerReducer(state, twoUpdate) === state).toBe(false);
     });
 
     it('setDataWithRepeat', () => {
-        let updateAction = actionCreators.setData({
+        let updateAction = containerActionCreators.setData({
             name: 'datepicker',
             value: '2017-12-20'
             // @ts-ignore
         }, KEY, context);
-        let repeatAction = actionCreators.setData({
+        let repeatAction = containerActionCreators.setData({
             name: 'datepicker',
             value: '2018-01-01'
             // @ts-ignore
         }, KEY, context);
-        let state = reducer(initState, updateAction);
-        state = reducer(state, repeatAction);
+        let state = containerReducer(initState, updateAction);
+        state = containerReducer(state, repeatAction);
         expect(state[KEY]).toEqual({
             datepicker: '2018-01-01'
         });
     });
 
     it('setData with invalid model', () => {
-        let updateAction = actionCreators.setData({
+        let updateAction = containerActionCreators.setData({
             name: 'datepicker',
             value: '2017-12-20'
             // @ts-ignore
         }, 'UNKNOWN', context);
-        let state = reducer(initState, updateAction);
+        let state = containerReducer(initState, updateAction);
 
         expect(state).toEqual(state);
     });
 
     it('setData nameGroup', () => {
-        let updateAction = actionCreators.setData({
+        let updateAction = containerActionCreators.setData({
             name: 'datepicker.startTime.timestamp',
             value: '2017-12-20'
             // @ts-ignore
         }, KEY, context);
-        let repeateAction = actionCreators.setData({
+        let repeateAction = containerActionCreators.setData({
             name: 'datepicker.startTime.timestamp',
             value: '2018-01-01'
             // @ts-ignore
         }, KEY, context);
 
-        let state = reducer(initState, updateAction);
-        state = reducer(state, repeateAction);
+        let state = containerReducer(initState, updateAction);
+        state = containerReducer(state, repeateAction);
 
         expect(state[KEY]).toEqual({
             datepicker: {
@@ -147,19 +148,19 @@ describe('Container State', () => {
     });
 
     it('asyncLoadProgress', () => {
-        let updateAction = actionCreators.asyncLoadDataProgress({
+        let updateAction = containerActionCreators.asyncLoadDataProgress({
             model: KEY
         });
-        let state = reducer(initState, updateAction);
+        let state = containerReducer(initState, updateAction);
         expect(state[KEY]).toEqual({$loading: true});
     });
 
     it('asyncLoadFail', () => {
-        let updateAction = actionCreators.asyncLoadDataFail({
+        let updateAction = containerActionCreators.asyncLoadDataFail({
             model: KEY,
             error: 'you got an error'
         });
-        let state = reducer(initState, updateAction);
+        let state = containerReducer(initState, updateAction);
         expect(state[KEY]).toEqual({
             $loading: false,
             $error: 'you got an error'
@@ -167,7 +168,7 @@ describe('Container State', () => {
     });
 
     it('asynLoadDataSuccess', () => {
-        let updateAction = actionCreators.asyncLoadDataSuccess({
+        let updateAction = containerActionCreators.asyncLoadDataSuccess({
             model: KEY,
             data: {
                 name: 1
@@ -175,7 +176,7 @@ describe('Container State', () => {
             // @ts-ignore
             context: context
         });
-        let state = reducer(initState, updateAction);
+        let state = containerReducer(initState, updateAction);
         expect(state[KEY]).toEqual({
             name: 1,
             $loading: false
@@ -183,7 +184,7 @@ describe('Container State', () => {
     });
 
     it('syncLoadSuccess', () => {
-        let updateAction = actionCreators.syncLoadDataSuccess({
+        let updateAction = containerActionCreators.syncLoadDataSuccess({
             model: KEY,
             data: {
                 name: 1
@@ -191,96 +192,96 @@ describe('Container State', () => {
             // @ts-ignore
             context: context
         });
-        let state = reducer(initState, updateAction);
+        let state = containerReducer(initState, updateAction);
         expect(state[KEY]).toEqual({
             name: 1
         });
     });
 
     it('syncLoadFail', () => {
-        let updateAction = actionCreators.syncLoadDataFail({
+        let updateAction = containerActionCreators.syncLoadDataFail({
             model: KEY,
             error: 'you got an error'
         });
-        let state = reducer(initState, updateAction);
+        let state = containerReducer(initState, updateAction);
         expect(state[KEY]).toEqual({
             $error: 'you got an error'
         });
     });
 
     it('dataCustomerPass', () => {
-        let updateAction = actionCreators.dataCustomerPass({
+        let updateAction = containerActionCreators.dataCustomerPass({
             model: KEY,
             data: {
                 name: 1
             }
             // @ts-ignore
         }, context);
-        let state = reducer(initState, updateAction);
+        let state = containerReducer(initState, updateAction);
         expect(state[KEY]).toEqual({
             name: 1
         });
     });
 
     it('removeData', () => {
-        let addAction = actionCreators.setData({
+        let addAction = containerActionCreators.setData({
             name: 'name',
             value: 1
             // @ts-ignore
         }, KEY, context);
-        let updateAction = actionCreators.clearData({
+        let updateAction = containerActionCreators.clearData({
             model: KEY,
             // @ts-ignore
             context: context
         });
-        let state = reducer(initState, addAction);
-        state = reducer(state, updateAction);
+        let state = containerReducer(initState, addAction);
+        state = containerReducer(state, updateAction);
         expect(state[KEY]).toEqual(undefined);
     });
 
     it('clearData', () => {
-        let addAction = actionCreators.setData({
+        let addAction = containerActionCreators.setData({
             name: 'name',
             value: 1
             // @ts-ignore
         }, KEY, context);
-        let updateAction = actionCreators.clearData({
+        let updateAction = containerActionCreators.clearData({
             model: KEY,
             // @ts-ignore
             context: context
         });
-        let state = reducer(initState, addAction);
-        state = reducer(state, updateAction);
+        let state = containerReducer(initState, addAction);
+        state = containerReducer(state, updateAction);
         expect(state).toEqual({});
     });
 
     it('deleteData', () => {
-        let addAction = actionCreators.setData({
+        let addAction = containerActionCreators.setData({
             name: 'name',
             value: 1
             // @ts-ignore
         }, KEY, context);
-        let deleteAction = actionCreators.deleteData({
+        let deleteAction = containerActionCreators.deleteData({
             name: 'name'
             // @ts-ignore
         }, KEY, context);
-        let state = reducer(initState, addAction);
-        state = reducer(state, deleteAction);
+        let state = containerReducer(initState, addAction);
+        state = containerReducer(state, deleteAction);
         expect(state[KEY]).toEqual({});
     });
 
     it('deleteData with paths', () => {
-        let addAction = actionCreators.setData({
+        let addAction = containerActionCreators.setData({
             name: 'name.age.a.b.c.d',
             value: 1
             // @ts-ignore
         }, KEY, context);
-        let deleteAction = actionCreators.deleteData({
+        let deleteAction = containerActionCreators.deleteData({
             name: 'name.age.a.b.c.d'
             // @ts-ignore
         }, KEY, context);
-        let state = reducer(initState, addAction);
-        state = reducer(state, deleteAction);
+        let state = containerReducer(initState, addAction);
+        state = containerReducer(state, deleteAction);
         expect(state[KEY]).toEqual({
             name: {
                 age: {

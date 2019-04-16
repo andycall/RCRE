@@ -1,22 +1,21 @@
 import * as React from 'react';
 import {RootState} from '../../data/reducers';
-import {BasicContainer} from '../Container/BasicComponent';
-import {debounce} from 'lodash';
-import {BasicConfig, BasicContainerPropsInterface, BasicContextType, COREConfig, CoreKind} from '../../types';
-import {createChild} from '../util/createChild';
+import {
+    FormItemState, BasicProps, TriggerContextType
+} from '../../types';
+import {FormContext} from '../context';
 import {formActions, SET_FORM_ITEM_PAYLOAD} from './actions';
 
-export class FormConfig<Config> extends BasicConfig {
-    type: CoreKind.form;
-    /**
-     * 子级组件
-     */
-    children: (Config | COREConfig<Config>)[];
-
+export interface FormProps extends BasicProps {
     /**
      * 表单的数据模型，会包含整个表单内部所有元素的数据
      */
-    name?: string;
+    name: string;
+
+    /**
+     * 延迟表单提交的时间，可用于阻止表单多次提交
+     */
+    debounce?: number;
 
     /**
      * 提交之后清除表单数据
@@ -27,23 +26,10 @@ export class FormConfig<Config> extends BasicConfig {
      * 当某一规则校验不通过时，是否停止剩下的规则的校验
      */
     validateFirst?: boolean;
-}
 
-export class FormPropsInterface<Config extends BasicConfig> extends BasicContainerPropsInterface {
-    /**
-     * 传入的数据配置
-     */
-    info: Config;
-}
+    triggerContext: TriggerContextType;
 
-export interface FormItemState {
-    valid: boolean;
-    formItemName: string;
-    rules: any[];
-    status: string;
-    errorMsg: string;
-    $validate?: boolean;
-    required: boolean;
+    children?: any;
 }
 
 export interface FormState {
@@ -54,221 +40,163 @@ export interface FormState {
     };
 }
 
-export interface FormProps<Config extends BasicConfig> extends FormPropsInterface<Config> {}
+export class RCREForm extends React.Component<FormProps, {}> {
+    private isSubmitting: boolean;
 
-export type FormConnectOptions = {};
+    constructor(props: FormProps) {
+        super(props);
 
-// export const FormContext = React.createContext({
-//     $setFormItem: (payload: SET_FORM_ITEM_PAYLOAD) => {},
-//     $setFormItems: (payload: SET_FORM_ITEM_PAYLOAD[]) => {},
-//     $deleteFormItem: (itemName: string) => {},
-//     $formSubmit: (event: React.FormEvent<HTMLFormElement>) => {}
-// });
+        this.isSubmitting = false;
 
-export function formConnect(options: FormConnectOptions = {}): (Wrapper: React.ComponentClass<any>) => React.ComponentClass<any> {
-    return (Wrapper) => {
-        return class RCREFormContainer<Config extends FormConfig<Config>> extends BasicContainer<FormProps<Config>, {}> {
-            static displayName = 'RCREFormConnect(' + Wrapper.name + ')';
-            private info: Config;
-            private delaySubmit: any;
-            private formItemFunctions: any;
+        let name = props.name;
 
-            constructor(props: FormProps<Config>, context: BasicContextType) {
-                super(props);
+        if (!name) {
+            return;
+        }
 
-                this.formItemFunctions = {
+        props.rcreContext.store.dispatch(formActions.initForm({
+            name: name,
+            data: {
+                name: name,
+                valid: false,
+                validateFirst: props.validateFirst || false,
+                clearAfterSubmit: props.clearAfterSubmit || false,
+                control: {}
+            }
+        }));
+    }
+
+    componentWillUnmount() {
+        this.props.rcreContext.store.dispatch(formActions.deleteForm({
+            name: this.props.name
+        }));
+    }
+
+    private $setFormItem = (payload: FormItemState) => {
+        this.props.rcreContext.store.dispatch(formActions.setFormItem({
+            formName: this.props.name,
+            formItemName: payload.formItemName!,
+            ...payload
+        }));
+    }
+
+    private $getFormItem = (formItemName: string) => {
+        let state: RootState = this.props.rcreContext.store.getState();
+        let formState = state.$rcre.form[this.props.name];
+        return formState.control[formItemName];
+    }
+
+    private $setFormItems = (payload: SET_FORM_ITEM_PAYLOAD[]) => {
+        payload = payload.map(pay => ({
+            formName: this.props.name,
+            formItemName: pay.formItemName,
+            ...pay
+        }));
+
+        this.props.rcreContext.store.dispatch(formActions.setFormItems(payload));
+    }
+
+    private $deleteFormItem = (itemName: string) => {
+        this.props.rcreContext.store.dispatch(formActions.deleteFormItem({
+            formName: this.props.name,
+            formItemName: itemName
+        }));
+    }
+
+    private getFormItems = () => {
+        let state: RootState = this.props.rcreContext.store.getState();
+        let formState = state.$rcre.form[this.props.name];
+        return Object.keys(formState.control);
+    }
+
+    private resetForm = () => {
+        let formItems = this.getFormItems();
+        let values = formItems.map(key => ({name: key, value: undefined}));
+        this.props.containerContext.$setMultiData(values);
+    }
+
+    public handleSubmit = async (preventSubmit: boolean = false) => {
+        if (!this.props.name) {
+            return;
+        }
+
+        if (this.isSubmitting) {
+            return;
+        }
+
+        let name = this.props.name;
+        let state: RootState = this.props.rcreContext.store.getState();
+        let $form = state.$rcre.form[name];
+        // let info = this.getPropsInfo(this.props.info);
+        let control = $form.control;
+
+        let invalidItems: SET_FORM_ITEM_PAYLOAD[] = [];
+        let submitData = {};
+
+        for (let itemName in control) {
+            if (control.hasOwnProperty(itemName)) {
+                let item: SET_FORM_ITEM_PAYLOAD = control[itemName];
+                let valid = item.valid;
+
+                let data = this.props.containerContext.$getData(itemName);
+                submitData[itemName] = data;
+
+                // 设置validateFirst只验证第一个表单控件
+                if (!valid && name) {
+                    invalidItems.push({
+                        formName: name,
+                        formItemName: itemName,
+                        $validate: true
+                    });
+                }
+            }
+        }
+
+        if (invalidItems.length > 0) {
+            this.props.rcreContext.store.dispatch(formActions.setFormItems(invalidItems));
+            this.forceUpdate();
+            return;
+        }
+
+        if (this.props.clearAfterSubmit) {
+            this.resetForm();
+        }
+
+        this.isSubmitting = true;
+
+        let ret = await this.props.triggerContext.eventHandle('onSubmit', submitData, {
+            preventSubmit: preventSubmit
+        });
+
+        this.isSubmitting = false;
+
+        return ret;
+    }
+
+    render() {
+        let name = this.props.name;
+        let state = this.props.rcreContext.store.getState();
+
+        if (!name) {
+            return <div>Form组件需要一个name属性</div>;
+        }
+
+        let $form = state.$rcre.form[this.props.name] || {};
+
+        return (
+            <FormContext.Provider
+                value={{
+                    $form: $form,
                     $setFormItem: this.$setFormItem,
                     $setFormItems: this.$setFormItems,
                     $deleteFormItem: this.$deleteFormItem,
-                    $formSubmit: this.handleSubmit
-                };
-
-                this.info = this.getPropsInfo(this.props.info, props);
-                let name = this.info.name;
-
-                if (!name) {
-                    return;
-                }
-
-                let {
-                    children,
-                    ...others
-                } = this.info;
-
-                context.store.dispatch(formActions.initForm({
-                    name: name,
-                    data: {
-                        ...others,
-                        name: name,
-                        validateFirst: this.info.validateFirst || false,
-                        clearAfterSubmit: this.info.clearAfterSubmit || false,
-                        control: {}
-                    }
-                }));
-
-                this.delaySubmit = debounce(this.triggerSubmit.bind(this), 500, {
-                    leading: true,
-                    trailing: false
-                });
-            }
-
-            componentWillUnmount() {
-                super.componentWillUnmount();
-                if (this.info.name) {
-                    this.context.store.dispatch(formActions.deleteForm({
-                        name: this.info.name
-                    }));
-                }
-            }
-
-            private $setFormItem = (payload: SET_FORM_ITEM_PAYLOAD) => {
-                if (this.info.name) {
-                    this.context.store.dispatch(formActions.setFormItem({
-                        formName: this.info.name,
-                        formItemName: payload.formItemName!,
-                        ...payload
-                    }));
-                }
-            }
-
-            private $setFormItems = (payload: SET_FORM_ITEM_PAYLOAD[]) => {
-                if (this.info.name) {
-                    payload = payload.map(pay => ({
-                        formName: this.info.name,
-                        formItemName: pay.formItemName,
-                        ...pay
-                    }));
-
-                    this.context.store.dispatch(formActions.setFormItems(payload));
-                }
-            }
-
-            private $deleteFormItem = (itemName: string) => {
-                if (this.info.name) {
-                    this.context.store.dispatch(formActions.deleteFormItem({
-                        formName: this.info.name,
-                        formItemName: itemName
-                    }));
-                }
-            }
-
-            public handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-                event.preventDefault();
-                event.stopPropagation();
-
-                this.delaySubmit();
-            }
-
-            public triggerSubmit = async (preventSubmit: boolean = false) => {
-                if (!this.info.name) {
-                    return;
-                }
-
-                let state: RootState = this.context.store.getState();
-                let $form = state.$rcre.form[this.info.name];
-                let info = this.getPropsInfo(this.props.info);
-                let control = $form.control;
-
-                let invalidItems: SET_FORM_ITEM_PAYLOAD[] = [];
-                let submitData = {};
-
-                for (let itemName in control) {
-                    if (control.hasOwnProperty(itemName)) {
-                        let item: SET_FORM_ITEM_PAYLOAD = control[itemName];
-                        let valid = item.valid;
-
-                        let data = this.getValueFromDataStore(itemName);
-                        submitData[itemName] = data;
-
-                        // 设置validateFirst只验证第一个表单控件
-                        if (!valid && info.name) {
-                            if (info.validateFirst) {
-                                this.context.store.dispatch(formActions.setFormItem({
-                                    formName: info.name,
-                                    formItemName: itemName,
-                                    $validate: true
-                                }));
-                                this.forceUpdate();
-                                return;
-                            }
-
-                            invalidItems.push({
-                                formName: info.name,
-                                formItemName: itemName,
-                                $validate: true
-                            });
-                        }
-                    }
-                }
-
-                if (invalidItems.length > 0) {
-                    this.context.store.dispatch(formActions.setFormItems(invalidItems));
-                    this.forceUpdate();
-                    return;
-                }
-
-                if (this.props.info.clearAfterSubmit && this.props.$setMultiData) {
-                    let items = Object.keys(submitData).map(key => ({
-                        name: key,
-                        value: ''
-                    }));
-
-                    this.props.$setMultiData(items);
-                }
-
-                return await this.commonEventHandler('onSubmit', submitData, {
-                    preventSubmit: preventSubmit
-                });
-            }
-
-            render() {
-                this.info = this.getPropsInfo(this.props.info);
-                let state: RootState = this.context.store.getState();
-
-                if (!this.info.name) {
-                    return <div>Form组件需要一个name属性</div>;
-                }
-
-                let $form = state.$rcre.form[this.info.name] || {};
-
-                let children = this.info.children;
-
-                if (!(children instanceof Array)) {
-                    return <div>children props should be array</div>;
-                }
-
-                let childElement = children.map((child, index) => {
-                    child = this.getPropsInfo(child, this.props, [], false, ['show', 'hidden']);
-
-                    let childNode = createChild(child, {
-                        ...this.props,
-                        formItemFunctions: this.formItemFunctions,
-                        info: child,
-                        $form: $form,
-                        key: `form_element_${index}`
-                    });
-
-                    return this.renderChildren(child, childNode);
-                });
-
-                let form = (
-                    <Wrapper
-                        {...this.info}
-                        onSubmit={this.handleSubmit}
-                    >
-                        {childElement}
-                    </Wrapper>
-                );
-
-                return (
-                    <div
-                        className={'rcre-form-container ' + (this.info.className || '')}
-                        style={this.info.style}
-                    >
-                        {this.renderChildren(this.info, form)}
-                    </div>
-                );
-            }
-        };
-    };
+                    $getFormItem: this.$getFormItem,
+                    $resetForm: this.resetForm,
+                    $handleSubmit: this.handleSubmit
+                }}
+            >
+                {this.props.children}
+            </FormContext.Provider>
+        );
+    }
 }

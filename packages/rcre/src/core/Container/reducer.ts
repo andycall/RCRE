@@ -30,12 +30,12 @@ export const TMP_MODEL = '__TMP_MODEL__DO_NO_USE_IT';
 export type IContainerState = {
     [key: string]: any;
 };
-export let initialState: IContainerState = Object.freeze({
+export let containerInitState: IContainerState = Object.freeze({
     [TMP_MODEL]: {}
 });
 
-export const reducer: Reducer<IContainerState> =
-    (state: IContainerState = initialState, actions: IContainerAction): IContainerState => {
+export const containerReducer: Reducer<IContainerState> =
+    (state: IContainerState = containerInitState, actions: IContainerAction): IContainerState => {
         switch (actions.type) {
             case INIT_CONTAINER: {
                 let model = actions.payload.model;
@@ -51,7 +51,7 @@ export const reducer: Reducer<IContainerState> =
                     });
                 }
 
-                let container = context.containerGraph.get(model);
+                let container = context.rcre.containerGraph.get(model);
 
                 if (!container) {
                     return clone(state);
@@ -115,7 +115,7 @@ export const reducer: Reducer<IContainerState> =
 
                 state[model] = setWith(state[model], name, newValue);
 
-                let container = context.containerGraph.get(model);
+                let container = context.rcre.containerGraph.get(model);
                 let affectNode: ContainerNode[] = [];
 
                 syncExportContainerState(state, affectNode, actions.context, container);
@@ -141,17 +141,12 @@ export const reducer: Reducer<IContainerState> =
                 payload.forEach(item => {
                     let name = item.name;
                     let value = item.value;
-                    let isTmp = item.isTmp;
                     model = actions.model;
-
-                    if (isTmp) {
-                        model = TMP_MODEL;
-                    }
 
                     state[model] = setWith(state[model], name, value);
                 });
 
-                let container = context.containerGraph.get(model);
+                let container = context.rcre.containerGraph.get(model);
                 let affectNode: ContainerNode[] = [];
                 syncExportContainerState(state, affectNode, actions.context, container);
                 affectNode.forEach(node => {
@@ -193,7 +188,7 @@ export const reducer: Reducer<IContainerState> =
                 state = clone(state);
                 state[model] = clone(state[model]);
 
-                let container = context.containerGraph.get(model);
+                let container = context.rcre.containerGraph.get(model);
                 let affectNode: ContainerNode[] = [];
 
                 // 初次挂载的时候，继承父级的数据
@@ -236,7 +231,7 @@ export const reducer: Reducer<IContainerState> =
                 state[model] = clone(state[model]);
                 Object.assign(state[model], data);
 
-                let container = context.containerGraph.get(model);
+                let container = context.rcre.containerGraph.get(model);
                 let affectNode: ContainerNode[] = [];
 
                 // 初次挂载的时候，继承父级的数据
@@ -284,7 +279,7 @@ export const reducer: Reducer<IContainerState> =
                     state[model] = setWith(state[model], key, val);
                 });
 
-                let container = context.containerGraph.get(model);
+                let container = context.rcre.containerGraph.get(model);
                 let affectNode: ContainerNode[] = [];
                 syncExportContainerState(state, affectNode, actions.context, container);
                 affectNode.forEach(node => {
@@ -296,7 +291,7 @@ export const reducer: Reducer<IContainerState> =
             case CLEAR_DATA: {
                 let delKey = actions.payload.model;
                 let context = actions.payload.context;
-                let node = context.containerGraph.get(delKey);
+                let node = context.rcre.containerGraph.get(delKey);
 
                 if (node && node.options.clearDataToParentsWhenDestroy) {
                     syncDeleteContainerState(state, actions.payload.context, node);
@@ -314,16 +309,11 @@ export const reducer: Reducer<IContainerState> =
                 let payload = actions.payload;
                 let name = payload.name;
                 let model = actions.model;
-                let isTmp = payload.isTmp;
                 let context = actions.context;
-                let container = context.containerGraph.get(model);
+                let container = context.rcre.containerGraph.get(model);
 
                 if (!(model in state)) {
                     return state;
-                }
-
-                if (isTmp) {
-                    model = TMP_MODEL;
                 }
 
                 if (container && container.options.syncDelete) {

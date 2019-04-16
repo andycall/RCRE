@@ -2,7 +2,8 @@
  * @file Container组件的Action
  * @author dongtiancheng
  */
-import {BasicContainerSetDataOptions, BasicContextType} from '../../types';
+import {BasicContainerSetDataOptions} from '../../types';
+import {RunTimeContextCollection} from '../context';
 
 export const INIT_CONTAINER = 'RCRE_INIT_CONTAINER';
 export const SET_DATA = 'RCRE_SET_DATA';
@@ -25,7 +26,6 @@ export type SET_DATA_PAYLOAD = {
 export type DELETE_DATA_PAYLOAD = {
     name: string;
     parent?: string;
-    isTmp?: boolean;
 };
 export type INIT_CONTAINER_PAYLOAD = {
     model: string;
@@ -34,12 +34,11 @@ export type INIT_CONTAINER_PAYLOAD = {
 export type SET_MULTI_DATA_PAYLOAD = ({
     name: string;
     value: any;
-    isTmp?: boolean;
 })[];
 
 export type CLEAR_DATA_PAYLOAD = {
     model: string;
-    context: BasicContextType;
+    context: RunTimeContextCollection;
 };
 export type ASYNC_LOAD_DATA_PROGRESS_PAYLOAD = {
     model: string;
@@ -47,7 +46,7 @@ export type ASYNC_LOAD_DATA_PROGRESS_PAYLOAD = {
 export type ASYNC_LOAD_DATA_SUCCESS_PAYLOAD = {
     model: string;
     data: any;
-    context: BasicContextType
+    context: RunTimeContextCollection
 };
 export type ASYNC_LOAD_DATA_FAIL_PAYLOAD = {
     model: string;
@@ -56,7 +55,7 @@ export type ASYNC_LOAD_DATA_FAIL_PAYLOAD = {
 export type SYNC_LOAD_DATA_SUCCESS_PAYLOAD = {
     model: string;
     data: any
-    context: BasicContextType;
+    context: RunTimeContextCollection;
 };
 export type SYNC_LOAD_DATA_FAIL_PAYLOAD = {
     model: string;
@@ -71,19 +70,19 @@ export type IActions = {
     INIT_CONTAINER: {
         type: typeof INIT_CONTAINER,
         payload: INIT_CONTAINER_PAYLOAD,
-        context: BasicContextType
+        context: RunTimeContextCollection
     },
     SET_DATA: {
         type: typeof SET_DATA,
         payload: SET_DATA_PAYLOAD,
         model: string;
-        context: BasicContextType;
+        context: RunTimeContextCollection;
     },
     SET_MULTI_DATA: {
         type: typeof SET_MULTI_DATA,
         payload: SET_MULTI_DATA_PAYLOAD,
         model: string,
-        context: BasicContextType
+        context: RunTimeContextCollection
     },
     ASYNC_LOAD_DATA_PROGRESS: {
         type: typeof ASYNC_LOAD_DATA_PROGRESS,
@@ -109,7 +108,7 @@ export type IActions = {
         type: typeof DELETE_DATA,
         payload: DELETE_DATA_PAYLOAD,
         model: string;
-        context: BasicContextType;
+        context: RunTimeContextCollection;
     },
     CLEAR_DATA: {
         type: typeof CLEAR_DATA,
@@ -121,31 +120,31 @@ export type IActions = {
     DATA_CUSTOMER_PASS: {
         type: typeof DATA_CUSTOMER_PASS,
         payload: DATA_CUSTOMER_PASS_PAYLOAD,
-        context: BasicContextType
+        context: RunTimeContextCollection
     }
 };
 
 export type IContainerAction = IActions[keyof IActions];
 
-export const actionCreators = {
-    initContainer: (payload: INIT_CONTAINER_PAYLOAD, context: BasicContextType) => ({
+export const containerActionCreators = {
+    initContainer: (payload: INIT_CONTAINER_PAYLOAD, context: RunTimeContextCollection) => ({
         type: INIT_CONTAINER as typeof INIT_CONTAINER,
         payload,
         context
     }),
-    setData: (payload: SET_DATA_PAYLOAD, model: string, context: BasicContextType) => ({
+    setData: (payload: SET_DATA_PAYLOAD, model: string, context: RunTimeContextCollection) => ({
         type: SET_DATA as typeof SET_DATA,
         payload,
         model,
         context
     }),
-    setMultiData: (payload: SET_MULTI_DATA_PAYLOAD, model: string, context: BasicContextType) => ({
+    setMultiData: (payload: SET_MULTI_DATA_PAYLOAD, model: string, context: RunTimeContextCollection) => ({
         type: SET_MULTI_DATA as typeof SET_MULTI_DATA,
         payload,
         model,
         context
     }),
-    deleteData: (payload: DELETE_DATA_PAYLOAD, model: string, context: BasicContextType) => ({
+    deleteData: (payload: DELETE_DATA_PAYLOAD, model: string, context: RunTimeContextCollection) => ({
         type: DELETE_DATA as typeof DELETE_DATA,
         payload,
         model,
@@ -178,7 +177,7 @@ export const actionCreators = {
         type: SYNC_LOAD_DATA_FAIL as typeof SYNC_LOAD_DATA_FAIL,
         payload
     }),
-    dataCustomerPass: (payload: DATA_CUSTOMER_PASS_PAYLOAD, context: BasicContextType) => ({
+    dataCustomerPass: (payload: DATA_CUSTOMER_PASS_PAYLOAD, context: RunTimeContextCollection) => ({
         type: DATA_CUSTOMER_PASS as typeof DATA_CUSTOMER_PASS,
         payload,
         context

@@ -33,7 +33,7 @@ export type TRIGGER_SET_DATA_PAYLOAD = {
     options?: TRIGGER_SET_DATA_OPTIONS
 };
 
-export type IActions = {
+export type ITriggerActions = {
     TRIGGER_SET_DATA: {
         type: typeof TRIGGER_SET_DATA,
         payload: TRIGGER_SET_DATA_PAYLOAD[];
@@ -43,9 +43,9 @@ export type IActions = {
     }
 };
 
-export type ITriggerAction = IActions[keyof IActions];
+export type ITriggerAction = ITriggerActions[keyof ITriggerActions];
 
-export const actionCreators = {
+export const formActions = {
     triggerSetData: (payload: TRIGGER_SET_DATA_PAYLOAD[]) => ({
         type: TRIGGER_SET_DATA as typeof TRIGGER_SET_DATA,
         payload

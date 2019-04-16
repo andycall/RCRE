@@ -1,6 +1,7 @@
-import {BasicContextType} from '../../types';
+import {ContainerContextType} from '../../types';
 import {IContainerState} from '../Container/reducer';
 import {isObjectLike, each, isPlainObject, clone} from 'lodash';
+import {RunTimeContextCollection} from '../context';
 import {
     compileExpressionString,
     evalInContext,
@@ -8,7 +9,7 @@ import {
     isExpression,
     parseExpressionString
 } from '../util/vm';
-import {BindItem} from '../Container/AbstractContainer';
+import {BindItem} from '../Hosts/Container';
 import {setWith, deleteWith, getRuntimeContext} from '../util/util';
 import {parseExpressionToken} from 'rcre-runtime';
 
@@ -32,13 +33,6 @@ export interface ContainerNodeOptions {
      * 不允许同步undefined或者null到父级的container上
      */
     noNilToParent?: boolean;
-
-    /**
-     * 在props中使用$data来访问父级的数据对象
-     *
-     * @deprecated
-     */
-    __desperate__$dataToParentInProps?: boolean;
 }
 
 /**
@@ -102,7 +96,7 @@ export class ContainerNode {
 export function syncExportContainerState(
     state: IContainerState,
     affectNode: ContainerNode[],
-    context: BasicContextType,
+    context: RunTimeContextCollection,
     node?: ContainerNode
 ) {
     if (!node) {
@@ -129,7 +123,9 @@ export function syncExportContainerState(
     let $data = state[model];
     let runTime = getRuntimeContext({
         $data: $data
-    }, context);
+    } as ContainerContextType, context.rcre, {
+        iteratorContext: context.iterator
+    });
 
     let parentNode = node.parent;
 
@@ -180,7 +176,7 @@ export function syncExportContainerState(
     }
 }
 
-export function syncPropsContainerState(state: IContainerState, context: BasicContextType, node?: ContainerNode) {
+export function syncPropsContainerState(state: IContainerState, context: RunTimeContextCollection, node?: ContainerNode) {
     if (!node) {
         return;
     }
@@ -201,11 +197,9 @@ export function syncPropsContainerState(state: IContainerState, context: BasicCo
             let childRunTime = getRuntimeContext({
                 $data: child$data,
                 $parent: $data
-            }, context);
-
-            if (child.options.__desperate__$dataToParentInProps) {
-                childRunTime.$data = $data;
-            }
+            } as ContainerContextType, context.rcre, {
+                iteratorContext: context.iterator
+            });
 
             if (typeof props === 'string' || typeof props === 'function') {
                 if (props === 'inherit') {
@@ -271,7 +265,7 @@ export function syncPropsContainerState(state: IContainerState, context: BasicCo
  * @param {ContainerNode} node
  * @returns {any}
  */
-export function syncDeleteContainerState(state: IContainerState, context: Object, node?: ContainerNode, key?: string) {
+export function syncDeleteContainerState(state: IContainerState, context: RunTimeContextCollection, node?: ContainerNode, key?: string) {
     if (!node) {
         return;
     }
@@ -293,7 +287,9 @@ export function syncDeleteContainerState(state: IContainerState, context: Object
             if (typeof exportConfig === 'string' || typeof exportConfig === 'function') {
                 let runTime = getRuntimeContext({
                     $data: state[model]
-                }, context);
+                } as ContainerContextType, context.rcre, {
+                    iteratorContext: context.iterator
+                });
                 let ret = parseExpressionString(exportConfig, runTime);
 
                 if (!isPlainObject(ret)) {
@@ -318,7 +314,9 @@ export function syncDeleteContainerState(state: IContainerState, context: Object
 
                     let runTime = getRuntimeContext({
                         $data: state[model]
-                    }, context);
+                    } as ContainerContextType, context.rcre, {
+                        iteratorContext: context.iterator
+                    });
 
                     let proxyHandler = {
                         get(obj: any, prop: string) {

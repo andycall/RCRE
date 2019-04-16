@@ -2,17 +2,17 @@ import {ParsedUrlQuery} from 'querystring';
 import {CSSProperties} from 'react';
 import {Store} from 'redux';
 import {UrlWithStringQuery} from 'url';
-import {ContainerConfig} from './core/Container/AbstractContainer';
+// import {ContainerConfig} from './core/Container/AbstractContainer';
 import {
     GridItem
 } from './core/Container/BasicComponent';
 import {DataCustomer} from './core/DataCustomer/index';
 import {Events} from './core/Events/index';
-import {RowConfig} from './core/Layout/Row/Row';
-import {DivConfig} from './core/Layout/Div/Div';
-import {BasicConnectProps} from './core/Connect/basicConnect';
-import {TextConfig} from './core/Layout/Text/Text';
-import {FormConfig, FormItemConfig} from './core/Form';
+// import {RowConfig} from './core/Layout/Row/Row';
+// import {DivConfig} from './core/Layout/Div/Div';
+// import {BasicConnectProps} from './core/Connect/basicConnect';
+// import {TextConfig} from './core/Layout/Text/Text';
+import {SET_FORM_ITEM_PAYLOAD} from './core/Form';
 import moment from 'moment';
 import {ContainerNode} from './core/Service/ContainerDepGraph';
 import {TriggerEventItem} from './core/Trigger/Trigger';
@@ -34,29 +34,35 @@ export enum CoreKind {
     formItem = 'formItem'
 }
 
-export type COREConfig<T> =
-    ContainerConfig
-    | TextConfig
-    | RowConfig<T>
-    | DivConfig<T>
-    | FormConfig<T>
-    | FormItemConfig<T>;
+// export type COREConfig<T> =
+//     ContainerConfig
+//     | TextConfig
+//     | RowConfig<T>
+//     | DivConfig<T>
+//     | FormConfig<T>
+//     | FormItemConfig<T>;
 
-export type ConfigFactory<Config, Extend> = BasicConfig & ExtendType<Overwrite<Config, Extend>, string> & Extend;
-export type DriverPropsFactory<Config extends BasicConfig, Props, Collection extends BasicConfig, Extend = {}> =
-    BasicConfig &
-    Props &
-    Extend &
-    BasicConnectProps<BasicContainerPropsInterface, Collection>;
+// export type ConfigFactory<Config, Extend> = BasicConfig & ExtendType<Overwrite<Config, Extend>, string> & Extend;
+// export type DriverPropsFactory<Config extends BasicConfig, Props, Collection extends BasicConfig, Extend = {}> =
+//     BasicConfig &
+//     Props &
+//     Extend &
+//     BasicConnectProps<BasicContainerPropsInterface, Collection>;
 
 export type runTimeType = RunTimeType;
+type $itemType = {
+    $parentItem?: $itemType;
+    $parentIndex?: number;
+    [key: string]: any;
+};
 export interface RunTimeType {
     $data: any;
     $query?: any;
     $value?: any;
     $name?: any;
     $global?: any;
-    $item?: any;
+    $item?: $itemType;
+    $location: any;
     $trigger?: any;
     $index?: number;
     $now?: moment.Moment;
@@ -313,7 +319,7 @@ export class BasicContainerPropsInterface {
     /**
      * 来自Container的数据消耗者实例
      */
-    dataCustomer?: DataCustomer<any>;
+    dataCustomer?: DataCustomer;
 
     /**
      * 父级的数据模型Key
@@ -326,6 +332,33 @@ export class BasicContainerPropsInterface {
     injectEvents: {
         [fc: string]: Function
     };
+}
+
+export interface BasicProps {
+    /**
+     * 来自RCRE的context对象
+     */
+    rcreContext: RCREContextType;
+
+    /**
+     * 来自Foreach组件的context对象
+     */
+    iteratorContext: IteratorContextType;
+
+    /**
+     * 来自Form组件的context对象
+     */
+    formContext?: FormContextType;
+
+    /**
+     * 来自父级Container的context对象
+     */
+    containerContext: ContainerContextType;
+
+    /**
+     * 来自Trigger组件的context对象
+     */
+    triggerContext: TriggerContextType;
 }
 
 /**
@@ -458,11 +491,12 @@ export type RCREOptions = {
 /**
  * 内部基础组件的context变量
  */
-export interface BasicContextType {
+export interface RCREContextType {
     $global: object;
     $location: UrlWithStringQuery;
     $query: ParsedUrlQuery;
     debug: boolean;
+    loadMode: string;
     lang: string;
     events: Events;
     options?: RCREOptions;
@@ -474,15 +508,56 @@ export interface BasicContextType {
 /**
  * Container为底层组件提供的Context
  */
-export interface ComponentContextType {
+export interface ContainerContextType {
     model: string;
     $data: any;
-    $tmp: any;
-    dataCustomer: DataCustomer<any>;
-    setData: (name: string, value: any) => void;
-    getData: (nameStr: string, props: any, isTmp?: boolean) => any;
-    deleteData: (name: string, isTmp?: boolean) => void;
-    setMultiData: (items: { name: string, value: any, isTmp: boolean }[]) => void;
+    $parent?: any;
+    dataCustomer?: DataCustomer | null;
+    $setData: (name: string, value: any) => void;
+    $getData: (name: string) => any;
+    $deleteData: (name: string) => void;
+    $setMultiData: (items: { name: string, value: any}[]) => void;
+}
+
+type TriggerContextOptions = { index?: number, preventSubmit?: boolean };
+export interface TriggerContextType {
+    $trigger: any;
+    eventHandle: (eventName: string, args: Object, options?: TriggerContextOptions) => Promise<any>;
+}
+
+export interface IteratorContextType {
+    $item: any;
+    $index: number;
+    $parentIndex?: number;
+    $parentItem?: any;
+}
+
+export interface FormItemState {
+    valid: boolean;
+    formItemName: string;
+    rules: any[];
+    status: string;
+    errorMsg: string;
+    $validate?: boolean;
+    required?: boolean;
+}
+
+export interface FormContextType {
+    $form?: any;
+    isSubmitting?: boolean;
+    $setFormItem: (payload: FormItemState) => void;
+    $getFormItem: (formItemName: string) => FormItemState;
+    $setFormItems: (payload: SET_FORM_ITEM_PAYLOAD[]) => void;
+    $deleteFormItem: (itemName: string) => void;
+    $resetForm: () => void;
+    $handleSubmit: () => void;
+}
+
+export interface FormItemContextType {
+    $addNameSet: (name: string) => void;
+    $handleBlur: () => void;
+    valid: boolean;
+    errmsg: string;
 }
 
 export interface PageConfig<T extends BasicConfig> {

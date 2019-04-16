@@ -6,16 +6,26 @@ import {
 import {every, clone} from 'lodash';
 import {setWith} from '../util/util';
 
-export type IState = {
-    [s: string]: any
+export type FormState = {
+    [s: string]: {
+        name: string;
+        valid: boolean;
+        control: {
+            [s: string]: any
+        };
+    }
 };
 
-export const initialState: IState = Object.freeze({});
+export const formInitState: FormState = Object.freeze({});
 
-function setFormItem(state: IState, payload: any, formName: string, formItemName: string) {
+function setFormItem(state: FormState, payload: any, formName: string, formItemName: string) {
     let newState = clone(state);
     if (!(formName in newState)) {
-        newState[formName] = {};
+        newState[formName] = {
+            name: '',
+            valid: false,
+            control: {}
+        };
     }
 
     if (!newState[formName].control) {
@@ -35,7 +45,7 @@ function setFormItem(state: IState, payload: any, formName: string, formItemName
     return newState;
 }
 
-export const reducer: Reducer<IState> = (state: IState = initialState, actions: IFormActions): IState => {
+export const formReducer: Reducer<FormState> = (state: FormState = formInitState, actions: IFormActions): FormState => {
     switch (actions.type) {
         case INIT_FORM: {
             let name = actions.payload.name;
@@ -45,7 +55,7 @@ export const reducer: Reducer<IState> = (state: IState = initialState, actions: 
                 return state;
             }
 
-            return setWith(state, name, actions.payload.data);
+            return setWith<FormState>(state, name, actions.payload.data);
         }
         case SET_FORM: {
             let name = actions.payload.name;

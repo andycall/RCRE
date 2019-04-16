@@ -1,9 +1,16 @@
-import {RootState} from "../../data/reducers";
-import {BasicConfig, CustomerSourceConfig, runTimeType} from '../../types';
+import {RootState} from '../../data/reducers';
+import {
+    BasicConfig,
+    ContainerContextType,
+    CustomerSourceConfig,
+    IteratorContextType,
+    RCREContextType,
+    runTimeType
+} from '../../types';
+import {ContainerProps} from '../Container/Container';
 import {passCustomer} from './customers/pass';
 import {EventEmitter} from 'events';
 import {locationCustomer} from './customers/location';
-import {ContainerProps} from '../Container/BasicComponent';
 import {isExpression, parseExpressionString} from '../util/vm';
 import {FunsCustomerController} from './funcCustomer';
 import {localStoreCustomer} from './customers/localStorage';
@@ -34,10 +41,11 @@ export interface CustomerParams {
     runTime: runTimeType;
     model: string;
     prev: any;
-    props: any;
     params: any;
     customer: string;
-    context: any;
+    rcreContext: RCREContextType;
+    containerContext: ContainerContextType;
+    iteratorContext: IteratorContextType;
     options: TRIGGER_SET_DATA_OPTIONS | undefined;
 }
 
@@ -65,7 +73,7 @@ type DataCustomerItem = {
  * 它通过注入customer插件的形式, 把各种各样的数据消耗方加载进来
  * 针对特殊的业务逻辑场景, 可以使用Group来使用链式调用
  */
-export class DataCustomer<Config extends BasicConfig> extends EventEmitter {
+export class DataCustomer extends EventEmitter {
     static customerInstance: {
         [name: string]: (config: any, params: CustomerParams) => any;
     };
@@ -73,7 +81,7 @@ export class DataCustomer<Config extends BasicConfig> extends EventEmitter {
     static funcCustomer: FunsCustomerController;
     static errorHandler: Function;
 
-    public parentCustomer?: DataCustomer<Config>;
+    public parentCustomer?: DataCustomer | null;
     public customers: {
         [name: string]: DataCustomerItem;
     };
@@ -112,7 +120,7 @@ export class DataCustomer<Config extends BasicConfig> extends EventEmitter {
         DataCustomer.errorHandler = fn;
     }
 
-    constructor(parent?: DataCustomer<Config>) {
+    constructor(parent?: DataCustomer | null) {
         super();
 
         this.customers = {};
@@ -256,10 +264,10 @@ export class DataCustomer<Config extends BasicConfig> extends EventEmitter {
     public async execCustomer(params: CustomerParams) {
         let customer = params.customer;
 
-        let state: RootState = params.context.store.getState();
+        let state: RootState = params.rcreContext.store.getState();
         params.runTime.$data = state.$rcre.container[params.model];
 
-        let customerInstance: DataCustomer<Config> = this;
+        let customerInstance: DataCustomer = this;
         let targetCustomer: DataCustomerItem;
 
         while (true) {

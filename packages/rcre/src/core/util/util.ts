@@ -6,9 +6,15 @@
  */
 import {clone, isObject} from 'lodash';
 import {Global} from 'rcre-runtime';
-import {BasicConfig, runTimeType} from '../../types';
+import {
+    BasicConfig,
+    ContainerContextType, FormContextType,
+    IteratorContextType,
+    RCREContextType,
+    runTimeType,
+    TriggerContextType
+} from '../../types';
 import {dataProviderEvent} from '../Events/dataProviderEvent';
-import {filter} from './filter';
 import {stringToPath} from './stringToPath';
 import {injectFilterIntoContext} from './vm';
 
@@ -68,8 +74,8 @@ export function waitForDataProviderComplete() {
  * @param path
  * @param value
  */
-export function setWith(obj: Object, path: string, value: any) {
-    let copy = clone(obj);
+export function setWith<T>(obj: T, path: string, value: any): T {
+    let copy: T = clone(obj);
     let pathList = stringToPath(path);
     let target = copy;
 
@@ -148,46 +154,38 @@ export function deleteWith<T>(path: string, obj: T): T {
 }
 
 export function getRuntimeContext<T extends BasicConfig>(
-    props: any,
-    context: any
+    containerContext: ContainerContextType,
+    rcreContext: RCREContextType,
+    otherContext?: {
+        iteratorContext?: IteratorContextType,
+        triggerContext?: TriggerContextType,
+        formContext?: FormContextType
+    }
 ): runTimeType {
     let runtime: runTimeType = {
         ...Global,
-        $data: {},
+        $global: rcreContext.$global,
+        $query: rcreContext.$query,
+        $location: rcreContext.$location,
+        $data: containerContext.$data,
+        $parent: containerContext.$parent,
     };
 
     injectFilterIntoContext(runtime);
 
-    if (props.$data) {
-        runtime.$data = Object.assign({}, props.$data);
-    }
+    if (otherContext) {
+        if (otherContext.iteratorContext) {
+            runtime.$item = otherContext.iteratorContext.$item;
+            runtime.$index = otherContext.iteratorContext.$index;
+        }
 
-    if (props.$parent) {
-        runtime.$parent = Object.assign({}, props.$parent);
-    }
+        if (otherContext.triggerContext) {
+            runtime.$trigger = otherContext.triggerContext.$trigger;
+        }
 
-    if (props.hasOwnProperty('$item')) {
-        runtime.$item = props.$item;
-    }
-
-    if (props.hasOwnProperty('$index')) {
-        runtime.$index = props.$index;
-    }
-
-    if (props.$trigger) {
-        runtime.$trigger = props.$trigger;
-    }
-
-    if (props.$form) {
-        runtime.$form = props.$form;
-    }
-
-    if (context && context.$query) {
-        runtime.$query = context.$query;
-    }
-
-    if (context && context.$global) {
-        runtime.$global = context.$global;
+        if (otherContext.formContext) {
+            runtime.$form = otherContext.formContext.$form;
+        }
     }
 
     return runtime;
@@ -197,30 +195,11 @@ export function getRuntimeContext<T extends BasicConfig>(
  * 清理runTime变量,谨防内存泄露
  */
 export function recycleRunTime(runTime: runTimeType) {
-    delete runTime.$data;
-    delete runTime.$parent;
-    delete runTime.$item;
-    delete runTime.$global;
-    delete runTime.$args;
-    delete runTime.$form;
-    delete runTime.$index;
-    delete runTime.$parent;
-    delete runTime.$trigger;
+    let keys = Object.keys(runTime);
 
-    let globalKeys = Object.keys(Global);
-
-    for (let key of globalKeys) {
-        delete runTime[key];
-    }
-
-    let filterKeys = Object.keys(filter.store);
-
-    for (let key of filterKeys) {
-        delete runTime[key];
-    }
-
-    // @ts-ignore
-    runTime = null;
+    keys.forEach(key => {
+        runTime[key] = null;
+    });
 
     return null;
 }

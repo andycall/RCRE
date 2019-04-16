@@ -5,7 +5,7 @@ import {Provider} from 'react-redux';
 import URL from 'url';
 import {RootState} from '../data/reducers';
 import createReduxStore from '../data/store';
-import {BasicContextType, RCREOptions} from '../types';
+import {RCREContextType, RCREOptions} from '../types';
 import {dataProviderEvent} from './Events/dataProviderEvent';
 import {Events} from './Events/index';
 import {RCREContext} from './context';
@@ -20,7 +20,7 @@ export interface RCREProviderProps {
 }
 
 export class RCREProvider extends React.Component<RCREProviderProps, {}> {
-    private contextValue: BasicContextType;
+    private contextValue: RCREContextType;
     public events: Events;
     private store: Store<RootState>;
     private containerGraph: Map<string, ContainerNode>;
@@ -45,6 +45,7 @@ export class RCREProvider extends React.Component<RCREProviderProps, {}> {
         this.contextValue = {
             ...location,
             lang: '',
+            loadMode: 'default',
             $global: props.global || {},
             debug: props.debug || false,
             store: store,

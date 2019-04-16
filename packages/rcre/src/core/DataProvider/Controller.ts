@@ -1,11 +1,11 @@
-import {RootState} from "../../data/reducers";
+import {RootState} from '../../data/reducers';
 import {ProviderSourceConfig, runTimeType} from '../../types';
-import {actionCreators} from '../Container/action';
-import {ContainerProps} from '../Container/BasicComponent';
+import {containerActionCreators} from '../Container/action';
 import {clone, isEqual, isPlainObject, remove, isEmpty, get, has, cloneDeep} from 'lodash';
+import {ContainerProps} from '../Container/Container';
+import {RunTimeContextCollection} from '../context';
 import {getRuntimeContext, isPromise} from '../util/util';
 import {compileExpressionString, isExpression, parseExpressionString} from '../util/vm';
-import {ContainerConfig} from '../Container/AbstractContainer';
 import {SyncAdaptor} from './adaptors/sync';
 import {AsyncAdaptor} from './adaptors/async';
 import {SocketAdaptor} from './adaptors/socket';
@@ -20,17 +20,17 @@ export interface ProviderActions {
     /**
      * 异步加载中
      */
-    asyncLoadDataProgress: typeof actionCreators.asyncLoadDataProgress;
+    asyncLoadDataProgress: typeof containerActionCreators.asyncLoadDataProgress;
 
     /**
      * 异步加载成功
      */
-    asyncLoadDataSuccess: typeof actionCreators.asyncLoadDataSuccess;
+    asyncLoadDataSuccess: typeof containerActionCreators.asyncLoadDataSuccess;
 
     /**
      * 异步加载失败
      */
-    asyncLoadDataFail: typeof actionCreators.asyncLoadDataFail;
+    asyncLoadDataFail: typeof containerActionCreators.asyncLoadDataFail;
 }
 
 /**
@@ -50,7 +50,7 @@ export interface ProviderActions {
  * 3.1 success(异步运行成功)
  * 3.2 fail(异步运行失败)
  */
-export class DataProvider<Config extends ContainerConfig> {
+export class DataProvider {
     static providerInstance: {
         [mode: string]: {
             type: 'sync',
@@ -290,7 +290,7 @@ export class DataProvider<Config extends ContainerConfig> {
         let forceUpdate = runTime.$data && runTime.$data['$update'];
 
         if (forceUpdate) {
-            context.store.dispatch(actionCreators.setData({
+            context.store.dispatch(containerActionCreators.setData({
                 name: '$update',
                 value: false
             }, model, context));
@@ -477,9 +477,11 @@ export class DataProvider<Config extends ContainerConfig> {
     // private async execSocketAdaptor(provider: ProviderSourceConfig, instance: SocketAdaptor, runTime: runTimeType, actions: ProviderActions, model: string) {
     // }
 
-    public getRunTime(model: string, props: ContainerProps, context: any) {
-        let runTime = getRuntimeContext(props, context);
-        let state: RootState = context.store.getState();
+    public getRunTime(model: string, props: ContainerProps, context: RunTimeContextCollection) {
+        let runTime = getRuntimeContext(context.container, context.rcre, {
+            iteratorContext: context.iterator
+        });
+        let state: RootState = context.rcre.store.getState();
         runTime.$data = state.$rcre.container[model];
         runTime.$trigger = state.$rcre.trigger[model];
 
@@ -491,7 +493,7 @@ export class DataProvider<Config extends ContainerConfig> {
         providerConfig: ProviderSourceConfig[],
         actions: ProviderActions,
         props: ContainerProps,
-        context: any
+        context: RunTimeContextCollection
     ) {
         let runTime = this.getRunTime(model, props, context);
         let retCache = {};
@@ -525,7 +527,7 @@ export class DataProvider<Config extends ContainerConfig> {
 
         // 并发发送请求
         for (let i = 0; i < execTask.length; i++) {
-            let state: RootState = context.store.getState();
+            let state: RootState = context.rcre.store.getState();
             let container = state.$rcre.container[model];
             let parallel = execTask[i].map(namespace => {
                 let provider = this.buildInProvider[namespace];

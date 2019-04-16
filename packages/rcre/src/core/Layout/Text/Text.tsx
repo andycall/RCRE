@@ -1,15 +1,13 @@
 import * as React from 'react';
 import {CSSProperties} from 'react';
 import * as _ from 'lodash';
-import {BasicConfig, ConfigFactory, CoreKind} from '../../../types';
-
 import './Text.css';
+import {TriggerContextType} from '../../../types';
+import {withTriggerContext} from '../../context';
 import {TriggerEventItem} from '../../Trigger/Trigger';
-import {BasicConnectProps} from '../../Connect/basicConnect';
-import {commonConnect} from '../../Connect/Common/Common';
 import {componentLoader} from '../../util/componentLoader';
 
-export type TextProps = {
+export type TextDriverProps = {
     text: string;
     /**
      * 文本类型
@@ -60,19 +58,18 @@ export type TextProps = {
      * CSS Class
      */
     className?: string;
+
+    /**
+     * Trigger的context对象
+     */
+    triggerContext: TriggerContextType;
 };
 
 export interface TextEvent extends TriggerEventItem {
     event: 'onClick' | string;
 }
 
-export type TextConfig = ConfigFactory<TextProps, {
-    type: CoreKind.text
-}>;
-
-export type TextDriverProps = BasicConfig & BasicConnectProps<any, TextConfig> & TextProps;
-
-export class TextDriver extends React.Component<TextDriverProps, {}> {
+export class TextDriver extends React.PureComponent<TextDriverProps, {}> {
     constructor(props: TextDriverProps) {
         super(props);
     }
@@ -99,7 +96,6 @@ export class TextDriver extends React.Component<TextDriverProps, {}> {
 
     render() {
         let {
-            tools,
             mode,
             text,
             thousands,
@@ -177,7 +173,7 @@ export class TextDriver extends React.Component<TextDriverProps, {}> {
                         if (href && window) {
                             window.location.href = href;
                         }
-                        tools.registerEvent('onClick', event);
+                        this.props.triggerContext.eventHandle('onClick', event);
                     }
                 };
 
@@ -198,7 +194,7 @@ export class TextDriver extends React.Component<TextDriverProps, {}> {
                             event.stopPropagation();
                             return;
                         }
-                        tools.registerEvent('onClick', event);
+                        this.props.triggerContext.eventHandle('onClick', event);
                     },
                     className: 'rcre-text ' + (className || '')
                 };
@@ -222,4 +218,4 @@ export class TextDriver extends React.Component<TextDriverProps, {}> {
     }
 }
 
-componentLoader.addComponent('text', commonConnect()(TextDriver), '__BUILDIN__');
+componentLoader.addComponent('text', withTriggerContext(TextDriver), '__BUILDIN__');

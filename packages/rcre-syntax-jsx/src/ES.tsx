@@ -1,11 +1,11 @@
 import React from 'react';
-import {runTimeType, getRuntimeContext, ComponentContext, RCREContext, ComponentContextType} from 'rcre';
+import {runTimeType, getRuntimeContext, RCREContext, ContainerContext, ContainerContextType} from 'rcre';
 import {get} from 'lodash';
 
-const ComponentConsumer = ComponentContext.Consumer;
+const ComponentConsumer = ContainerContext.Consumer;
 const RCREConsumer = RCREContext.Consumer;
 
-type ESChild = (runTime: runTimeType, context: ComponentContextType) => any;
+type ESChild = (runTime: runTimeType, context: ContainerContextType) => any;
 
 export interface ESProps {
     children: ESChild;
@@ -29,16 +29,16 @@ export class ES extends React.Component<ESProps> {
                 {
                     providerContext => (
                         <ComponentConsumer>
-                            {componentContext => {
+                            {containerContext => {
                                 let name = this.props.name;
-                                let runTime = getRuntimeContext(componentContext, providerContext);
+                                let runTime = getRuntimeContext(containerContext, providerContext);
 
                                 if (name) {
                                     runTime.$name = name;
                                     runTime.$value = get(runTime.$data, name);
                                 }
 
-                                return this.props.children(runTime, componentContext);
+                                return this.props.children(runTime, containerContext);
                             }}
                         </ComponentConsumer>
                     )
