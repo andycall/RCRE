@@ -218,7 +218,7 @@ export class RCREFormItem extends React.Component<FormItemProps, {}> {
         // recycleRunTime(nextRunTime);
     }
 
-    private async apiRuleExport(exportConf: string | object, runTime: RunTimeType) {
+    private apiRuleExport = async (exportConf: string | object, runTime: RunTimeType) => {
         let exportValue: object;
         if (isPlainObject(exportConf) && typeof exportConf === 'object') {
             exportValue = compileExpressionString(exportConf, runTime);
@@ -256,7 +256,7 @@ export class RCREFormItem extends React.Component<FormItemProps, {}> {
         return;
     }
 
-    private async apiValidate(apiRule: ApiRule, formItemName: string, value: any) {
+    private apiValidate = async (apiRule: ApiRule, formItemName: string, value: any) => {
         let runTime = getRuntimeContext(this.props.containerContext, this.props.rcreContext, {
             formContext: this.props.formContext,
             iteratorContext: this.props.iteratorContext
@@ -363,7 +363,7 @@ export class RCREFormItem extends React.Component<FormItemProps, {}> {
         recycleRunTime(runTime);
     }
 
-    private validFilterRule(filterRule: string, data: any, runTime: RunTimeType, filterErrMsg: string = '') {
+    private validFilterRule = (filterRule: string, data: any, runTime: RunTimeType, filterErrMsg: string = '') => {
         let isValid = parseExpressionString(filterRule, {
             ...runTime,
             $args: {
@@ -384,10 +384,10 @@ export class RCREFormItem extends React.Component<FormItemProps, {}> {
         };
     }
 
-    private validateFormItem(
+    private validateFormItem = (
         formItemName: string,
         data: any
-    ) {
+    ) => {
         let rules = this.props.rules || [];
         let required = this.props.required;
         let filterRule = this.props.filterRule;
@@ -523,23 +523,23 @@ export class RCREFormItem extends React.Component<FormItemProps, {}> {
         recycleRunTime(runTime);
     }
 
-    private handleChange(name: string, data: any) {
+    private handleChange = (name: string, data: any) => {
         // 输入值改变，需要重置API请求锁
         this.isApiValidate = false;
         this.validateFormItem(name, data);
         this.props.containerContext.$setData(name, data);
     }
 
-    private handleDelete(name: string) {
+    private handleDelete = (name: string) => {
         this.props.formContext.$deleteFormItem(name);
         this.props.containerContext.$deleteData(name);
     }
 
-    private getFormItemControl(formItemName: string): FormItemState {
+    private getFormItemControl = (formItemName: string): FormItemState => {
         return this.props.formContext.$getFormItem(formItemName);
     }
 
-    private handleBlur() {
+    private handleBlur = () => {
         // 针对某些含有多个name属性的组件，可以考虑在组件初始化的时候，往formItem组件注册多个name值
         for (let item of this.nameSet) {
             if (!item.disabled) {
@@ -551,7 +551,7 @@ export class RCREFormItem extends React.Component<FormItemProps, {}> {
         this.forceUpdate();
     }
 
-    private getFormItemValidInfo(): { valid: boolean, errmsg: string } {
+    private getFormItemValidInfo = (): { valid: boolean, errmsg: string } => {
         let nameList = this.nameSet;
 
         for (let item of nameList) {

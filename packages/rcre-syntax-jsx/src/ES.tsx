@@ -1,18 +1,35 @@
 import React from 'react';
-import {runTimeType, getRuntimeContext, RCREContext, ContainerContext, ContainerContextType} from 'rcre';
+import {
+    runTimeType,
+    getRuntimeContext,
+    ContainerContext,
+    RCREContext,
+    TriggerContext,
+    IteratorContext,
+    FormContext,
+    ContainerContextType,
+    TriggerContextType,
+    FormContextType,
+    RCREContextType,
+    IteratorContextType
+} from 'rcre';
 import {get} from 'lodash';
 
-const ComponentConsumer = ContainerContext.Consumer;
-const RCREConsumer = RCREContext.Consumer;
-
-type ESChild = (runTime: runTimeType, context: ContainerContextType) => any;
+type ESChild = (runTime: runTimeType, context: {
+    container: ContainerContextType;
+    trigger: TriggerContextType,
+    form?: FormContextType,
+    rcre: RCREContextType
+    iterator: IteratorContextType
+}) => any;
 
 export interface ESProps {
     children: ESChild;
     name?: string;
 }
 
-export class ES extends React.Component<ESProps> {
+export class ES extends React.PureComponent<ESProps> {
+    static displayName = 'ES';
     render() {
         if (typeof this.props.children !== 'function') {
             console.error(`ES 组件的子元素只能是个函数. 例如 \n
@@ -24,26 +41,40 @@ export class ES extends React.Component<ESProps> {
             return this.props.children;
         }
 
+        let name = this.props.name;
+
         return (
-            <RCREConsumer>
-                {
-                    providerContext => (
-                        <ComponentConsumer>
-                            {containerContext => {
-                                let name = this.props.name;
-                                let runTime = getRuntimeContext(containerContext, providerContext);
+            <RCREContext.Consumer>
+                {rcreContext => <ContainerContext.Consumer>
+                    {containerContext => <IteratorContext.Consumer>
+                        {iteratorContext => <FormContext.Consumer>
+                            {formContext => <TriggerContext.Consumer>
+                                {triggerContext => {
+                                    let context = {
+                                        container: containerContext,
+                                        rcre: rcreContext,
+                                        form: formContext,
+                                        trigger: triggerContext,
+                                        iterator: iteratorContext
+                                    };
+                                    let runTime = getRuntimeContext(containerContext, rcreContext, {
+                                        iteratorContext: iteratorContext,
+                                        formContext: formContext,
+                                        triggerContext: triggerContext
+                                    });
 
-                                if (name) {
-                                    runTime.$name = name;
-                                    runTime.$value = get(runTime.$data, name);
-                                }
+                                    if (name) {
+                                        runTime.$name = name;
+                                        runTime.$value = get(runTime.$data, name);
+                                    }
 
-                                return this.props.children(runTime, containerContext);
-                            }}
-                        </ComponentConsumer>
-                    )
-                }
-            </RCREConsumer>
+                                    return this.props.children(runTime, context);
+                                }}
+                            </TriggerContext.Consumer>}
+                        </FormContext.Consumer>}
+                    </IteratorContext.Consumer>}
+                </ContainerContext.Consumer>}
+            </RCREContext.Consumer>
         );
     }
 

@@ -66,15 +66,15 @@ export const FormItemContext = createReactContext<FormItemContextType>({
     errmsg: ''
 });
 
-export const withRCREContext = (Component: any) => (
-    (props: any) => (
+export const withRCREContext = (Component: any) => {
+    return (props: any) => (
         <RCREContext.Consumer>
             {context => <Component rcreContext={context} {...props} />}
         </RCREContext.Consumer>
-    )
-);
+    );
+}
 
-export const withContainerContext = (Component: any) => (
+export const withContainerContext: any = (Component: any) => (
     (props: any) => (
         <ContainerContext.Consumer>
             {context => <Component containerContext={context} {...props} />}
@@ -82,7 +82,7 @@ export const withContainerContext = (Component: any) => (
     )
 );
 
-export const withFormContext = (Component: any) => (
+export const withFormContext: any = (Component: any) => (
     (props: any) => (
         <FormContext.Consumer>
             {context => <Component formContext={context} {...props} />}
@@ -90,11 +90,19 @@ export const withFormContext = (Component: any) => (
     )
 );
 
-export const withTriggerContext = (Component: any) => (
+export const withTriggerContext: any = (Component: any) => (
     (props: any) => (
         <TriggerContext.Consumer>
             {context => <Component triggerContext={context} {...props} />}
         </TriggerContext.Consumer>
+    )
+);
+
+export const withIteratorContext: any = (Component: any) => (
+    (props: any) => (
+        <IteratorContext.Consumer>
+            {context => <Component iteratorContext={context} {...props} />}
+        </IteratorContext.Consumer>
     )
 );
 

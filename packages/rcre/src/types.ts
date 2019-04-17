@@ -3,9 +3,6 @@ import {CSSProperties} from 'react';
 import {Store} from 'redux';
 import {UrlWithStringQuery} from 'url';
 // import {ContainerConfig} from './core/Container/AbstractContainer';
-import {
-    GridItem
-} from './core/Container/BasicComponent';
 import {DataCustomer} from './core/DataCustomer/index';
 import {Events} from './core/Events/index';
 // import {RowConfig} from './core/Layout/Row/Row';
@@ -14,6 +11,7 @@ import {Events} from './core/Events/index';
 // import {TextConfig} from './core/Layout/Text/Text';
 import {SET_FORM_ITEM_PAYLOAD} from './core/Form';
 import moment from 'moment';
+import {gridPositionItems} from './core/Layout/Row/Row';
 import {ContainerNode} from './core/Service/ContainerDepGraph';
 import {TriggerEventItem} from './core/Trigger/Trigger';
 
@@ -90,7 +88,7 @@ export interface InteratorRunTimeType extends RunTimeType {
 
 export type ExpressionStringType = string;
 
-export class BasicConfig extends GridItem {
+export class BasicConfig {
     /**
      * 组件类型
      */
@@ -203,15 +201,11 @@ export class BasicConfig extends GridItem {
     __TEST_NAME__?: string;
 }
 
-export type BasicContainerSetDataOptions = {
+export type ContainerSetDataOption = {
     /**
      * 强制触发刷新
      */
     forceUpdate?: boolean;
-    /**
-     * 设置值到TMP_STORE
-     */
-    isTmp?: boolean;
 
     /**
      * 是否是分页
@@ -229,12 +223,44 @@ export type BasicContainerSetDataOptions = {
      * 跳过debounce缓存，直接设置container的值
      */
     skipDebounce?: boolean;
+};
+
+export type rawJSONType = string | number | null | boolean | Object;
+export type originJSONType = rawJSONType | rawJSONType[];
+
+export type defaultData = {
+    [s: string]: ESFunc | any;
+};
+
+export type BindItem = {
+    child: string;
+    parent: string;
+    transform?: string
+};
+
+export interface ContainerNodeOptions {
+    /**
+     * 同步删除无状态数据到父级
+     */
+    syncDelete?: boolean;
 
     /**
-     * 不使用transform
+     * 使用字符串的export属性，并强制清除当前container和父级container相关的Key
      */
-    noTransform?: boolean;
-};
+    forceSyncDelete?: boolean;
+
+    /**
+     * 当前container组件被销毁的时候，同步清除父级和当前container所有相关的key
+     */
+    clearDataToParentsWhenDestroy?: boolean;
+
+    /**
+     * 不允许同步undefined或者null到父级的container上
+     */
+    noNilToParent?: boolean;
+}
+
+export type ESFunc = (runTime: runTimeType) => any;
 
 export class BasicContainerPropsInterface {
     // 调试模式
@@ -289,7 +315,7 @@ export class BasicContainerPropsInterface {
     /**
      * 底层组件设置数据模型值使用
      */
-    $setData?: (name: string, value: any, options?: BasicContainerSetDataOptions) => void;
+    $setData?: (name: string, value: any, options?: ContainerSetDataOption) => void;
 
     /**
      * 底层组件获取数据模型值使用
@@ -358,7 +384,16 @@ export interface BasicProps {
     /**
      * 来自Trigger组件的context对象
      */
-    triggerContext: TriggerContextType;
+    triggerContext?: TriggerContextType;
+
+    gridCount?: number;
+    gridPosition?: gridPositionItems;
+    gridPaddingLeft?: number;
+    gridPaddingRight?: number;
+    gridLeft?: number;
+    gridTop?: number;
+    gridWidth?: number | string;
+    gridHeight?: number | string;
 }
 
 /**
@@ -513,7 +548,7 @@ export interface ContainerContextType {
     $data: any;
     $parent?: any;
     dataCustomer?: DataCustomer | null;
-    $setData: (name: string, value: any) => void;
+    $setData: (name: string, value: any, options?: ContainerSetDataOption) => void;
     $getData: (name: string) => any;
     $deleteData: (name: string) => void;
     $setMultiData: (items: { name: string, value: any}[]) => void;

@@ -3,7 +3,7 @@ import {BasicConnectProps} from '../Connect/basicConnect';
 import {commonConnect} from '../Connect/Common/Common';
 import {componentLoader} from '../util/componentLoader';
 
-interface RCREButtonProps extends BasicConnectProps<any, any> {
+interface RCREButtonProps extends BasicConnectProps {
     text: string;
 }
 

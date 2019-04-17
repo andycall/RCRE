@@ -6743,6 +6743,11 @@ react-lifecycles-compat@^3.0.0:
   resolved "https://registry.yarnpkg.com/react-lifecycles-compat/-/react-lifecycles-compat-3.0.4.tgz#4f1a273afdfc8f3488a8c516bfda78f872352362"
   integrity sha512-fBASbA6LnOU9dOU2eW7aQ8xmYBSXUIWr+UmF9b1efZBazGNO+rcXT/icdKnYm2pTwcRylVUYwW7H1PHfLekVzA==
 
+react-memo-polyfill@^0.0.2:
+  version "0.0.2"
+  resolved "https://registry.yarnpkg.com/react-memo-polyfill/-/react-memo-polyfill-0.0.2.tgz#4a646a00f497592d4b5ef37995b1740cdc4adf2b"
+  integrity sha512-olbM2uDkTdhvkpwsF1Fh+kTsyHGrw8e8N1XiYqV1l87H17SrfaUwLKOxvKXTojw55m8Onhe8lORUj3nx/7vrcQ==
+
 react-redux@^5.0.7:
   version "5.1.1"
   resolved "https://registry.yarnpkg.com/react-redux/-/react-redux-5.1.1.tgz#88e368682c7fa80e34e055cd7ac56f5936b0f52f"

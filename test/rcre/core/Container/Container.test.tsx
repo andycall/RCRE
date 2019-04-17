@@ -219,66 +219,6 @@ describe('Container Component', () => {
         test.unmount();
     });
 
-    it('[$parent]: three nest container', () => {
-        const info = {
-            body: [
-                {
-                    'type': 'container',
-                    'model': 'root',
-                    'data': {
-                        'name': 'root'
-                    },
-                    'children': [{
-                        'type': 'container',
-                        'model': 'left-1',
-                        'data': {
-                            'name': 'left-1'
-                        },
-                        'children': [{
-                            'type': 'container',
-                            'model': 'left-1-1',
-                            'data': {
-                                'name': 'left-1-1'
-                            },
-                            'children': [{
-                                'type': 'text',
-                                'style': {
-                                    'display': 'block'
-                                },
-                                'text': 'model: left-1-1, private name: #ES{$data.name}'
-                            }, {
-                                'type': 'text',
-                                'style': {
-                                    'display': 'block'
-                                },
-                                'text': 'model: left-1-1, parent name: #ES{$parent.name}'
-                            }, {
-                                'type': 'text',
-                                'style': {
-                                    'display': 'block'
-                                },
-                                'text': 'model: left-1-1, parent parent name: #ES{$parent.$parent.name}'
-                            }]
-                        }]
-                    }]
-                }
-            ]
-        };
-        const test = new RCRETestUtil(info);
-        let wrapper = test.wrapper;
-        let state = test.getState();
-        let container = state.container;
-        expect(container['root'].name).toBe('root');
-        expect(container['left-1'].name).toBe('left-1');
-        expect(container['left-1-1'].name).toBe('left-1-1');
-
-        let texts = wrapper.find('span');
-        expect(texts.at(0).text()).toBe('model: left-1-1, private name: left-1-1');
-        expect(texts.at(1).text()).toBe('model: left-1-1, parent name: left-1');
-        expect(texts.at(2).text()).toBe('model: left-1-1, parent parent name: root');
-        wrapper.unmount();
-    });
-
     it('[bind]: basic usage for bind property', () => {
         const info = {
             body: [

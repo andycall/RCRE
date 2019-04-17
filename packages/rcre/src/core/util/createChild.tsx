@@ -1,6 +1,7 @@
 import * as React from 'react';
 import * as _ from 'lodash';
 import {BasicConfig, BasicContainerPropsInterface} from '../../types';
+import {ErrorBoundary} from '../ErrorBoundary';
 import {componentLoader} from './componentLoader';
 import {getRuntimeContext} from './util';
 import {compileExpressionString, isExpression, parseExpressionString} from './vm';
@@ -45,8 +46,6 @@ export function createChild<Config extends BasicConfig, T extends BasicConfig, P
 
                             let show = info.show;
                             let hidden = info.hidden;
-
-                            debugger;
 
                             if (isExpression(show)) {
                                 show = parseExpressionString(show, runTime);
@@ -94,6 +93,7 @@ export function createChild<Config extends BasicConfig, T extends BasicConfig, P
                                                     rcreContext: rootContext,
                                                     containerContext: containerContext,
                                                     triggerContext: triggerContext,
+                                                    formContext: formContext,
                                                     iteratorContext: iteratorContext,
                                                     key: childProps.key
                                                 });
@@ -106,6 +106,7 @@ export function createChild<Config extends BasicConfig, T extends BasicConfig, P
                                     ...info,
                                     rcreContext: rootContext,
                                     containerContext: containerContext,
+                                    formContext: formContext,
                                     iteratorContext: iteratorContext,
                                     key: childProps.key
                                 });
@@ -138,7 +139,11 @@ export function createChild<Config extends BasicConfig, T extends BasicConfig, P
                                 );
                             }
 
-                            return children;
+                            return (
+                                <ErrorBoundary>
+                                    {children}
+                                </ErrorBoundary>
+                            );
                         }}
                     </FormContext.Consumer>}
                 </IteratorContext.Consumer>}

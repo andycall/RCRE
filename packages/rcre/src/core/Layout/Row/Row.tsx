@@ -1,11 +1,12 @@
 import * as React from 'react';
 import {CSSProperties} from 'react';
 import {isArray} from 'lodash';
-import {BasicContainer} from '../../Container/BasicComponent';
 import {createChild} from '../../util/createChild';
 import {detect} from 'bowser';
-import {BasicConfig, BasicContainerPropsInterface, CoreKind} from '../../../types';
+import {BasicProps, CoreKind} from '../../../types';
 import {componentLoader} from '../../util/componentLoader';
+import {getRuntimeContext} from "../../util/util";
+import {compileExpressionString} from "../../util/vm";
 
 export type gridPositionItems = 'top-left' | 'top-center' | 'top-right' |
     'middle-left' | 'middle-center' | 'middle-right' |
@@ -87,7 +88,7 @@ function getCssCombo(position?: gridPositionItems): CssCombo {
 
 export type flexDirectionItems = 'row' | 'row-reverse' | 'column' | 'column-reverse';
 
-export class RowConfig<Config> extends BasicConfig {
+export interface RowProps extends BasicProps {
     type: CoreKind.row;
     /**
      * 每行最小高度
@@ -132,23 +133,19 @@ export class RowConfig<Config> extends BasicConfig {
     /**
      * 子级元素
      */
-    children: (Config)[];
+    children: any[];
 }
 
-export class RowPropsInterface<Config extends RowConfig<Config>> extends BasicContainerPropsInterface {
-    info: Config;
-}
-
-export class Row<Config extends RowConfig<Config>> extends BasicContainer<RowPropsInterface<Config>, {}> {
+export class Row extends React.Component<RowProps, {}> {
     private static isRowDirection(flexDirection: flexDirectionItems = 'row') {
         return flexDirection === 'row' || flexDirection === 'row-reverse';
     }
 
-    constructor(props: RowPropsInterface<Config>) {
+    constructor(props: RowProps) {
         super(props);
     }
 
-    private getDefaultGridCount(children: Config[]) {
+    private getDefaultGridCount(children: any[]) {
         let cookedGridCount = 0;
         let unCookedCount = 0;
 
@@ -168,31 +165,27 @@ export class Row<Config extends RowConfig<Config>> extends BasicContainer<RowPro
     }
 
     render() {
-        let info = this.getPropsInfo(this.props.info);
-        if (process.env.NODE_ENV === 'test') {
-            // 测试框架支持
-            this.TEST_INFO = info;
-        }
-        let children = info.children as Config[];
-        let showBorder = info.showBorder || this.context.debug;
+        let children = this.props.children;
+        let showBorder = this.props.showBorder || this.props.rcreContext.debug;
 
         if (!isArray(children)) {
             return <div>children props is required in Row Component</div>;
         }
 
-        let unHiddenChildren = children.filter((child: Config) => {
-            child = this.getPropsInfo(child, this.props, [], false, [
-                'show',
-                'hidden'
-            ]);
+        let runTime = getRuntimeContext(this.props.containerContext, this.props.rcreContext, {
+            iteratorContext: this.props.iteratorContext
+        });
+
+        let unHiddenChildren = children.filter((child) => {
+            child = compileExpressionString(child, runTime, [], false, ['show', 'hidden']);
 
             return child.show !== false && child.hidden !== true;
         });
 
         const defaultGridCount = this.getDefaultGridCount(unHiddenChildren);
 
-        let childElements = children.map((childInfo: Config, index) => {
-            childInfo = this.getPropsInfo(childInfo, this.props, [], false, [
+        let childElements = children.map((childInfo, index) => {
+            childInfo = compileExpressionString(childInfo, runTime, [], false, [
                 'gridWidth',
                 'gridHeight',
                 'gridCount',
@@ -217,7 +210,7 @@ export class Row<Config extends RowConfig<Config>> extends BasicContainer<RowPro
                 width -= childInfo.gridPaddingRight;
             }
 
-            if (Row.isRowDirection(info.flexDirection)) {
+            if (Row.isRowDirection(this.props.flexDirection)) {
                 gridStyles = {
                     width: childInfo.gridWidth || `${100 / 12 * gridCount}%`,
                     height: childInfo.gridHeight || 'auto',
@@ -238,7 +231,7 @@ export class Row<Config extends RowConfig<Config>> extends BasicContainer<RowPro
                 let browser = detect(window.navigator.userAgent);
 
                 // fix safari 10,9 bugs
-                if (this.props.options && this.props.options.safari10Layout && browser.safari && browser.version < 11) {
+                if (this.props.rcreContext.options && this.props.rcreContext.options.safari10Layout && browser.safari && browser.version < 11) {
                     delete gridStyles.height;
                 }
             }
@@ -252,7 +245,7 @@ export class Row<Config extends RowConfig<Config>> extends BasicContainer<RowPro
                 height: childInfo.gridHeight || 'auto',
                 display: 'flex',
                 ...positionStyle,
-                ...info.innerGridStyle
+                ...this.props.innerGridStyle
             };
 
             let child = createChild(childInfo, {
@@ -268,32 +261,36 @@ export class Row<Config extends RowConfig<Config>> extends BasicContainer<RowPro
                 </div>
             );
 
-            return this.renderChildren(childInfo, childElement);
+            if (childInfo.show === false || childInfo.hidden === true) {
+                return null;
+            }
+
+            return childElement;
         });
 
         const rowStyles = {
             display: 'flex',
-            width: info.width || '100%',
-            height: info.height || 'auto',
-            minHeight: info.minHeight,
-            flexDirection: info.flexDirection || 'row',
+            width: this.props.width || '100%',
+            height: this.props.height || 'auto',
+            minHeight: this.props.minHeight,
+            flexDirection: this.props.flexDirection || 'row',
             border: showBorder ? '1px dashed #333' : '',
-            ...info.style
+            ...this.props.style
         };
 
         const handleClick = (e: React.MouseEvent<any>) => {
-            this.commonEventHandler('onClick', {
+            this.props.triggerContext.eventHandle('onClick', {
                 e: e
             });
         };
 
         let rowElement = (
-            <div style={rowStyles} className={info.className} key={'row'} onClick={handleClick}>
+            <div style={rowStyles} className={this.props.className} key={'row'} onClick={handleClick}>
                 {childElements}
             </div>
         );
 
-        return this.renderChildren(info, rowElement);
+        return rowElement;
     }
 }
 

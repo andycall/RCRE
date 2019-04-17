@@ -2,7 +2,7 @@ import React from 'react';
 import {BasicConnectProps, commonConnect} from '../Connect';
 import {componentLoader} from '../util/componentLoader';
 
-export interface RCREInputProps extends BasicConnectProps<any, any> {}
+export interface RCREInputProps extends BasicConnectProps {}
 
 class RCREInput extends React.PureComponent<RCREInputProps, any> {
     render() {

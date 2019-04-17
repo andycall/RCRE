@@ -9,35 +9,26 @@ import {
     isObjectLike,
 } from 'lodash';
 import {
-    BasicContainerSetDataOptions, BasicProps,
-    ContainerContextType,
-    CustomerSourceConfig,
+    BasicProps, BindItem,
+    ContainerContextType, ContainerNodeOptions, ContainerSetDataOption,
+    CustomerSourceConfig, defaultData, ESFunc,
     ProviderSourceConfig,
     RCREContextType
 } from '../../types';
-import {
-    defaultData
-} from './BasicComponent';
 import {connect} from 'react-redux';
 import {containerActionCreators} from './action';
 import {RootState} from '../../data/reducers';
 import {DataProvider} from '../DataProvider/Controller';
 import {compileExpressionString, isExpression, parseExpressionString} from '../util/vm';
 import {DataCustomer} from '../DataCustomer/index';
-import {ContainerNode, ContainerNodeOptions} from '../Service/ContainerDepGraph';
-import {BindItem} from '../Hosts/Container';
+import {ContainerNode} from '../Service/ContainerDepGraph';
 import {ContainerContext} from '../context';
 import {getRuntimeContext} from '../util/util';
 
 // First Init Life Circle:
 // ComponentWillMount -> Render -> ComponentDidMount
 
-export interface ContainerProps extends ContainerNodeOptions, BasicProps {
-    /**
-     * 当前Container组件的数据模型
-     */
-    $data: any;
-
+export interface ContainerProps extends ContainerNodeOptions {
     /**
      * 数据模型Key
      */
@@ -51,7 +42,9 @@ export interface ContainerProps extends ContainerNodeOptions, BasicProps {
     /**
      * container 继承属性映射
      */
-    props?: Object;
+    props?: {
+        [key: string]: ESFunc
+    };
 
     /**
      * 自动同步子级的对应属性的值到父级
@@ -63,7 +56,7 @@ export interface ContainerProps extends ContainerNodeOptions, BasicProps {
      * 自定义内部的属性值，只需指定父级的Key，根据ExpressionString来计算出传入到父级的值
      */
     export?: {
-        [parent: string]: string;
+        [parent: string]: ESFunc;
     } | string;
 
     /**
@@ -82,15 +75,23 @@ export interface ContainerProps extends ContainerNodeOptions, BasicProps {
     children?: any;
 }
 
+export interface ConnectContainerProps extends ContainerProps, BasicProps {
+    /**
+     * 当前Container组件的数据模型
+     */
+    $data?: any;
+}
+
 // Component Update Life Circle:
 // componentWillReceiveProps -> shouldComponentUpdate -> ComponentWillUpdate -> Render -> ComponentDidMount
-class Container extends React.Component<ContainerProps, {}> {
+class Container extends React.Component<ConnectContainerProps, {}> {
+    static displayName = 'RCREContainer';
     private dataProvider: DataProvider;
     private dataCustomer: DataCustomer;
     // private event: EventNode;
     private isUnmount: boolean;
 
-    constructor(props: ContainerProps, context: RCREContextType) {
+    constructor(props: ConnectContainerProps, context: RCREContextType) {
         super(props);
         this.dataProvider = new DataProvider(props.dataProvider || []);
         this.dataCustomer = new DataCustomer(props.containerContext.dataCustomer);
@@ -175,7 +176,7 @@ class Container extends React.Component<ContainerProps, {}> {
         }
     }
 
-    private initContainerGraph(props: ContainerProps) {
+    private initContainerGraph(props: ConnectContainerProps) {
         let model = props.model;
         let context = props.rcreContext;
         if (!context.containerGraph.has(model)) {
@@ -252,7 +253,7 @@ class Container extends React.Component<ContainerProps, {}> {
         return get($data, nameStr);
     }
 
-    $setData(name: string, value: any, options: BasicContainerSetDataOptions = {}) {
+    $setData(name: string, value: any, options: ContainerSetDataOption = {}) {
         if (this.isUnmount) {
             return;
         }
@@ -343,7 +344,7 @@ class Container extends React.Component<ContainerProps, {}> {
     }
 }
 
-const mapStateToProps = (state: RootState, props: ContainerProps) => {
+const mapStateToProps = (state: RootState, props: ConnectContainerProps) => {
     let model = props.model;
     let runTime = getRuntimeContext({} as ContainerContextType, props.rcreContext, {
         iteratorContext: props.iteratorContext,

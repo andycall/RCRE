@@ -1,14 +1,14 @@
-import {each, isPlainObject, get, isEqual, isObjectLike, clone, has, isNil} from 'lodash';
+import {each, isEqual, isObjectLike, clone, has, isNil} from 'lodash';
 import {RootState} from '../../data/reducers';
 import {
     BasicConfig,
-    BasicContainerPropsInterface,
-    BasicContainerSetDataOptions,
-    RCREContextType,
+    BasicProps,
+    ContainerSetDataOption,
     runTimeType
 } from '../../types';
-import {BasicContainer} from '../Container/BasicComponent';
+import {TriggerEventItem} from '../Trigger/Trigger';
 import {createChild} from '../util/createChild';
+import {getRuntimeContext} from '../util/util';
 import {isExpression, parseExpressionString} from '../util/vm';
 import React from 'react';
 import {SET_FORM_ITEM_PAYLOAD} from '../Form/actions';
@@ -18,7 +18,7 @@ export type WrapperComponentType<T> =
     React.StatelessComponent<T> |
     React.ClassicComponentClass<T>;
 
-export interface ConnectTools<Props, Config> {
+export interface ConnectTools<Props> {
     /**
      * RCRE引擎执行当前组件的上下文
      */
@@ -38,7 +38,7 @@ export interface ConnectTools<Props, Config> {
      * 当有name属性时，使用这个函数来更新name所对应的值
      * @param value
      */
-    updateNameValue: (value: any, options?: BasicContainerSetDataOptions) => void;
+    updateNameValue: (value: any, options?: ContainerSetDataOption) => void;
 
     /**
      * 当有name属性时，使用这个函数来清空name所对应的值
@@ -96,16 +96,16 @@ export interface ConnectTools<Props, Config> {
      * @param {object} props
      * @returns {React.ReactNode}
      */
-    createReactNode: (config: Config, props: object) => React.ReactNode;
+    createReactNode: (config: any, props: object) => React.ReactNode;
 }
 
-export interface BasicConnectProps<Props, Config extends BasicConfig> {
-    tools: ConnectTools<Props, Config>;
-    /**
-     * 当前组件的值
-     */
-    value?: any;
-}
+// export interface BasicConnectProps<Props, Config extends BasicConfig> {
+//     tools: ConnectTools<Props, Config>;
+//     /**
+//      * 当前组件的值
+//      */
+//     value?: any;
+// }
 
 export interface CommonOptions {
     // 属性映射
@@ -122,9 +122,6 @@ export interface CommonOptions {
         // 只解析以下的属性
         whiteList?: string[];
     };
-
-    // 自动将看上去像是组件的配置转成React组件
-    toReactNode?: boolean;
 
     /**
      * 手动设置数，默认为value
@@ -144,7 +141,7 @@ export interface CommonOptions {
     /**
      * 满足一定条件就清空组件的值
      */
-    autoClearCondition?: (props: any, runTime: runTimeType) => boolean;
+    autoClearCondition?: (props: any) => boolean;
 
     /**
      * 如果一个组件持有多个name，则需要实现这个函数来给Connect组件提供所有可能出现的name值
@@ -186,35 +183,54 @@ export interface CommonOptions {
     isNameValid?: (value: any, props: any) => boolean;
 }
 
-export interface BasicConnectPropsInterface<T extends BasicConfig> extends BasicContainerPropsInterface {
-    /**
-     * 更新表单元素的属性
-     */
-    $setFormItem: (payload: Partial<SET_FORM_ITEM_PAYLOAD>) => void;
+export interface BasicConnectProps extends BasicProps {
+    // 只清楚表单状态，而不清空组件数据
+    clearFormStatusOnlyWhenDestroy?: boolean;
+    // 组件销毁不清除组件状态
+    disableClearWhenDestroy?: boolean;
+    // 非表单模式下，开启此功能组件销毁自动清除数据
+    clearWhenDestory?: boolean;
+
+    tools: ConnectTools<BasicConnectProps>;
+
+    type: any;
 
     /**
-     * 删除表单元素的验证信息
+     * name属性绑定的值
      */
-    $deleteFormItem: (formItemName: string) => void;
+    name?: string;
 
     /**
-     * 获取表单项的状态信息
+     * 组件的值
      */
-    $getFormItemControl: (formItemName: string) => any;
+    value?: any;
+
+    /**
+     * 组件默认值
+     */
+    defaultValue?: any;
+
+    /**
+     * 延迟一定时间同步数据
+     */
+    debounce?: number;
+
+    /**
+     * 如果组件配置了autoClearCondition, 可以使用这个属性来关闭它
+     */
+    disabledAutoClear?: boolean;
+
+    trigger?: TriggerEventItem[];
 }
 
-export abstract class BasicConnect<Config extends BasicConfig> extends BasicContainer<BasicConnectPropsInterface<Config>, RCREContextType> {
+export abstract class BasicConnect extends React.Component<BasicConnectProps, {}> {
     public $propertyWatch: string[];
     public options: CommonOptions;
     protected debounceCache: { [key: string]: any };
     protected debounceTimer: any;
     protected isDebouncing: boolean;
-    protected info: BasicConfig;
-    private nameIsExpression: boolean = false;
-    // 收集到属性过多也是一种负担
-    private isTooMuchProperty: boolean = false;
     public nameBindEvents: any = null;
-    protected constructor(props: BasicConnectPropsInterface<Config>, context: RCREContextType, options: CommonOptions) {
+    protected constructor(props: BasicConnectProps, options: CommonOptions) {
         super(props);
 
         this.$propertyWatch = [];
@@ -222,86 +238,66 @@ export abstract class BasicConnect<Config extends BasicConfig> extends BasicCont
         this.isDebouncing = false;
         this.options = options;
 
-        let name = props.info.name;
-        let runTime = this.getRuntimeContext(props, context);
+        let name = props.name;
+        let runTime = getRuntimeContext(props.containerContext, props.rcreContext, {
+            iteratorContext: props.iteratorContext
+        });
 
         if (isExpression(name)) {
             name = parseExpressionString(name, runTime);
         }
 
         // 设置默认值的逻辑
-        if ((props.info.hasOwnProperty('defaultValue') &&
-            props.info.defaultValue !== null &&
-            props.info.defaultValue !== undefined) &&
+        if ((props.hasOwnProperty('defaultValue') &&
+            props.defaultValue !== null &&
+            props.defaultValue !== undefined) &&
             name) {
-            let defaultValue = props.info.defaultValue;
-            let runtime = this.getRuntimeContext(props, context);
-            let state: RootState = context.store.getState();
-            runtime.$data = state.$rcre.container[props.model!];
+            let defaultValue = props.defaultValue;
+            let state: RootState = props.rcreContext.store.getState();
+            runTime.$data = state.$rcre.container[props.containerContext.model];
             if (isExpression(defaultValue)) {
-                defaultValue = parseExpressionString(defaultValue, runtime);
+                defaultValue = parseExpressionString(defaultValue, runTime);
             }
 
             if (options.getDefaultValue) {
                 defaultValue = options.getDefaultValue(defaultValue, props);
             }
 
-            if (!has(runtime.$data, name)) {
-                this.setData(name, defaultValue, props, {
-                    noTransform: true
-                });
+            if (!has(runTime.$data, name)) {
+                props.containerContext.$setData(name, defaultValue);
             }
         }
 
         if (name) {
-            let existValue = this.getValueFromDataStore(name, props);
+            let existValue = props.containerContext.$getData(name);
 
-            if (!isNil(existValue) && props.info.debounce) {
+            if (!isNil(existValue) && props.debounce) {
                 this.debounceCache[name] = existValue;
             }
         }
-
-        this.findWatchProperty(props.info, '');
-        this.updateNameValue = this.updateNameValue.bind(this);
-        this.createReactNode = this.createReactNode.bind(this);
-        this.clearNameValue = this.clearNameValue.bind(this);
-        this.getFormItemControl = this.getFormItemControl.bind(this);
-        this.hasTriggerEvent = this.hasTriggerEvent.bind(this);
-
-        if (this.$propertyWatch.length > 10) {
-            this.isTooMuchProperty = true;
-        }
-    }
-
-    public findWatchProperty(info: any, path: string, depth: number = 0) {
-        each(info, (value, name) => {
-            if (name === 'trigger') {
-                return;
-            }
-
-            if (depth > 5) {
-                this.isTooMuchProperty = true;
-                return;
-            }
-
-            let key = path;
-            key += '.' + name;
-
-            if (isExpression(value)) {
-                this.$propertyWatch.push(key.substr(1));
-            }
-
-            if (Array.isArray(value) && value.length > 0) {
-                value.forEach((v, i) => this.findWatchProperty(v, key + '[' + i + ']', depth + 1));
-            }
-
-            if (isPlainObject(value)) {
-                this.findWatchProperty(value, key, depth + 1);
-            }
-        });
     }
 
     componentDidCatch(error: Error, errInfo: any) {}
+
+    componentWillUnmount() {
+        if (this.props.name) {
+            if (this.props.formContext && this.props.clearFormStatusOnlyWhenDestroy) {
+                this.props.formContext.$deleteFormItem(this.props.name);
+            } else if (this.props.formContext && !this.props.disableClearWhenDestroy) {
+                this.props.containerContext.$deleteData(this.props.name);
+            } else if (this.props.clearWhenDestory) {
+                this.props.containerContext.$deleteData(this.props.name);
+            }
+
+            // if (this.props.$deleteFormItem && info.clearFormStatusOnlyWhenDestroy) {
+            //     this.props.$deleteFormItem(info.name);
+            // } else if (this.props.$form && !info.disableClearWhenDestroy) {
+            //     this.props.$deleteData(info.name);
+            // } else if (info.clearWhenDestroy) {
+            //     this.props.$deleteData(info.name);
+            // }
+        }
+    }
 
     /**
      * 执行一些属性的转换
@@ -315,281 +311,83 @@ export abstract class BasicConnect<Config extends BasicConfig> extends BasicCont
         });
     }
 
-    private isPropertyChanged(nextProps: BasicConnectPropsInterface<Config>, nameKeys: string[]) {
-        // 当没有监听的Key，强制刷新
-        if (this.$propertyWatch.length === 0 && nameKeys.length === 0) {
-            return true;
+    protected updateNameValue = (value: any, options: ContainerSetDataOption = {}) => {
+        let name = this.props.name || options.name;
+
+        if (name) {
+            if (typeof this.options.beforeSetData === 'function') {
+                value = this.options.beforeSetData(value, this.props);
+            }
+
+            if (typeof this.props.debounce === 'number' && !options.skipDebounce) {
+                this.debounceCache[name] = value;
+                clearTimeout(this.debounceTimer);
+                this.debounceTimer = setTimeout(() => {
+                    this.isDebouncing = false;
+                    this.props.containerContext.$setData(name!, this.debounceCache[name!], options);
+                }, this.props.debounce);
+
+                this.isDebouncing = true;
+                this.forceUpdate();
+                return;
+            }
+
+            this.props.containerContext.$setData(name, value, options);
         }
-        let nextRunTime = this.getRuntimeContext(nextProps);
-        let prevRunTime = this.getRuntimeContext();
-        return !this.$propertyWatch.every(key => {
-            let nextValue = parseExpressionString(get(nextProps.info, key), nextRunTime);
-            let prevValue = parseExpressionString(get(this.props.info, key), prevRunTime);
-            return nextValue === prevValue;
-        });
     }
 
-    protected updateNameValue(info: Config, connectOptions: CommonOptions) {
-        return (value: any, options: BasicContainerSetDataOptions = {}) => {
-            let name = info.name || options.name;
-
-            if (name) {
-                if (typeof connectOptions.beforeSetData === 'function') {
-                    value = connectOptions.beforeSetData(value, info);
-                }
-
-                if (typeof info.debounce === 'number' && !options.skipDebounce) {
-                    this.debounceCache[name] = value;
-                    clearTimeout(this.debounceTimer);
-                    this.debounceTimer = setTimeout(() => {
-                        this.isDebouncing = false;
-                        this.setData(name!, this.debounceCache[name!], this.props, options);
-                    }, info.debounce);
-
-                    this.isDebouncing = true;
-                    this.forceUpdate();
-                    return;
-                }
-
-                this.setData(name, value, this.props, options);
-            }
-        };
+    protected clearNameValue = (name?: string) => {
+        name = name || this.props.name;
+        if (name) {
+            this.props.containerContext.$deleteData(name);
+        }
     }
 
-    protected clearNameValue(name?: string) {
-        return () => {
-            if (name && this.props.$deleteData) {
-                this.props.$deleteData(name);
-            }
-        };
-    }
-
-    protected getFormItemControl(name: string) {
-        if (!this.props.$form) {
+    protected getFormItemControl = (name: string) => {
+        if (!this.props.formContext) {
             console.warn(name + '组件没有在form组件内部');
             return null;
         }
 
-        if (!this.props.$form.control.hasOwnProperty(name)) {
-            console.warn('name: ' + name + '找不到对应的formItem组件');
-            return null;
-        }
-
-        return this.props.$form.control[name];
+        return this.props.formContext.$getFormItem(name);
     }
 
-    private collectNameFromChild(control: any[] | any, props: BasicConnectPropsInterface<Config> = this.props): string[] {
-        if (!(control instanceof Array)) {
-            control = [control];
-        }
-        let nameList: string[] = [];
-        let runTime = this.getRuntimeContext(props);
-        let me = this;
-        function _find(controlList: any[]) {
-            if (me.nameIsExpression) {
-                return;
-            }
-            controlList.forEach(con => {
-                if (con.type === 'container') {
-                    return;
-                }
-
-                if (con.hidden === true || con.show === false) {
-                    return;
-                }
-
-                if (isExpression(con.hidden)) {
-                    let hidden = parseExpressionString(con.hidden, runTime);
-
-                    if (hidden === true) {
-                        return;
-                    }
-                }
-
-                if (isExpression(con.show)) {
-                    let show = parseExpressionString(con.show, runTime);
-
-                    if (show === false) {
-                        return;
-                    }
-                }
-
-                let name = con.name;
-                if (isExpression(name)) {
-                    me.nameIsExpression = true;
-                    return;
-                }
-
-                if (name && nameList.indexOf(name) < 0) {
-                    nameList.push(name);
-                }
-
-                for (let property in con) {
-                    if (con.hasOwnProperty(property)) {
-                        if (!(me.options.collectNameBlackList && me.options.collectNameBlackList.indexOf(property) > -1)) {
-                            if (con[property] instanceof Array && con[property].length > 0) {
-                                _find(con[property]);
-                            }
-                            if (isPlainObject(con[property])) {
-                                _find([con[property]]);
-                            }
-                        }
-                    }
-                }
-            });
-        }
-
-        _find(control);
-
-        return nameList;
-    }
-
-    private isNameListChanged(nextProps: BasicConnectPropsInterface<Config>, prevNameList: string[], nextNameList: string[]) {
-        // 判断info中包含的name是否改变的函数
-        return nextNameList.some((name: string, index: number) => {
-            if (this.isNameChanged(nextProps, prevNameList[index], nextNameList[index])) {
-                return true;
-            } else {
-                return false;
-            }
-        });
-    }
-
-    private isNameChanged(nextProps: BasicConnectPropsInterface<Config>, prevName?: string, nextName?: string) {
-        if (!prevName && !nextName) {
-            return false;
-        }
-
-        if (!nextName) {
-            return true;
-        }
-
-        if (isExpression(name)) {
-            prevName = parseExpressionString(name, this.getRuntimeContext());
-            nextName = parseExpressionString(name, this.getRuntimeContext(nextProps));
-        }
-
-        if (prevName !== nextName) {
-            return true;
-        }
-
-        let prevValue = this.getValueFromDataStore(prevName);
-        let nextValue = this.getValueFromDataStore(nextName, nextProps);
-
-        return prevValue !== nextValue;
-    }
-
-    public componentWillUpdate(nextProps: BasicConnectPropsInterface<Config>, nextState: RCREContextType, nextContext: any) {
+    public componentWillUpdate(nextProps: BasicConnectProps) {
         let nameKey = this.options.nameKey || 'value';
-        let prevInfo = this.prepareRender(this.options, this.props);
-        let nextInfo = this.prepareRender(this.options, nextProps);
+        // let prevInfo = this.prepareRender(this.options, this.props);
+        // let nextInfo = this.prepareRender(this.options, nextProps);
 
-        if (nextInfo.info.name && nextInfo.info.debounce) {
-            let prevValue = this.getValueFromDataStore(prevInfo.info.name) || prevInfo[nameKey];
-            let nextValue = this.getValueFromDataStore(nextInfo.info.name, nextProps) || nextInfo[nameKey];
+        if (nextProps.name && this.props.name && nextProps.debounce) {
+            let prevValue = this.props.containerContext.$getData(this.props.name) || this.props[nameKey];
+            let nextValue = nextProps.containerContext.$getData(nextProps.name) || nextProps[nameKey];
 
             if (!isEqual(prevValue, nextValue)) {
-                this.debounceCache[nextInfo.info.name] = nextValue;
+                this.debounceCache[nextProps.name] = nextValue;
             }
         }
 
-        if (typeof this.options.autoClearCondition === 'function' && !nextInfo.info.disabledAutoClear) {
-            let clear = this.options.autoClearCondition(nextInfo.props, nextInfo.runTime);
+        if (typeof this.options.autoClearCondition === 'function' && !nextProps.disabledAutoClear && nextProps.name) {
+            let clear = this.options.autoClearCondition(nextProps);
 
             if (clear) {
-                this.clearNameValue(nextInfo.info.name)();
+                this.clearNameValue(nextProps.name);
             }
         }
-    }
-
-    private isGroupNameChanged(nextProps: BasicConnectPropsInterface<Config>, nextContext: any) {
-        if (!this.options.getAllNameKeys) {
-            return {
-                changed: false,
-                names: []
-            };
-        }
-
-        let prevInfo = this.getParsedInfo(this.props.info, {
-            props: this.props,
-            context: this.context,
-            ...this.options.parseOptions
-        });
-
-        let nextInfo = this.getParsedInfo(nextProps.info, {
-            props: nextProps,
-            context: nextContext,
-            ...this.options.parseOptions
-        });
-
-        let prevNameKeys = this.options.getAllNameKeys(prevInfo);
-        let nextNameKeys = this.options.getAllNameKeys(nextInfo);
-
-        if (prevNameKeys.length !== nextNameKeys.length) {
-            return {
-                changed: true,
-                names: []
-            };
-        }
-
-        if (!isEqual(prevNameKeys, nextNameKeys)) {
-            return {
-                changed: true,
-                names: prevNameKeys
-            };
-        }
-
-        let isChanged = prevNameKeys.some(key => {
-            return this.isNameChanged(nextProps, key, key);
-        });
-
-        return {
-            changed: isChanged,
-            names: prevNameKeys
-        };
-    }
-
-    public shouldComponentUpdate(nextProps: BasicConnectPropsInterface<Config>, nextState: {}) {
-        if (this.options.forceUpdate || this.nameIsExpression || this.isTooMuchProperty) {
-            return true;
-        }
-        let isPropertyChanged;
-        if (typeof this.options.getAllNameKeys === 'function') {
-            let status = this.isGroupNameChanged(nextProps, nextState);
-            isPropertyChanged = this.isPropertyChanged(nextProps, status.names);
-
-            return isPropertyChanged || status.changed;
-        }
-
-        isPropertyChanged = this.isPropertyChanged(nextProps, [this.props.info.name!]);
-
-        let preNameList = this.collectNameFromChild(this.props.info);
-        let nextNameList = this.collectNameFromChild(nextProps.info);
-
-        let isNameListChange;
-        if (this.nameIsExpression) {
-            isNameListChange = true;
-        } else {
-            isNameListChange = this.isNameListChanged(nextProps, preNameList, nextNameList);
-        }
-
-        return isPropertyChanged || isNameListChange;
     }
 
     public createReactNode<C extends BasicConfig>(config: C, props: object) {
         return createChild(config, {
-            ...this.props,
             info: config,
             ...props
         });
     }
 
     public hasTriggerEvent(event: string) {
-        if (!Array.isArray(this.props.info.trigger)) {
+        if (!Array.isArray(this.props.trigger)) {
             return false;
         }
 
-        for (let eventItem of this.props.info.trigger) {
+        for (let eventItem of this.props.trigger) {
             if (event === eventItem.event) {
                 return true;
             }
@@ -598,35 +396,73 @@ export abstract class BasicConnect<Config extends BasicConfig> extends BasicCont
         return false;
     }
 
-    public prepareRender(options: CommonOptions, props: BasicConnectPropsInterface<Config> = this.props) {
-        let info: Config = this.getParsedInfo(props.info, {
-            props: props,
-            context: this.context,
-            ...options.parseOptions
-        });
+    /**
+     * 在Connect组件上清除不需要传递到RCRE之外的属性
+     */
+    public muteParentInfo(mute: any) {
+        mute = clone(mute);
+        delete mute.type;
+        delete mute.trigger;
+        delete mute.gridCount;
+        delete mute.show;
+        delete mute.hidden;
+        delete mute.gridWidth;
+        delete mute.gridPaddingLeft;
+        delete mute.gridPaddingRight;
+        delete mute.gridPosition;
+        delete mute.defaultValue;
+        delete mute.clearFormStatusOnlyWhenDestroy;
+        delete mute.clearWhenDestroy;
+        delete mute.disableSync;
+        delete mute.disableClearWhenDestroy;
+        delete mute.rcreContext;
+        delete mute.triggerContext;
+        delete mute.containerContext;
+        delete mute.iteratorContext;
 
-        this.info = info;
+        return mute;
+    }
 
-        if (options.toReactNode) {
-            info = this.RCREConfigToReactNode(info);
+    /**
+     * 转换带有~的内部属性
+     * @param {Q} config
+     * @returns {Q}
+     */
+    public transformInnerProperty(config: any) {
+        for (let key in config) {
+            if (config.hasOwnProperty(key)) {
+                if (key[0] === '~') {
+                    config[key.substring(1)] = config[key];
+                    delete config[key];
+                }
+
+                // @ts-ignore
+                if (config[key] === null && isExpression(this.props.info[key])) {
+                    delete config[key];
+                }
+            }
         }
 
-        let mutedInfo: Config = this.muteParentInfo(info);
+        return config;
+    }
+
+    public prepareRender(options: CommonOptions, props: BasicConnectProps = this.props) {
+        props = clone(props);
+        let mutedInfo = this.muteParentInfo(props);
 
         mutedInfo = this.transformInnerProperty(mutedInfo);
 
         let nameKey = options.nameKey || 'value';
+        let value = props[nameKey];
 
-        let value = info[nameKey];
-
-        if (info.debounce && info.name) {
-            value = this.debounceCache[info.name!];
-        } else if (info.name && !info.disableSync) {
-            value = this.getValueFromDataStore(info.name, props);
+        if (this.props.debounce && this.props.name) {
+            value = this.debounceCache[props.name!];
+        } else if (props.name) {
+            value = props.containerContext.$getData(props.name);
         }
 
         if (typeof options.beforeGetData === 'function') {
-            value = options.beforeGetData(value, info);
+            value = options.beforeGetData(value, props);
         }
 
         if (value !== undefined) {
@@ -636,63 +472,58 @@ export abstract class BasicConnect<Config extends BasicConfig> extends BasicCont
         if (isObjectLike(value)) {
             let cloneValue = clone(value);
             mutedInfo[nameKey] = cloneValue;
-            info[nameKey] = cloneValue;
+            props[nameKey] = cloneValue;
         }
-
-        this.TEST_INFO = info;
 
         return {
             props: mutedInfo,
-            info: info,
-            runTime: this.getRuntimeContext(props),
+            runTime: getRuntimeContext(props.containerContext, props.rcreContext, {
+                iteratorContext: props.iteratorContext,
+                formContext: props.formContext
+            }),
             env: props,
             debounceCache: this.debounceCache,
-            updateNameValue: this.updateNameValue(info, options),
-            registerEvent: this.commonEventHandler,
-            clearNameValue: this.clearNameValue(info.name),
-            getNameValue: this.getValueFromDataStore
+            updateNameValue: this.updateNameValue,
+            registerEvent: this.props.triggerContext ? this.props.triggerContext.eventHandle : () => {},
+            clearNameValue: this.clearNameValue,
+            getNameValue: this.props.containerContext.$getData
         };
     }
 
-    private RCREConfigToReactNode(info: any) {
-        for (let key in info) {
-            if (info.hasOwnProperty(key) && this.isRCREConfig(info[key])) {
-                if (info[key] instanceof Array) {
-                    info[key] = info[key].map((i: any, index: number) => this.createReactNode(i, {key: index}));
-                } else {
-                    info[key] = this.createReactNode(info[key], {});
-                }
-            }
+    public async TEST_simulateEvent(event: string, args: Object = {}) {
+        if (!this.props.triggerContext) {
+            console.warn('Connect: 组件没有绑定事件');
+            return null;
         }
 
-        return info;
-    }
-
-    public async TEST_simulateEvent(event: string, args: Object = {}) {
-        return this.commonEventHandler(event, args);
+        return this.props.triggerContext.eventHandle(event, args);
     }
 
     public async TEST_simulateEventOnce(event: string, args: Object = {}, index: number) {
-        return this.commonEventHandler(event, args, {
+        if (!this.props.triggerContext) {
+            console.warn('Connect: 组件没有绑定事件');
+            return null;
+        }
+        return this.props.triggerContext.eventHandle(event, args, {
             // 只触发指定index的事件
             index: index
         });
     }
 
     public TEST_setData(value: any) {
-        if (this.info && this.info.name) {
-            return this.setData(this.info.name, value);
+        if (this.props.name) {
+            return this.props.containerContext.$setData(this.props.name, value);
         }
 
         throw new Error('can not get component name');
     }
 
     public TEST_getData() {
-        return this.info;
+        return this.props;
     }
 
     public TEST_getNameValue(name: string) {
-        return this.getValueFromDataStore(name);
+        return this.props.containerContext.$getData(name);
     }
 
     public TEST_isNameValid() {
@@ -700,11 +531,11 @@ export abstract class BasicConnect<Config extends BasicConfig> extends BasicCont
             return true;
         }
 
-        if (!this.info.name) {
+        if (!this.props.name) {
             return true;
         }
 
-        let value = this.getValueFromDataStore(this.info.name);
-        return this.options.isNameValid(value, this.info);
+        let value = this.props.containerContext.$getData(this.props.name);
+        return this.options.isNameValid(value, this.props);
     }
 }

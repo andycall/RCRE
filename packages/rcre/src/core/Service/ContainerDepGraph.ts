@@ -1,4 +1,4 @@
-import {ContainerContextType} from '../../types';
+import {BindItem, ContainerContextType, ContainerNodeOptions} from '../../types';
 import {IContainerState} from '../Container/reducer';
 import {isObjectLike, each, isPlainObject, clone} from 'lodash';
 import {RunTimeContextCollection} from '../context';
@@ -9,31 +9,8 @@ import {
     isExpression,
     parseExpressionString
 } from '../util/vm';
-import {BindItem} from '../Hosts/Container';
 import {setWith, deleteWith, getRuntimeContext} from '../util/util';
 import {parseExpressionToken} from 'rcre-runtime';
-
-export interface ContainerNodeOptions {
-    /**
-     * 同步删除无状态数据到父级
-     */
-    syncDelete?: boolean;
-
-    /**
-     * 使用字符串的export属性，并强制清除当前container和父级container相关的Key
-     */
-    forceSyncDelete?: boolean;
-
-    /**
-     * 当前container组件被销毁的时候，同步清除父级和当前container所有相关的key
-     */
-    clearDataToParentsWhenDestroy?: boolean;
-
-    /**
-     * 不允许同步undefined或者null到父级的container上
-     */
-    noNilToParent?: boolean;
-}
 
 /**
  * 是否是不会被同步到父级的值

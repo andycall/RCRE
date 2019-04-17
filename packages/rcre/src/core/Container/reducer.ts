@@ -96,10 +96,6 @@ export const containerReducer: Reducer<IContainerState> =
                     });
                 }
 
-                if (options.isTmp) {
-                    model = TMP_MODEL;
-                }
-
                 // 在当前分页器不在第一页的情况下，选择新的选项要重置分页的值
                 let oldPaginationCache = get(state, paginationCacheKey);
                 if (!options.pagination &&

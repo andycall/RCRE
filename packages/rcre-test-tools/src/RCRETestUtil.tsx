@@ -145,7 +145,7 @@ export class RCRETestUtil {
      */
     public getContainer(model: string) {
         this.wrapper.update();
-        let container = this.wrapper.find('RCREContainer[selfModel="' + model + '"]');
+        let container = this.wrapper.find('RCREContainer[model="' + model + '"]');
 
         if (!container.exists()) {
             throw new Error('container:' + model + ' is not exist');
@@ -226,22 +226,11 @@ export class RCRETestUtil {
         let elements: ReactWrapper[] = [];
         for (let i = 0; i < container.children().length; i++) {
             this.find(container.childAt(i), elements, (element) => {
-                let instance: any = element.instance();
-                if (!instance) {
-                    return false;
+                if (/RCREConnect\(.*\)/.test(element.name()) && element.prop('name') === name) {
+                    return true;
                 }
 
-                let info = instance.TEST_INFO;
-
-                if (!info || !info.name) {
-                    return false;
-                }
-
-                if (element.name() === 'RCRETrigger') {
-                    return false;
-                }
-
-                return info.name === name;
+                return false;
             });
         }
 

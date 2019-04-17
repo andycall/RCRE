@@ -84,7 +84,7 @@ describe('jsx syntax', function () {
                     }}
                 >
                     <div>
-                        <div>export: <ES>{({$data}) => $data.name}</ES></div>
+                        <div>export: <ES>{(runTime) => runTime.$data.name}</ES></div>
                         <ES>
                             {runTime => {
                                 return (
@@ -116,14 +116,14 @@ describe('jsx syntax', function () {
                     }}
                 >
                     <div>
-                        <div>Helloworld: <ES>{({$data}) => $data.username}</ES></div>
+                        <div>Helloworld: <ES>{(runTime) => runTime.$data.username}</ES></div>
                         <ES name={'username'}>
                             {(runTime, context) => {
                                 return (
                                     <input
                                         value={runTime.$value}
                                         onChange={event => {
-                                            context.$setData(runTime.$name, event.target.value);
+                                            context.container.$setData(runTime.$name, event.target.value);
                                         }}
                                     />
                                 );

@@ -1,17 +1,16 @@
 import React from 'react';
-import {BasicConfig, RCREContextType} from '../../../types';
-import {BasicConnect, BasicConnectPropsInterface, CommonOptions, WrapperComponentType} from '../basicConnect';
+import {BasicConnect, BasicConnectProps, CommonOptions, WrapperComponentType} from '../basicConnect';
 
 const defaultMappingProps = {};
 
 export function commonConnect(options: CommonOptions = {}):
     (WrapperComponent: WrapperComponentType<any>) => React.ComponentClass {
     return (WrapperComponent) => {
-        class CommonConnect<Config extends BasicConfig> extends BasicConnect<Config> {
+        class CommonConnect extends BasicConnect {
             static displayName: string;
             private mapping = defaultMappingProps;
-            constructor(props: BasicConnectPropsInterface<Config>, context: RCREContextType) {
-                super(props, context, options);
+            constructor(props: BasicConnectProps) {
+                super(props, options);
                 this.mapping = {
                     ...this.mapping,
                     ...options.propsMapping
@@ -21,7 +20,6 @@ export function commonConnect(options: CommonOptions = {}):
             render() {
                 let {
                     props,
-                    info,
                     runTime,
                     registerEvent,
                     updateNameValue,
@@ -33,12 +31,11 @@ export function commonConnect(options: CommonOptions = {}):
 
                 this.applyPropsMapping(props, this.mapping);
 
-                CommonConnect.displayName = `RCREConnect(${this.props.info.type})`;
-                WrapperComponent.displayName = `RCRE(${this.props.info.type})`;
+                CommonConnect.displayName = `RCREConnect(${this.props.type})`;
+                WrapperComponent.displayName = `RCRE(${this.props.type})`;
 
-                let children = (
+                return (
                     <WrapperComponent
-                        {...this.props.injectEvents}
                         {...props}
                         tools={{
                             debounceCache: this.debounceCache,
@@ -51,17 +48,10 @@ export function commonConnect(options: CommonOptions = {}):
                             createReactNode: this.createReactNode,
                             hasTriggerEvent: this.hasTriggerEvent,
                             getNameValue: getNameValue,
-                            form: {
-                                isUnderForm: !!this.props.$form,
-                                $setFormItem: this.props.$setFormItem,
-                                $deleteFormItem: this.props.$deleteFormItem,
-                                $getFormItem: this.getFormItemControl
-                            }
+                            form: this.props.formContext
                         }}
                     />
                 );
-
-                return this.renderChildren(info, children);
             }
         }
 

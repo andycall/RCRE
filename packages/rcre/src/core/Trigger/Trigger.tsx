@@ -211,7 +211,7 @@ export class RCRETrigger<Config extends BasicConfig> extends React.Component<Tri
                 }
             }
 
-            this.context.store.dispatch(formActions.triggerSetData(triggerItems));
+            this.props.rcreContext.store.dispatch(formActions.triggerSetData(triggerItems));
             return this.runTaskQueue(taskQueue);
         });
     }

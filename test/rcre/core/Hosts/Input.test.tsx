@@ -20,6 +20,7 @@ describe('Input', () => {
 
         let test = new RCRETestUtil(config);
         test.setContainer('demo');
+        console.log(test.wrapper.debug());
         let username = test.getComponentByName('username');
         test.setData(username, 'helloworld');
         let state = test.getContainerState();

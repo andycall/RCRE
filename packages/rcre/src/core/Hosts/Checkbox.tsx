@@ -3,7 +3,7 @@ import {BasicConnectProps} from '../Connect/basicConnect';
 import {commonConnect} from '../Connect/Common/Common';
 import {componentLoader} from '../util/componentLoader';
 
-interface RCRECheckboxProps extends BasicConnectProps<any, any> {
+interface RCRECheckboxProps extends BasicConnectProps {
     text: string;
 }
 

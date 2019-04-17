@@ -2,7 +2,7 @@
  * @file Container组件的Action
  * @author dongtiancheng
  */
-import {BasicContainerSetDataOptions} from '../../types';
+import {ContainerSetDataOption} from "../../types";
 import {RunTimeContextCollection} from '../context';
 
 export const INIT_CONTAINER = 'RCRE_INIT_CONTAINER';
@@ -20,7 +20,7 @@ export const DATA_CUSTOMER_PASS = 'RCRE_DATA_CUSTOMER_PASS';
 export type SET_DATA_PAYLOAD = {
     name: string;
     value: any;
-    options?: BasicContainerSetDataOptions,
+    options?: ContainerSetDataOption,
     parent?: string;
 };
 export type DELETE_DATA_PAYLOAD = {
