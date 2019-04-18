@@ -3,6 +3,7 @@ import {BasicConfig} from '../../types';
 import {FormProps, RCREForm} from '../Form/Form';
 import {componentLoader} from '../util/componentLoader';
 import {createChild} from '../util/createChild';
+import {FormContext} from '../context';
 
 function JSONForm(props: FormProps) {
     let children = (props.children || []).map((child: BasicConfig, index: number) => {
@@ -13,7 +14,20 @@ function JSONForm(props: FormProps) {
 
     return (
         <RCREForm {...props}>
-            {children}
+            <FormContext.Consumer>
+                {context => {
+                    return (
+                        <form
+                            onSubmit={event => {
+                                context.$handleSubmit();
+                            }}
+                        >
+                            {children}
+                        </form>
+                    );
+                }}
+            </FormContext.Consumer>
+
         </RCREForm>
     );
 }

@@ -1,7 +1,7 @@
 import {RootState} from '../../data/reducers';
 import {ProviderSourceConfig, runTimeType} from '../../types';
 import {containerActionCreators} from '../Container/action';
-import {clone, isEqual, isPlainObject, remove, isEmpty, get, has, cloneDeep} from 'lodash';
+import {isEqual, isPlainObject, remove, isEmpty, get, has} from 'lodash';
 import {ContainerProps} from '../Container/Container';
 import {RunTimeContextCollection} from '../context';
 import {getRuntimeContext, isPromise} from '../util/util';
@@ -12,7 +12,6 @@ import {SocketAdaptor} from './adaptors/socket';
 import {AjaxAdaptor} from './applications/ajax';
 import {CookieAdaptor} from './applications/cookie';
 import {LocalStorageAdaptor} from './applications/localstorage';
-import {dataProviderEvent} from '../Events/dataProviderEvent';
 
 // TODO autoInterval
 
@@ -250,7 +249,7 @@ export class DataProvider {
         runTime: runTimeType,
         model: string,
         props: ContainerProps,
-        context: any
+        context: RunTimeContextCollection
     ) {
         let mode = provider.mode;
         let adaptor = DataProvider.getProvider(mode);
@@ -268,29 +267,18 @@ export class DataProvider {
             return false;
         }
 
-        let previousProvider = this.providerCache[namespace];
-
-        provider = compileExpressionString(provider, runTime, [
-            'mode',
-            'namespace',
-            'retMapping',
-            'retErrMsg',
-            'retErrorMsg',
-            'responseRewrite',
-            'retCheckPattern',
-            'autoInterval'
-        ]);
-
-        provider.config = compileExpressionString(provider.config, runTime, [], true);
-
         if (!provider || !provider.config) {
             return false;
         }
 
+        let previousConfig = this.providerCache[namespace];
+
+        let config = compileExpressionString(provider.config, runTime, [], true);
+
         let forceUpdate = runTime.$data && runTime.$data['$update'];
 
         if (forceUpdate) {
-            context.store.dispatch(containerActionCreators.setData({
+            context.rcre.store.dispatch(containerActionCreators.setData({
                 name: '$update',
                 value: false
             }, model, context));
@@ -344,14 +332,12 @@ export class DataProvider {
         // 如果provider数据配置和上次相同, 就必须阻止以后的操作.
         // 不然就会死循环
         // 参考流程图: src/doc/graphic/dataFlow.png
-        if (previousProvider && !forceUpdate && isEqual(previousProvider.mode, provider.mode)
-            && isEqual(previousProvider.config, provider.config)) {
+        if (previousConfig && !forceUpdate && isEqual(previousConfig, config)) {
             return false;
         }
 
         // 防止adaptor中出现代码改动了provider的值
-        this.providerCache[namespace] = clone(provider);
-        this.providerCache[namespace].config = cloneDeep(provider.config);
+        this.providerCache[namespace] = config;
 
         return provider;
     }
@@ -550,7 +536,7 @@ export class DataProvider {
 
                 isProgress = true;
 
-                dataProviderEvent.addToList(verifyProvider.namespace);
+                context.rcre.dataProviderEvent.addToList(verifyProvider.namespace);
 
                 return this.execProvider(verifyProvider, runTime, actions, model);
             });
@@ -563,7 +549,7 @@ export class DataProvider {
                 }
 
                 process.nextTick(() => {
-                    dataProviderEvent.setToDone(execTask[i][index]);
+                    context.rcre.dataProviderEvent.setToDone(execTask[i][index]);
                 });
 
                 Object.assign(retCache, result);

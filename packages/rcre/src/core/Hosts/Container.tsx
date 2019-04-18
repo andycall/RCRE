@@ -36,4 +36,10 @@ function JSONContainer(props: ConnectContainerProps) {
     );
 }
 
+JSONContainer.getComponentParseOptions = function() {
+    return {
+        blackList: ['props', 'export', 'dataProvider', 'dataCustomer']
+    };
+};
+
 componentLoader.addComponent('container', JSONContainer, '__BUILDIN__');

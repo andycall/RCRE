@@ -1,6 +1,6 @@
 // import * as React from 'react';
 // import {mount} from 'enzyme';
-import {clearStore, DataCustomer, waitForDataProviderComplete, CoreKind, filter} from 'rcre';
+import {CoreKind, filter} from 'rcre';
 // import {Provider} from 'react-redux';
 import {RCRETestUtil} from 'rcre-test-tools';
 
@@ -31,10 +31,6 @@ class LocalStorageMock {
 global['localStorage'] = new LocalStorageMock;
 
 describe('Container Component', () => {
-    beforeEach(() => {
-        clearStore();
-    });
-
     it('HELLO WORLD', () => {
         const containerModel = 'containerTest';
         const info = {
@@ -48,7 +44,7 @@ describe('Container Component', () => {
                 children: [
                     {
                         type: 'text',
-                        text: 'helloworld'
+                        text: '#ES{$data.name}'
                     }
                 ]
             }]
@@ -57,9 +53,8 @@ describe('Container Component', () => {
         let test = new RCRETestUtil(info);
         test.setContainer(containerModel);
         test.expectWithPath('name', 'andycall');
-        console.log(test.wrapper.debug());
-        // let text = test.getComponentByType('text');
-        // expect(text.text()).toBe('helloworld');
+        let text = test.getComponentByType('text');
+        expect(text.text()).toBe('andycall');
         test.unmount();
     });
 
@@ -108,6 +103,7 @@ describe('Container Component', () => {
         let test = new RCRETestUtil(info);
         let state = test.getState();
         expect(state.container[containerModal].name).toBe('andycall');
+        test.unmount();
     });
 
     it('[export]: inner container can export value using ExpressionString', () => {
@@ -173,6 +169,8 @@ describe('Container Component', () => {
         expect(container[exportModel].name).toBe('12');
         expect(container[innerModel].subName).toBe('1');
         expect(container[innerModel].anoSubName).toBe('2');
+
+        test.unmount();
     });
 
     it('[$parent]: inner container can access parent container\'s property with $parent', () => {
@@ -291,7 +289,7 @@ describe('Container Component', () => {
         expect(container['bindContainer'].password).toBe('1234');
         expect(container['childBindContainer'].password).toBe('1234');
 
-        wrapper.unmount();
+        test.unmount();
     });
 
     it('[bind]: 3th nest container with bind property', () => {
@@ -459,7 +457,7 @@ describe('Container Component', () => {
         expect(state.container.otherContainer.innerAge).toBe('button');
         expect(state.container.root.age).toBe('button');
 
-        wrapper.unmount();
+        test.unmount();
     });
 
     it('[bind] setMultiData with bind', () => {
@@ -530,7 +528,7 @@ describe('Container Component', () => {
         expect(container[innerModel].subName).toBe('1');
         expect(container[innerModel].anoSubName).toBe('2');
 
-        wrapper.unmount();
+        test.unmount();
     });
 
     it('[bind]: setMultiDataBind', () => {
@@ -581,8 +579,8 @@ describe('Container Component', () => {
                                             type: 'formItem',
                                             control: {
                                                 type: 'button',
+                                                '~type': 'submit',
                                                 className: 'submit-button',
-                                                htmlType: 'submit'
                                             }
                                         }
                                     ]
@@ -595,16 +593,19 @@ describe('Container Component', () => {
         };
         let test = new RCRETestUtil(info);
         let wrapper = test.wrapper;
+        console.log(wrapper.debug());
+
         const innerElement = wrapper.find('form').at(0);
         innerElement.simulate('submit', {});
         let state = test.getState();
+        console.log(state);
         let container = state.container;
 
-        expect(container['outer'].username).toBe('');
-        expect(container['inner'].username).toBe('');
-        expect(container['inner'].password).toBe('');
+        expect(container['outer'].username).toBe(undefined);
+        expect(container['inner'].username).toBe(undefined);
+        expect(container['inner'].password).toBe(undefined);
 
-        wrapper.unmount();
+        test.unmount();
     });
 
     it('deleteData', async () => {
@@ -895,12 +896,11 @@ describe('Container Component', () => {
         };
 
         let test = new RCRETestUtil(info);
-        let wrapper = test.wrapper;
         let state = test.getState();
         let container = state.container;
 
         expect(container[exportModel].name).toBe('outer');
-        wrapper.unmount();
+        test.unmount();
     });
 
     it('[props] SYNC_DATA_SUCCESS inherit', () => {
@@ -946,7 +946,7 @@ describe('Container Component', () => {
         expect(container['component'].age).toBe(22);
         expect(texts.at(0).text()).toBe('name: andycall is children');
         expect(texts.at(1).text()).toBe('age: 44');
-        wrapper.unmount();
+        test.unmount();
     });
 
     it('[props]: inherit', () => {
@@ -990,7 +990,7 @@ describe('Container Component', () => {
         expect(texts.at(0).text()).toBe('name: andycall');
         expect(texts.at(1).text()).toBe('age: 22');
 
-        wrapper.unmount();
+        test.unmount();
     });
 
     it('[props]: prop is not Expression', () => {
@@ -1033,7 +1033,7 @@ describe('Container Component', () => {
         expect(container['component'].name).toBe('andycall');
         expect(container['component'].age).toBe(22);
         expect(texts.at(0).html()).toBe('<span class="rcre-text "></span>');
-        wrapper.unmount();
+        test.unmount();
     });
 
     it('[props]: has prop without data', () => {
@@ -1091,7 +1091,7 @@ describe('Container Component', () => {
         });
 
         expect(texts.at(0).text()).toBe('yhtree');
-        wrapper.unmount();
+        test.unmount();
     });
 
     it('[props]: set Data inherit', () => {
@@ -1131,6 +1131,8 @@ describe('Container Component', () => {
         test.setContainer('child');
         let text = test.getComponentByType('text');
         expect(text.text()).toBe('yhtree');
+
+        console.log(test.wrapper.debug());
         test.unmount();
     });
 
@@ -1191,7 +1193,7 @@ describe('Container Component', () => {
         expect(state.container.outer.username).toBe('helloworld');
         expect(state.container.child1.username).toBe('helloworld');
         expect(state.container.child2.username).toBe('helloworld');
-        wrapper.unmount();
+        test.unmount();
     });
 
     it('has dataCustomer', async () => {
@@ -1476,10 +1478,8 @@ describe('Container Component', () => {
         expect(state.container.initTest.name).toBe('andycall');
 
         let text = wrapper.find('span').at(0);
-
         expect(text.text()).toBe('andycall');
-
-        wrapper.unmount();
+        test.unmount();
     });
 
     it('dataProvider responseRewrite support decoupling assignment', async () => {
@@ -1505,12 +1505,12 @@ describe('Container Component', () => {
             }]
         };
         let test = new RCRETestUtil(config);
-        let wrapper = test.wrapper;
-        await waitForDataProviderComplete();
+        await test.waitForDataProviderComplete();
         let state = test.getState();
+        console.log(state.container);
         let demo = state.container.dataProviderResponseTest.demo;
         expect(demo.list.length).toBe(5);
-        wrapper.unmount();
+        test.unmount();
     });
 
     it('[dataProvider]: ASYNC_LOAD_SUCCESS can be refresh the component', () => {
@@ -1550,13 +1550,13 @@ describe('Container Component', () => {
             };
 
             let test = new RCRETestUtil(config);
-            let wrapper = test.wrapper;
 
             setTimeout(() => {
                 let state = test.getState();
+                console.log(state.container);
                 expect(typeof state.container.dataProviderTest.DataSource).toBe('object');
                 expect(typeof state.container.innerSource.datasource).toBe('object');
-                wrapper.unmount();
+                test.unmount();
                 resolve();
             }, 300);
         });
@@ -1605,7 +1605,7 @@ describe('Container Component', () => {
         state = test.getState();
         expect(state.container.initTest.name).toBe('test');
 
-        wrapper.unmount();
+        test.unmount();
     });
 
     it('formItem in container should have form control', () => {
@@ -1656,7 +1656,7 @@ describe('Container Component', () => {
         let text = wrapper.find('span').at(0);
         expect(text.text()).toBe('andycall');
 
-        wrapper.unmount();
+        test.unmount();
     });
 
     it('data Customer with 3 container inherit', async () => {
@@ -2391,7 +2391,7 @@ describe('Container Component', () => {
 
         await test.simulate(A, 'onClick');
 
-        await waitForDataProviderComplete();
+        await test.waitForDataProviderComplete();
 
         state = test.getState();
         expect(state.container.childA.username).toBe('andycall');
@@ -2401,7 +2401,7 @@ describe('Container Component', () => {
 
         await test.simulate(B, 'onClick');
 
-        await waitForDataProviderComplete();
+        await test.waitForDataProviderComplete();
 
         state = test.getState();
 
@@ -2455,82 +2455,10 @@ describe('Container Component', () => {
 
         let test = new RCRETestUtil(config);
 
-        await waitForDataProviderComplete();
+        await test.waitForDataProviderComplete();
         test.setContainer('test');
         let textElement = test.getComponentByType('text');
         expect(textElement.text()).toBe('test');
-    });
-
-    it('trigger wont cause container update', async () => {
-        DataCustomer.funcCustomer.setCustomer('setData', ($args) => {
-        });
-
-        let config = {
-            body: [{
-                type: 'container',
-                model: 'demo',
-                dataCustomer: {
-                    customers: [{
-                        name: 'setData',
-                        func: '#ES{setData}'
-                    }]
-                },
-                children: [
-                    {
-                        type: 'text',
-                        text: 'helloworld',
-                        trigger: [{
-                            event: 'onClick',
-                            targetCustomer: 'setData',
-                            params: {
-                                username: 'helloworld'
-                            }
-                        }]
-                    }
-                ]
-            }]
-        };
-
-        let test = new RCRETestUtil(config);
-        test.setContainer('demo');
-        let text = test.getComponentByType('text');
-        await test.simulate(text, 'onClick');
-
-        let container: any = test.getContainer('demo').instance();
-
-        expect(container.CONTAINER_UPDATE_COUNT).toBe(2);
-
-        test.unmount();
-    });
-
-    it('FormItem init wont cause container update', () => {
-        let config = {
-            body: [{
-                type: 'container',
-                model: 'demo',
-                children: [{
-                    type: 'form',
-                    name: 'demoForm',
-                    children: [
-                        {
-                            type: 'formItem',
-                            required: true,
-                            control: {
-                                type: 'input',
-                                name: 'username'
-                            }
-                        }
-                    ]
-                }]
-            }]
-        };
-
-        let test = new RCRETestUtil(config);
-        test.setContainer('demo');
-        let container: any = test.getContainer('demo').instance();
-        expect(container.CONTAINER_UPDATE_COUNT).toBe(2);
-
-        test.unmount();
     });
 
     it('Container should export when init', () => {

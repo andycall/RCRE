@@ -3,11 +3,12 @@ import {CSSProperties} from 'react';
 import * as _ from 'lodash';
 import './Text.css';
 import {TriggerContextType} from '../../../types';
-import {withTriggerContext} from '../../context';
+import {BasicConnectProps} from '../../Connect/basicConnect';
+import {commonConnect} from '../../Connect/Common/Common';
 import {TriggerEventItem} from '../../Trigger/Trigger';
 import {componentLoader} from '../../util/componentLoader';
 
-export type TextDriverProps = {
+export interface TextDriverProps extends BasicConnectProps {
     text: string;
     /**
      * 文本类型
@@ -173,7 +174,7 @@ export class TextDriver extends React.PureComponent<TextDriverProps, {}> {
                         if (href && window) {
                             window.location.href = href;
                         }
-                        this.props.triggerContext.eventHandle('onClick', event);
+                        this.props.tools.registerEvent('onClick', event);
                     }
                 };
 
@@ -194,7 +195,7 @@ export class TextDriver extends React.PureComponent<TextDriverProps, {}> {
                             event.stopPropagation();
                             return;
                         }
-                        this.props.triggerContext.eventHandle('onClick', event);
+                        this.props.tools.registerEvent('onClick', event);
                     },
                     className: 'rcre-text ' + (className || '')
                 };
@@ -218,4 +219,4 @@ export class TextDriver extends React.PureComponent<TextDriverProps, {}> {
     }
 }
 
-componentLoader.addComponent('text', withTriggerContext(TextDriver), '__BUILDIN__');
+componentLoader.addComponent('text', commonConnect()(TextDriver), '__BUILDIN__');

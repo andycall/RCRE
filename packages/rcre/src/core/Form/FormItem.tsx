@@ -8,7 +8,6 @@ import {
     RunTimeType
 } from '../../types';
 import {FormItemContext, ContainerContext} from '../context';
-import {dataProviderEvent} from '../Events/dataProviderEvent';
 import {request} from '../Service/api';
 import {getRuntimeContext, isPromise, recycleRunTime} from '../util/util';
 import {applyRule} from './validate';
@@ -287,7 +286,7 @@ export class RCREFormItem extends React.Component<FormItemProps, {}> {
             data = compileExpressionString(apiRule.data, execRunTime);
         }
 
-        dataProviderEvent.addToList(apiRule.url);
+        this.props.rcreContext.dataProviderEvent.addToList(apiRule.url);
 
         let ret = await request(apiRule.url, {
             url: apiRule.url,
@@ -298,7 +297,7 @@ export class RCREFormItem extends React.Component<FormItemProps, {}> {
 
         // 如果这个时候直接unmount，会有异常
         if (this.isUnMounted) {
-            dataProviderEvent.clear();
+            this.props.rcreContext.dataProviderEvent.clear();
             return;
         }
 
@@ -326,7 +325,7 @@ export class RCREFormItem extends React.Component<FormItemProps, {}> {
             });
         }
 
-        dataProviderEvent.setToDone(apiRule.url);
+        this.props.rcreContext.dataProviderEvent.setToDone(apiRule.url);
 
         if (isValid) {
             this.props.formContext.$setFormItem({

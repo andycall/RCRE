@@ -52,6 +52,11 @@ export class RCRETestUtil {
         this.store = instance.store;
     }
 
+    public async waitForDataProviderComplete() {
+        let instance: any = this.wrapper.instance();
+        return instance.waitForDataProviderComplete();
+    }
+
     /**
      * 销毁整个应用
      */
@@ -265,13 +270,11 @@ export class RCRETestUtil {
         let elements: ReactWrapper[] = [];
         for (let i = 0; i < container.children().length; i++) {
             this.find(container.childAt(i), elements, (element) => {
-                let info: any = element.prop('info');
-
-                if (!info || !info.name) {
-                    return false;
+                if (/RCREConnect\(.*\)/.test(element.name()) && element.prop('name') === name) {
+                    return true;
                 }
 
-                return info.name === name;
+                return false;
             });
         }
 

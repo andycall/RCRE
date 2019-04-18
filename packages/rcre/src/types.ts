@@ -4,6 +4,7 @@ import {Store} from 'redux';
 import {UrlWithStringQuery} from 'url';
 // import {ContainerConfig} from './core/Container/AbstractContainer';
 import {DataCustomer} from './core/DataCustomer/index';
+import {DataProviderEvent} from "./core/Events/dataProviderEvent";
 import {Events} from './core/Events/index';
 // import {RowConfig} from './core/Layout/Row/Row';
 // import {DivConfig} from './core/Layout/Div/Div';
@@ -377,6 +378,11 @@ export interface BasicProps {
     formContext?: FormContextType;
 
     /**
+     * 来自FormItem组件的context对象
+     */
+    formItemContext?: FormItemContextType;
+
+    /**
      * 来自父级Container的context对象
      */
     containerContext: ContainerContextType;
@@ -534,6 +540,7 @@ export interface RCREContextType {
     loadMode: string;
     lang: string;
     events: Events;
+    dataProviderEvent: DataProviderEvent;
     options?: RCREOptions;
     store: Store<any>;
     containerGraph: Map<string, ContainerNode>;

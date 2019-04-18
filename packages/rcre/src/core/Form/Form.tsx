@@ -27,7 +27,7 @@ export interface FormProps extends BasicProps {
      */
     validateFirst?: boolean;
 
-    triggerContext: TriggerContextType;
+    triggerContext?: TriggerContextType;
 
     children?: any;
 }
@@ -163,6 +163,10 @@ export class RCREForm extends React.Component<FormProps, {}> {
         }
 
         this.isSubmitting = true;
+
+        if (!this.props.triggerContext) {
+            return;
+        }
 
         let ret = await this.props.triggerContext.eventHandle('onSubmit', submitData, {
             preventSubmit: preventSubmit

@@ -6,7 +6,7 @@ import URL from 'url';
 import {RootState} from '../data/reducers';
 import createReduxStore from '../data/store';
 import {RCREContextType, RCREOptions} from '../types';
-import {dataProviderEvent} from './Events/dataProviderEvent';
+import {DataProviderEvent} from './Events/dataProviderEvent';
 import {Events} from './Events/index';
 import {RCREContext} from './context';
 import {ContainerNode} from './Service/ContainerDepGraph';
@@ -22,6 +22,7 @@ export interface RCREProviderProps {
 export class RCREProvider extends React.Component<RCREProviderProps, {}> {
     private contextValue: RCREContextType;
     public events: Events;
+    private dataProviderEvent: DataProviderEvent;
     private store: Store<RootState>;
     private containerGraph: Map<string, ContainerNode>;
 
@@ -41,6 +42,7 @@ export class RCREProvider extends React.Component<RCREProviderProps, {}> {
         this.store = store;
         this.containerGraph = new Map();
         this.events = props.events || new Events();
+        this.dataProviderEvent = new DataProviderEvent();
 
         this.contextValue = {
             ...location,
@@ -50,17 +52,45 @@ export class RCREProvider extends React.Component<RCREProviderProps, {}> {
             debug: props.debug || false,
             store: store,
             mode: 'React',
+            dataProviderEvent: this.dataProviderEvent,
             options: props.options || {},
             events: this.events,
             containerGraph: this.containerGraph
         };
     }
 
+    public waitForDataProviderComplete = () => {
+        return new Promise((resolve, reject) => {
+            setTimeout(() => {
+                let timeout = setTimeout(() => {
+                    let pendingNamespaces = this.dataProviderEvent.stack.map(m => m.key).join('\n,');
+                    clearTimeout(timeout);
+                    reject(new Error('dataProvider request timeout \n pending namespace: ' + pendingNamespaces));
+                }, 100000);
+
+                if (this.dataProviderEvent.stack.length === 0) {
+                    clearTimeout(timeout);
+                    return resolve();
+                }
+
+                this.dataProviderEvent.on('done', () => {
+                    clearTimeout(timeout);
+                    resolve();
+                });
+
+                this.dataProviderEvent.on('error', err => {
+                    clearTimeout(timeout);
+                    reject(err);
+                });
+            });
+        });
+    }
+
     componentWillUnmount(): void {
         this.store.dispatch({
             type: '_RESET_STORE_'
         });
-        dataProviderEvent.clear();
+        this.dataProviderEvent.clear();
         this.containerGraph.clear();
         // @ts-ignore
         this.containerGraph = null;

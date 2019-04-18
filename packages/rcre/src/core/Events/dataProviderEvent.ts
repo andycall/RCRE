@@ -1,6 +1,6 @@
 import {EventEmitter} from 'events';
 
-class DataProviderEvent extends EventEmitter {
+export class DataProviderEvent extends EventEmitter {
     public stack: {key: string, done: boolean}[];
     constructor() {
         super();
@@ -40,5 +40,3 @@ class DataProviderEvent extends EventEmitter {
         this.removeAllListeners('done');
     }
 }
-
-export const dataProviderEvent = new DataProviderEvent();

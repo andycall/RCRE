@@ -1,17 +1,16 @@
 import {RCRETestUtil} from 'rcre-test-tools';
 import React from 'react';
-import {clearStore, componentLoader, Connect, types} from 'rcre';
+import {componentLoader, Connect} from 'rcre';
 import {commonConnect} from '../../../packages/rcre/src/core/Connect/Common/Common';
 
 describe('CommonConnect', () => {
     const TYPE = 'testButton';
     beforeEach(() => {
         componentLoader.removeComponent(TYPE);
-        clearStore();
     });
 
     it('propsMapping', () => {
-        interface ButtonTest extends Connect.BasicConnectProps<any, any> {
+        interface ButtonTest extends Connect.BasicConnectProps {
             type: string;
         }
 
@@ -54,7 +53,7 @@ describe('CommonConnect', () => {
     });
 
     it('provider build in events', () => {
-        interface ButtonTest extends Connect.BasicConnectProps<any, any> {
+        interface ButtonTest extends Connect.BasicConnectProps {
             otherOptions: string;
         }
 
@@ -98,13 +97,7 @@ describe('CommonConnect', () => {
     //
     it('debounce feature', () => {
         return new Promise((resolve, reject) => {
-            type SampleConfig = types.ConfigFactory<{}, {
-                type: 'sample'
-            }>;
-
-            type SampleProps = types.DriverPropsFactory<SampleConfig, {}, any>;
-
-            class Sample extends React.PureComponent<SampleProps, {}> {
+            class Sample extends React.PureComponent<any, {}> {
                 render() {
                     let {
                         tools,
@@ -903,7 +896,7 @@ describe('CommonConnect', () => {
         });
 
         componentLoader.addComponent('autoClear', Connect.commonConnect({
-            autoClearCondition: (props, runTime) => {
+            autoClearCondition: (props) => {
                 if (props.value === 'AAA') {
                     return true;
                 }

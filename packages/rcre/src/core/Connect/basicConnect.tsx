@@ -1,13 +1,11 @@
 import {each, isEqual, isObjectLike, clone, has, isNil} from 'lodash';
 import {RootState} from '../../data/reducers';
 import {
-    BasicConfig,
     BasicProps,
     ContainerSetDataOption,
     runTimeType
 } from '../../types';
 import {TriggerEventItem} from '../Trigger/Trigger';
-import {createChild} from '../util/createChild';
 import {getRuntimeContext} from '../util/util';
 import {isExpression, parseExpressionString} from '../util/vm';
 import React from 'react';
@@ -18,7 +16,7 @@ export type WrapperComponentType<T> =
     React.StatelessComponent<T> |
     React.ClassicComponentClass<T>;
 
-export interface ConnectTools<Props> {
+export interface ConnectTools<Props> extends BasicProps {
     /**
      * RCRE引擎执行当前组件的上下文
      */
@@ -99,14 +97,6 @@ export interface ConnectTools<Props> {
     createReactNode: (config: any, props: object) => React.ReactNode;
 }
 
-// export interface BasicConnectProps<Props, Config extends BasicConfig> {
-//     tools: ConnectTools<Props, Config>;
-//     /**
-//      * 当前组件的值
-//      */
-//     value?: any;
-// }
-
 export interface CommonOptions {
     // 属性映射
     propsMapping?: object;
@@ -183,7 +173,7 @@ export interface CommonOptions {
     isNameValid?: (value: any, props: any) => boolean;
 }
 
-export interface BasicConnectProps extends BasicProps {
+export interface BasicConnectProps {
     // 只清楚表单状态，而不清空组件数据
     clearFormStatusOnlyWhenDestroy?: boolean;
     // 组件销毁不清除组件状态
@@ -223,14 +213,14 @@ export interface BasicConnectProps extends BasicProps {
     trigger?: TriggerEventItem[];
 }
 
-export abstract class BasicConnect extends React.Component<BasicConnectProps, {}> {
+export abstract class BasicConnect extends React.Component<BasicConnectProps & BasicProps, {}> {
     public $propertyWatch: string[];
     public options: CommonOptions;
     protected debounceCache: { [key: string]: any };
     protected debounceTimer: any;
     protected isDebouncing: boolean;
     public nameBindEvents: any = null;
-    protected constructor(props: BasicConnectProps, options: CommonOptions) {
+    protected constructor(props: BasicConnectProps & BasicProps, options: CommonOptions) {
         super(props);
 
         this.$propertyWatch = [];
@@ -274,6 +264,8 @@ export abstract class BasicConnect extends React.Component<BasicConnectProps, {}
             if (!isNil(existValue) && props.debounce) {
                 this.debounceCache[name] = existValue;
             }
+
+            this.registerComponentNames(name);
         }
     }
 
@@ -288,15 +280,15 @@ export abstract class BasicConnect extends React.Component<BasicConnectProps, {}
             } else if (this.props.clearWhenDestory) {
                 this.props.containerContext.$deleteData(this.props.name);
             }
-
-            // if (this.props.$deleteFormItem && info.clearFormStatusOnlyWhenDestroy) {
-            //     this.props.$deleteFormItem(info.name);
-            // } else if (this.props.$form && !info.disableClearWhenDestroy) {
-            //     this.props.$deleteData(info.name);
-            // } else if (info.clearWhenDestroy) {
-            //     this.props.$deleteData(info.name);
-            // }
         }
+    }
+
+    private registerComponentNames = (name: string) => {
+        if (!this.props.formItemContext) {
+            return;
+        }
+
+        this.props.formItemContext.$addNameSet(name);
     }
 
     /**
@@ -352,7 +344,7 @@ export abstract class BasicConnect extends React.Component<BasicConnectProps, {}
         return this.props.formContext.$getFormItem(name);
     }
 
-    public componentWillUpdate(nextProps: BasicConnectProps) {
+    public componentWillUpdate(nextProps: BasicConnectProps & BasicProps) {
         let nameKey = this.options.nameKey || 'value';
         // let prevInfo = this.prepareRender(this.options, this.props);
         // let nextInfo = this.prepareRender(this.options, nextProps);
@@ -373,13 +365,6 @@ export abstract class BasicConnect extends React.Component<BasicConnectProps, {}
                 this.clearNameValue(nextProps.name);
             }
         }
-    }
-
-    public createReactNode<C extends BasicConfig>(config: C, props: object) {
-        return createChild(config, {
-            info: config,
-            ...props
-        });
     }
 
     public hasTriggerEvent(event: string) {
@@ -419,6 +404,8 @@ export abstract class BasicConnect extends React.Component<BasicConnectProps, {}
         delete mute.triggerContext;
         delete mute.containerContext;
         delete mute.iteratorContext;
+        delete mute.formContext;
+        delete mute.formItemContext;
 
         return mute;
     }
@@ -437,7 +424,7 @@ export abstract class BasicConnect extends React.Component<BasicConnectProps, {}
                 }
 
                 // @ts-ignore
-                if (config[key] === null && isExpression(this.props.info[key])) {
+                if (config[key] === null && isExpression(this.props[key])) {
                     delete config[key];
                 }
             }
@@ -446,7 +433,7 @@ export abstract class BasicConnect extends React.Component<BasicConnectProps, {}
         return config;
     }
 
-    public prepareRender(options: CommonOptions, props: BasicConnectProps = this.props) {
+    public prepareRender(options: CommonOptions, props: BasicConnectProps & BasicProps = this.props) {
         props = clone(props);
         let mutedInfo = this.muteParentInfo(props);
 

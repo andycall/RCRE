@@ -3,7 +3,7 @@ import {Store} from 'redux';
 import URL from 'url';
 import createReduxStore from '../data/store';
 import {RCREContext} from './context';
-import {dataProviderEvent} from './Events/dataProviderEvent';
+import {DataProviderEvent} from './Events/dataProviderEvent';
 import {ContainerNode} from './Service/ContainerDepGraph';
 import {RootState} from '../data/reducers';
 import {BasicConfig, RCREContextType, PageConfig, RCREOptions} from '../types';
@@ -46,6 +46,7 @@ export class JSONRender<T extends BasicConfig> extends React.Component<RenderPro
 
     private contextValue: RCREContextType;
     public events: Events;
+    private dataProviderEvent: DataProviderEvent;
     private store: Store<RootState>;
     private containerGraph: Map<string, ContainerNode>;
 
@@ -77,6 +78,7 @@ export class JSONRender<T extends BasicConfig> extends React.Component<RenderPro
 
         // for test use
         this.store = store;
+        this.dataProviderEvent = new DataProviderEvent();
         this.containerGraph = new Map();
         this.events = props.events || new Events();
 
@@ -90,6 +92,7 @@ export class JSONRender<T extends BasicConfig> extends React.Component<RenderPro
             mode: 'json',
             options: props.options || {},
             events: this.events,
+            dataProviderEvent: this.dataProviderEvent,
             containerGraph: this.containerGraph
         };
     }
@@ -98,12 +101,39 @@ export class JSONRender<T extends BasicConfig> extends React.Component<RenderPro
         this.store.dispatch({
             type: '_RESET_STORE_'
         });
-        dataProviderEvent.clear();
+        this.dataProviderEvent.clear();
         this.containerGraph.clear();
         // @ts-ignore
         this.containerGraph = null;
         // @ts-ignore
         this.store = null;
+    }
+
+    public waitForDataProviderComplete = () => {
+        return new Promise((resolve, reject) => {
+            setTimeout(() => {
+                let timeout = setTimeout(() => {
+                    let pendingNamespaces = this.dataProviderEvent.stack.map(m => m.key).join('\n,');
+                    clearTimeout(timeout);
+                    reject(new Error('dataProvider request timeout \n pending namespace: ' + pendingNamespaces));
+                }, 100000);
+
+                if (this.dataProviderEvent.stack.length === 0) {
+                    clearTimeout(timeout);
+                    return resolve();
+                }
+
+                this.dataProviderEvent.on('done', () => {
+                    clearTimeout(timeout);
+                    resolve();
+                });
+
+                this.dataProviderEvent.on('error', err => {
+                    clearTimeout(timeout);
+                    reject(err);
+                });
+            });
+        });
     }
 
     render() {

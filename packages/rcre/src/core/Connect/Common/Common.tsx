@@ -1,15 +1,16 @@
 import React from 'react';
+import {BasicProps} from '../../../types';
 import {BasicConnect, BasicConnectProps, CommonOptions, WrapperComponentType} from '../basicConnect';
 
 const defaultMappingProps = {};
 
 export function commonConnect(options: CommonOptions = {}):
-    (WrapperComponent: WrapperComponentType<any>) => React.ComponentClass {
+    (WrapperComponent: WrapperComponentType<BasicConnectProps>) => React.ComponentClass {
     return (WrapperComponent) => {
         class CommonConnect extends BasicConnect {
             static displayName: string;
             private mapping = defaultMappingProps;
-            constructor(props: BasicConnectProps) {
+            constructor(props: BasicConnectProps & BasicProps) {
                 super(props, options);
                 this.mapping = {
                     ...this.mapping,
@@ -45,9 +46,14 @@ export function commonConnect(options: CommonOptions = {}):
                             clearNameValue: this.clearNameValue,
                             updateNameValue: updateNameValue,
                             registerEvent: registerEvent,
-                            createReactNode: this.createReactNode,
                             hasTriggerEvent: this.hasTriggerEvent,
                             getNameValue: getNameValue,
+                            containerContext: this.props.containerContext,
+                            triggerContext: this.props.triggerContext,
+                            formContext: this.props.formContext,
+                            formItemContext: this.props.formItemContext,
+                            iteratorContext: this.props.iteratorContext,
+                            rcreContext: this.props.rcreContext,
                             form: this.props.formContext
                         }}
                     />

@@ -1,6 +1,7 @@
 import React from 'react';
 import createReactContext from 'create-react-context';
 import URL from 'url';
+import {DataProviderEvent} from "./Events/dataProviderEvent";
 import {Events} from './Events/index';
 import createReduxStore from '../data/store';
 import {
@@ -20,6 +21,7 @@ export const RCREContext = createReactContext<RCREContextType>({
     loadMode: 'default',
     // lang: PropsTypes.string,
     events: new Events(),
+    dataProviderEvent: new DataProviderEvent(),
     store: createReduxStore(),
     options: {},
     mode: 'React',

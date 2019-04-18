@@ -249,7 +249,6 @@ export class Row extends React.Component<RowProps, {}> {
             };
 
             let child = createChild(childInfo, {
-                ...this.props,
                 info: childInfo
             });
 
@@ -279,9 +278,11 @@ export class Row extends React.Component<RowProps, {}> {
         };
 
         const handleClick = (e: React.MouseEvent<any>) => {
-            this.props.triggerContext.eventHandle('onClick', {
-                e: e
-            });
+            if (this.props.triggerContext) {
+                this.props.triggerContext.eventHandle('onClick', {
+                    e: e
+                });
+            }
         };
 
         let rowElement = (

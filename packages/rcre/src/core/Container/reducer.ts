@@ -54,7 +54,7 @@ export const containerReducer: Reducer<IContainerState> =
                 let container = context.rcre.containerGraph.get(model);
 
                 if (!container) {
-                    return clone(state);
+                    return state;
                 }
 
                 // 初次挂载的时候，继承父级的数据
@@ -68,7 +68,7 @@ export const containerReducer: Reducer<IContainerState> =
                     });
                 }
 
-                return clone(state);
+                return state;
             }
             case SET_DATA: {
                 let name = actions.payload.name;
@@ -78,7 +78,7 @@ export const containerReducer: Reducer<IContainerState> =
 
                 let model = actions.model;
                 if (!(model in state)) {
-                    state[model] = {};
+                    state = setWith(state, model, {});
                 }
 
                 let paginationCacheKey = `${TMP_MODEL}.${model}.pagination`;
@@ -120,10 +120,7 @@ export const containerReducer: Reducer<IContainerState> =
                     syncPropsContainerState(state, actions.context, node);
                 });
 
-                state = clone(state);
-                state[model] = clone(state[model]);
-
-                return state;
+                return clone(state);
             }
             case SET_MULTI_DATA: {
                 let payload = actions.payload;
@@ -131,7 +128,7 @@ export const containerReducer: Reducer<IContainerState> =
                 let context = actions.context;
 
                 if (!(model in state)) {
-                    state[model] = {};
+                    state = setWith(state, model, {});
                 }
 
                 payload.forEach(item => {
@@ -156,12 +153,12 @@ export const containerReducer: Reducer<IContainerState> =
                 let model = payload.model;
 
                 if (!(model in state)) {
-                    state[model] = {
+                    state = setWith(state, model, {
                         $loading: true
-                    };
+                    });
                 }
 
-                state[model].$loading = true;
+                state[model] = setWith(state[model], '$loading', true);
 
                 return clone(state);
             }
@@ -172,17 +169,14 @@ export const containerReducer: Reducer<IContainerState> =
                 let data = payload.data;
 
                 if (!state[model]) {
-                    state[model] = {};
+                    state = setWith(state, model, {});
                 }
 
-                state[model].$loading = false;
+                state[model] = setWith(state[model], '$loading', false);
 
                 each(data, (value, name) => {
                     state[model] = setWith(state[model], name, value);
                 });
-
-                state = clone(state);
-                state[model] = clone(state[model]);
 
                 let container = context.rcre.containerGraph.get(model);
                 let affectNode: ContainerNode[] = [];
@@ -204,12 +198,11 @@ export const containerReducer: Reducer<IContainerState> =
                 let error = payload.error;
 
                 if (!(model in state)) {
-                    state[model] = {};
+                    state = setWith(state, model, {});
                 }
 
-                state[model] = clone(state[model]);
-                state[model].$loading = false;
-                state[model].$error = error;
+                state[model] = setWith(state[model], '$loading', false);
+                state[model] = setWith(state[model], '$error', error);
 
                 return clone(state);
             }
@@ -220,12 +213,12 @@ export const containerReducer: Reducer<IContainerState> =
                 let context = payload.context;
 
                 if (!(model in state)) {
-                    state[model] = {};
+                    state = setWith(state, model, {});
                 }
 
-                state = clone(state);
-                state[model] = clone(state[model]);
-                Object.assign(state[model], data);
+                each(data, (val, key) => {
+                    state[model] = setWith(state[model], key, val);
+                });
 
                 let container = context.rcre.containerGraph.get(model);
                 let affectNode: ContainerNode[] = [];
@@ -248,14 +241,11 @@ export const containerReducer: Reducer<IContainerState> =
                 let error = payload.error;
 
                 if (!(model in state)) {
-                    state[model] = {};
+                    state = setWith(state, model, {});
                 }
 
-                Object.assign(state[model], {
-                    $error: error
-                });
-
-                return clone(state);
+                state = setWith(state, model + '.$error', error);
+                return state;
             }
             case DATA_CUSTOMER_PASS: {
                 let payload = actions.payload;
@@ -268,9 +258,6 @@ export const containerReducer: Reducer<IContainerState> =
                     return state;
                 }
 
-                state = clone(state);
-                state[model] = clone(state[model]);
-
                 each(data, (val, key) => {
                     state[model] = setWith(state[model], key, val);
                 });
@@ -282,7 +269,7 @@ export const containerReducer: Reducer<IContainerState> =
                     syncPropsContainerState(state, actions.context, node);
                 });
 
-                return state;
+                return clone(state);
             }
             case CLEAR_DATA: {
                 let delKey = actions.payload.model;

@@ -16,7 +16,12 @@ import {
     RCREContextType
 } from '../../types';
 import {connect} from 'react-redux';
-import {containerActionCreators} from './action';
+import {
+    ASYNC_LOAD_DATA_FAIL_PAYLOAD,
+    ASYNC_LOAD_DATA_PROGRESS_PAYLOAD,
+    ASYNC_LOAD_DATA_SUCCESS_PAYLOAD,
+    containerActionCreators, SYNC_LOAD_DATA_FAIL_PAYLOAD, SYNC_LOAD_DATA_SUCCESS_PAYLOAD
+} from './action';
 import {RootState} from '../../data/reducers';
 import {DataProvider} from '../DataProvider/Controller';
 import {compileExpressionString, isExpression, parseExpressionString} from '../util/vm';
@@ -156,6 +161,7 @@ class Container extends React.Component<ConnectContainerProps, {}> {
     }
 
     private initDefaultData(props: ContainerProps) {
+        let data = this.props.data || {};
         let defaultValue = {};
         let runTime = getRuntimeContext({
             $data: this.props.$data,
@@ -164,16 +170,12 @@ class Container extends React.Component<ConnectContainerProps, {}> {
             iteratorContext: this.props.iteratorContext
         });
 
-        let data = compileExpressionString(this.props.data, runTime, [], true);
-
-        if (defaultValue) {
-            Object.assign(defaultValue, data);
-
-            this.props.rcreContext.store.dispatch(containerActionCreators.initContainer({
-                model: this.props.model,
-                data: defaultValue
-            }, this.getContextCollection()));
-        }
+        data = compileExpressionString(data, runTime, [], true);
+        Object.assign(defaultValue, data);
+        this.props.rcreContext.store.dispatch(containerActionCreators.initContainer({
+            model: this.props.model,
+            data: defaultValue
+        }, this.getContextCollection()));
     }
 
     private initContainerGraph(props: ConnectContainerProps) {
@@ -197,12 +199,18 @@ class Container extends React.Component<ConnectContainerProps, {}> {
     }
 
     componentWillUpdate(nextProps: ContainerProps) {
+        let store = this.props.rcreContext.store;
         const providerActions = {
-            asyncLoadDataProgress: containerActionCreators.asyncLoadDataProgress,
-            asyncLoadDataSuccess: containerActionCreators.asyncLoadDataSuccess,
-            asyncLoadDataFail: containerActionCreators.asyncLoadDataFail,
-            syncLoadDataSuccess: containerActionCreators.syncLoadDataSuccess,
-            syncLoadDataFail: containerActionCreators.syncLoadDataFail
+            asyncLoadDataProgress: (payload: ASYNC_LOAD_DATA_PROGRESS_PAYLOAD) =>
+                store.dispatch(containerActionCreators.asyncLoadDataProgress(payload)),
+            asyncLoadDataSuccess: (payload: ASYNC_LOAD_DATA_SUCCESS_PAYLOAD) =>
+                store.dispatch(containerActionCreators.asyncLoadDataSuccess(payload)),
+            asyncLoadDataFail: (payload: ASYNC_LOAD_DATA_FAIL_PAYLOAD) =>
+                store.dispatch(containerActionCreators.asyncLoadDataFail(payload)),
+            syncLoadDataSuccess: (payload: SYNC_LOAD_DATA_SUCCESS_PAYLOAD) =>
+                store.dispatch(containerActionCreators.syncLoadDataSuccess(payload)),
+            syncLoadDataFail: (payload: SYNC_LOAD_DATA_FAIL_PAYLOAD) =>
+                store.dispatch(containerActionCreators.syncLoadDataFail(payload))
         };
 
         if (this.props.dataProvider) {

@@ -15,7 +15,6 @@ import './core/Layout/Text/Text';
 import './core/Layout/ForEach/Foreach';
 import './core/Hosts';
 import './core/Layout/Row/Row';
-import {dataProviderEvent} from './core/Events/dataProviderEvent';
 
 export * from './types';
 export * from './core/Hosts/Container';
@@ -35,8 +34,12 @@ export * from './core/Container';
 export * from './data/reducers';
 export * from './data/store';
 
+let hasWarn = false;
 export function clearStore() {
-    dataProviderEvent.clear();
+    if (!hasWarn) {
+        hasWarn = true;
+        console.warn('clearStore is deprecated, please remove it from your code');
+    }
 }
 
 export {

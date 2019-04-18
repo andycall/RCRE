@@ -33,7 +33,16 @@ describe('ContainerDepGraph', () => {
 
         let affectNode: ContainerNode[] = [];
         // @ts-ignore
-        syncExportContainerState(state, affectNode, {}, C);
+        syncExportContainerState(state, affectNode, {
+            // @ts-ignore
+            container: {},
+            // @ts-ignore
+            rcre: {},
+            // @ts-ignore
+            iterator: {},
+            // @ts-ignore
+            form: {}
+        }, C);
 
         expect(affectNode.map(node => node.model).join(',')).toBe('C,A,root');
 
@@ -77,7 +86,16 @@ describe('ContainerDepGraph', () => {
 
         let affectNode: ContainerNode[] = [];
         // @ts-ignore
-        syncExportContainerState(state, affectNode, {}, C);
+        syncExportContainerState(state, affectNode, {
+            // @ts-ignore
+            container: {},
+            // @ts-ignore
+            rcre: {},
+            // @ts-ignore
+            iterator: {},
+            // @ts-ignore
+            form: {}
+        }, C);
 
         console.log(state);
 

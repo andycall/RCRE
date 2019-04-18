@@ -3,10 +3,7 @@ import {execExpressString, isExpressionString, reportError} from 'rcre-runtime';
 import {runTimeType} from '../../types';
 import {filter} from './filter';
 import {stringToPath} from './stringToPath';
-
-export type compilePairType<S> = {
-    [s: string]: S
-};
+import {deleteWith, setWith} from './util';
 
 /**
  * 对路径字符串进行转换，数组和点运算符统一成点运算符形式
@@ -77,9 +74,9 @@ function recursionExpressionString<T> (data: T,
                                        isDeep: boolean = false,
                                        whiteList: string[] = [],
                                        path?: string): T {
-    let copy: T = _.clone(data);
-    // @ts-ignore
-    _.each(copy, (item, key) => {
+    let keys = Object.keys(data);
+    for (let key of keys) {
+        let item = data[key];
         let curPath = '';
         if (path) {
             curPath = path + '.' + key;
@@ -87,12 +84,12 @@ function recursionExpressionString<T> (data: T,
             curPath = key;
         }
         if (blackList && blackList.indexOf(curPath) >= 0) {
-            return;
+            continue;
         }
 
         if (_.isArray(whiteList) && whiteList.length > 0) {
             if (whiteList.indexOf(key) < 0) {
-                return;
+                continue;
             }
         }
 
@@ -100,21 +97,21 @@ function recursionExpressionString<T> (data: T,
             let oldKey = key;
             key = parseExpressionString(key, runTime);
             if (key) {
-                delete copy[oldKey];
-                copy[key] = item;
+                data = deleteWith(oldKey, data);
+                data = setWith(data, key, item);
             }
         }
 
         if (isExpression(item)) {
-            copy[key] = parseExpressionString(item, runTime);
+            data = setWith(data, key, parseExpressionString(item, runTime));
         }
 
         if (isDeep && (_.isObjectLike(item) || _.isArrayLikeObject(item))) {
-            copy[key] = recursionExpressionString(item, runTime, blackList, isDeep, whiteList, curPath);
+            data = setWith(data, key, recursionExpressionString(item, runTime, blackList, isDeep, whiteList, curPath));
         }
-    });
+    }
 
-    return copy;
+    return data;
 }
 
 /**
