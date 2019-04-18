@@ -1,4 +1,4 @@
-import {waitForDataProviderComplete, PageConfig} from 'rcre';
+import {PageConfig} from 'rcre';
 import chalk from 'chalk';
 import {get, isEqual, find} from 'lodash';
 import format from 'pretty-format';
@@ -65,7 +65,7 @@ export class AutomaticRobot {
 
     public async submitForm(preventSubmit: boolean) {
         this.test.wrapper.update();
-        await waitForDataProviderComplete();
+        await this.test.waitForDataProviderComplete();
         let form = this.test.getRootForm();
         let instance: any = form.instance();
         let name = instance.props.info.name;
@@ -304,7 +304,7 @@ info: ${format(componentInfo.trigger, {
                     console.log(chalk.green('item check success.'));
                 }
 
-                await waitForDataProviderComplete();
+                await this.test.waitForDataProviderComplete();
 
                 stepIndex++;
             }

@@ -116,6 +116,7 @@ describe('AutomaticRobot', () => {
             ]);
             throw new Error('robot did not throw');
         } catch (e) {
+            console.log(e);
             expect(e.message).toBe('CheckState failed: password\'s form status is not valid. errmsg: 长度不能小余2');
         }
 
@@ -392,6 +393,7 @@ describe('AutomaticRobot', () => {
                 }]
             }]);
         } catch (e) {
+            console.log(e);
             expect(e.message).toBe('StepItem: item value is not valid. \n' +
                 'Object {\n' +
                 '  "name": "template_id",\n' +

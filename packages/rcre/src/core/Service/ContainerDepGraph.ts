@@ -5,11 +5,10 @@ import {RunTimeContextCollection} from '../context';
 import {
     compileExpressionString,
     evalInContext,
-    injectFilterIntoContext,
     isExpression,
     parseExpressionString
 } from '../util/vm';
-import {setWith, deleteWith, getRuntimeContext} from '../util/util';
+import {setWith, deleteWith, getRuntimeContext, injectFilterIntoContext} from '../util/util';
 import {parseExpressionToken} from 'rcre-runtime';
 
 /**

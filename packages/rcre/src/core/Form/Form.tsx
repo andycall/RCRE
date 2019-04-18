@@ -32,14 +32,6 @@ export interface FormProps extends BasicProps {
     children?: any;
 }
 
-export interface FormState {
-    name: string;
-    layout: string;
-    control: {
-        [name: string]: FormItemState
-    };
-}
-
 export class RCREForm extends React.Component<FormProps, {}> {
     private isSubmitting: boolean;
 

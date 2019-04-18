@@ -6,8 +6,8 @@ interface LocalStorageConfig extends ProviderSourceConfig {
 }
 
 export class LocalStorageAdaptor extends SyncAdaptor {
-    exec(provider: LocalStorageConfig, runTime: runTimeType) {
-        let items = provider.config;
+    exec(config: string[], provider: LocalStorageConfig, runTime: runTimeType) {
+        let items = config;
         let ret = {};
 
         items.forEach(key => {

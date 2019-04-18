@@ -108,7 +108,7 @@ class Container extends React.Component<ConnectContainerProps, {}> {
         this.initDefaultData(props);
     }
 
-    private initDataCustomer(props: ContainerProps) {
+    private initDataCustomer(props: ConnectContainerProps) {
         const defaultCustomer = {
             mode: 'pass',
             name: '$SELF_PASS_CUSTOMER',
@@ -122,7 +122,7 @@ class Container extends React.Component<ConnectContainerProps, {}> {
             mode: 'pass',
             name: '$PARENT_PASS_CUSTOMER',
             config: {
-                model: props.model,
+                model: props.containerContext.model,
                 assign: {}
             }
         };

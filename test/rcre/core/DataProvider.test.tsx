@@ -1,6 +1,6 @@
 import React from 'react';
 import axios from 'axios';
-import {clearStore, PageConfig, JSONRender, waitForDataProviderComplete} from 'rcre';
+import {PageConfig, JSONRender} from 'rcre';
 import {mount} from 'enzyme';
 import moxios from 'moxios';
 import {RCRETestUtil, setData} from 'rcre-test-tools';
@@ -8,8 +8,6 @@ import {CoreKind} from '../../../packages/rcre/src/types';
 
 describe('DataProvider', () => {
     beforeEach(() => {
-        clearStore();
-        console.log('clear');
         moxios.install(axios);
     });
 
@@ -735,10 +733,6 @@ describe('DataProvider', () => {
 });
 
 describe('Real Request DataProvider', () => {
-    beforeEach(() => {
-        clearStore();
-    });
-
     it('multiple dataProvider request', async () => {
         const LINE_CHART = 'lineChart';
         const BAR_CHART = 'barChart';
@@ -784,7 +778,7 @@ describe('Real Request DataProvider', () => {
 
         let test = new RCRETestUtil(config);
 
-        await waitForDataProviderComplete();
+        await test.waitForDataProviderComplete();
         let state = test.getState();
         let testState = state.container.test;
 
@@ -832,7 +826,7 @@ describe('Real Request DataProvider', () => {
         let test = new RCRETestUtil(config);
 
         test.setContainer('dataProviderDeps');
-        await waitForDataProviderComplete();
+        await test.waitForDataProviderComplete();
 
         let state = test.getContainerState();
         expect(state.$loading).toBe(false);
@@ -842,7 +836,7 @@ describe('Real Request DataProvider', () => {
 
         state = test.getContainerState();
 
-        await waitForDataProviderComplete();
+        await test.waitForDataProviderComplete();
         state = test.getContainerState();
 
         expect(state.second.status).toBe(0);
@@ -857,10 +851,6 @@ describe('REQUEST CACHE', function () {
 
     afterAll(() => {
         window.__RCRE_TEST_REQUEST_CACHE__ = false;
-    });
-
-    beforeEach(() => {
-        clearStore();
     });
 
     it('hit cache with two same request', async () => {
@@ -890,7 +880,7 @@ describe('REQUEST CACHE', function () {
 
         let test = new RCRETestUtil(config);
         test.setContainer('demo');
-        await waitForDataProviderComplete();
+        await test.waitForDataProviderComplete();
 
         let anotherConfig = {
             body: [{
@@ -917,6 +907,6 @@ describe('REQUEST CACHE', function () {
         let test2 = new RCRETestUtil(anotherConfig);
         test2.setContainer('demo2');
 
-        await waitForDataProviderComplete();
+        await test.waitForDataProviderComplete();
     });
 });

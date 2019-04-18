@@ -23,8 +23,10 @@ describe('Form', () => {
                 ]
             }]
         };
+
         let test = new RCRETestUtil(config);
-        console.log(test.getState());
-        console.log(test.wrapper.debug());
+        let state = test.getFormState('test');
+        expect(state.name).toBe('test');
+        expect(state.valid).toBe(false);
     });
 });

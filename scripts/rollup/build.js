@@ -8,16 +8,21 @@ async function main() {
         let inputOptions = config[key].inputOptions;
         let outputOptions = config[key].outputOptions;
 
-        // create a bundle
-        const bundle = await rollup.rollup(inputOptions);
+        try {
+            // create a bundle
+            const bundle = await rollup.rollup(inputOptions);
 
-        // generate code
-        await bundle.generate(outputOptions);
+            // generate code
+            await bundle.generate(outputOptions);
 
-        await bundle.write(outputOptions);
+            await bundle.write(outputOptions);
+        } catch (err) {
+            throw err;
+        }
     }
 }
 
-main().then(() => {
-    // console.log('build success');
+main().catch(err => {
+    console.error(err);
+    process.exit(1);
 });

@@ -4,6 +4,7 @@
  * @param object
  * @returns {boolean}
  */
+import * as _ from "lodash";
 import {clone, isObject} from 'lodash';
 import {Global} from 'rcre-runtime';
 import {
@@ -14,8 +15,17 @@ import {
     runTimeType,
     TriggerContextType
 } from '../../types';
+import {filter} from './filter';
 import {stringToPath} from './stringToPath';
-import {injectFilterIntoContext} from './vm';
+
+/**
+ * 把RCRE的filter函数变量注入到context中
+ *
+ * @param {Object} context
+ */
+export const injectFilterIntoContext: (context: object) => void = _.memoize((context: Object) => {
+    Object.assign(context, filter.store);
+});
 
 export function isPromise(object: any): boolean {
     if (Promise && Promise.resolve) {

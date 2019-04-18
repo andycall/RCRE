@@ -64,7 +64,7 @@ export class DataProvider {
     };
 
     public providerCache: {
-        [namespace: string]: ProviderSourceConfig;
+        [namespace: string]: any;
     };
     public isUnmount: boolean;
     public dependencies: {
@@ -303,17 +303,35 @@ export class DataProvider {
         // }
 
         // 如果$data中存在字段没有满足要求，则return false
-        if (provider.requiredParams instanceof Array) {
-            let requiredParams = provider.requiredParams;
+        let requiredParams = provider.requiredParams;
+        if (isExpression(requiredParams)) {
+            requiredParams = parseExpressionString(requiredParams, runTime);
+        }
 
+        if (requiredParams instanceof Array) {
             let flag = requiredParams.every(param => {
+                if (isExpression(param)) {
+                    param = parseExpressionString(param, runTime);
+                }
+
+                if (param === null) {
+                    console.warn('DataProvider: 动态requiredParams计算结果为null');
+                    return false;
+                }
+
                 let paramData = get(runTime.$data, param);
 
                 if (this.buildInProvider[param] && paramData) {
                     return !paramData.$loading;
                 }
 
-                if (provider.strictRequired) {
+                let strictRequired = provider.strictRequired;
+
+                if (isExpression(strictRequired)) {
+                    strictRequired = parseExpressionString(strictRequired, runTime);
+                }
+
+                if (strictRequired === true) {
                     return !!get(runTime.$data, param);
                 }
 
@@ -325,8 +343,15 @@ export class DataProvider {
             }
         }
 
-        if (typeof provider.condition === 'boolean' && provider.condition === false) {
-            return false;
+        if (provider.hasOwnProperty('condition')) {
+            let condition = provider.condition;
+            if (isExpression(condition)) {
+                condition = parseExpressionString(condition, runTime);
+            }
+
+            if (condition === false) {
+                return false;
+            }
         }
 
         // 如果provider数据配置和上次相同, 就必须阻止以后的操作.
@@ -342,7 +367,7 @@ export class DataProvider {
         return provider;
     }
 
-    public async execProvider(provider: ProviderSourceConfig, runTime: runTimeType, actions: ProviderActions, model: string) {
+    public async execProvider(config: any, provider: ProviderSourceConfig, runTime: runTimeType, actions: ProviderActions, model: string) {
         let mode = provider.mode;
         let adaptor = DataProvider.getProvider(mode);
 
@@ -353,11 +378,11 @@ export class DataProvider {
         switch (adaptor.type) {
             default:
             case 'sync': {
-                let sync = await this.execSyncAdaptor(provider, adaptor.instance, runTime, actions, model);
+                let sync = await this.execSyncAdaptor(config, provider, adaptor.instance, runTime, actions, model);
                 return sync;
             }
             case 'async': {
-                return await this.execAsyncAdaptor(provider, adaptor.instance, runTime, actions, model);
+                return await this.execAsyncAdaptor(config, provider, adaptor.instance, runTime, actions, model);
             }
             case 'socket': {
                 // await this.execSocketAdaptor(provider, adaptor.instance, runTime, actions, model);
@@ -380,9 +405,9 @@ export class DataProvider {
         return data;
     }
 
-    private async execSyncAdaptor(provider: ProviderSourceConfig, instance: SyncAdaptor, runTime: runTimeType, actions: ProviderActions, model: string) {
+    private async execSyncAdaptor(config: any, provider: ProviderSourceConfig, instance: SyncAdaptor, runTime: runTimeType, actions: ProviderActions, model: string) {
         try {
-            let data = instance.exec(provider, runTime);
+            let data = instance.exec(config, provider, runTime);
             return this.handleAdaptorResult(provider, data, runTime);
         } catch (e) {
             this.handleError(actions, model, e, e.message);
@@ -390,9 +415,9 @@ export class DataProvider {
         }
     }
 
-    private async execAsyncAdaptor(provider: ProviderSourceConfig, instance: AsyncAdaptor, runTime: runTimeType, actions: ProviderActions, model: string) {
+    private async execAsyncAdaptor(config: any, provider: ProviderSourceConfig, instance: AsyncAdaptor, runTime: runTimeType, actions: ProviderActions, model: string) {
         try {
-            let instanceResult = await instance.exec(provider, runTime);
+            let instanceResult = await instance.exec(config, provider, runTime);
 
             if (instanceResult.success && instanceResult.data) {
                 let data = instanceResult.data;
@@ -459,7 +484,6 @@ export class DataProvider {
         console.error('DataProvider exec error: ' + errmsg);
     }
 
-    //
     // private async execSocketAdaptor(provider: ProviderSourceConfig, instance: SocketAdaptor, runTime: runTimeType, actions: ProviderActions, model: string) {
     // }
 
@@ -538,7 +562,7 @@ export class DataProvider {
 
                 context.rcre.dataProviderEvent.addToList(verifyProvider.namespace);
 
-                return this.execProvider(verifyProvider, runTime, actions, model);
+                return this.execProvider(this.providerCache[namespace], verifyProvider, runTime, actions, model);
             });
 
             let resultList = await Promise.all(parallel);

@@ -20,8 +20,8 @@ function getAllCookie() {
 }
 
 export class CookieAdaptor extends SyncAdaptor {
-    exec(provider: CookieConfig, runTime: runTimeType) {
-        let items = provider.config;
+    exec(config: string[], provider: CookieConfig, runTime: runTimeType) {
+        let items = config;
         let ret = {};
         let cookies = getAllCookie();
 

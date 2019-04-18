@@ -1,7 +1,6 @@
 import * as _ from 'lodash';
 import {execExpressString, isExpressionString, reportError} from 'rcre-runtime';
 import {runTimeType} from '../../types';
-import {filter} from './filter';
 import {stringToPath} from './stringToPath';
 import {deleteWith, setWith} from './util';
 
@@ -205,12 +204,3 @@ export function parseExpressionString(str: any, context: runTimeType) {
 
     return execExpressString(str, context);
 }
-
-/**
- * 把RCRE的filter函数变量注入到context中
- *
- * @param {Object} context
- */
-export const injectFilterIntoContext: (context: object) => void = _.memoize((context: Object) => {
-    Object.assign(context, filter.store);
-});

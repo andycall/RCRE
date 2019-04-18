@@ -9,7 +9,7 @@ export interface AsyncAdaptorRetValue {
 export class AsyncAdaptor {
     constructor() {}
 
-    public async exec(provider: ProviderSourceConfig, runTime: runTimeType): Promise<AsyncAdaptorRetValue> {
+    public async exec(config: any, provider: ProviderSourceConfig, runTime: runTimeType): Promise<AsyncAdaptorRetValue> {
         throw new Error('AsyncAdaptor: exec function is not implemented');
     }
 }

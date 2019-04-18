@@ -428,7 +428,7 @@ export interface ProviderSourceConfig {
     /**
      * 使用ExpressionString来决定是否请起数据
      */
-    condition?: string;
+    condition?: string | boolean;
 
     /**
      * Provider命名空间

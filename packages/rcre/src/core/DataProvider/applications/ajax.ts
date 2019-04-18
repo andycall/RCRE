@@ -10,8 +10,7 @@ type AjaxConfig = AxiosRequestConfig & {
 };
 
 export class AjaxAdaptor extends AsyncAdaptor {
-    async exec(provider: ProviderSourceConfig, runTime: runTimeType): Promise<AsyncAdaptorRetValue> {
-        let config: AjaxConfig = provider.config;
+    async exec(config: AjaxConfig, provider: ProviderSourceConfig, runTime: runTimeType): Promise<AsyncAdaptorRetValue> {
         if (!config.url) {
             throw new Error('AjaxAdaptor: url is required param for ajax call');
         }

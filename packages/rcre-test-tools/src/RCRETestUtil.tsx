@@ -78,6 +78,7 @@ export class RCRETestUtil {
      * 根据提供的访问路径，判断state中的组件的值是否正确
      * @param path 对象访问路径
      * @param value 验证的值
+     * @deprecated
      */
     public expectWithPath(path: string, value: any) {
         if (!this.model) {
@@ -96,6 +97,7 @@ export class RCRETestUtil {
     /**
      * 根据一组提供的访问路径，判断state中的组件的值是否正确
      * @param group
+     * @deprecated
      */
     public expectGroupWithPath(group: any[][]) {
         if (!this.store) {
@@ -125,7 +127,7 @@ export class RCRETestUtil {
      */
     public componentToJSON(component: ReactWrapper) {
         let instance: any = component.instance();
-        return instance.TEST_INFO;
+        return instance.props;
     }
 
     /**
@@ -135,13 +137,13 @@ export class RCRETestUtil {
      */
     public async triggerFormSubmit(component: ReactWrapper, preventSubmit: boolean = false) {
         let instance: any = component.instance();
-        let info = instance.props.info;
+        let props = instance.props;
 
-        if (info.type !== 'form') {
+        if (props.type !== 'form') {
             throw new Error('component should be form');
         }
 
-        return await instance.triggerSubmit(preventSubmit);
+        return await instance.handleSubmit(preventSubmit);
     }
 
     /**
@@ -249,11 +251,11 @@ export class RCRETestUtil {
     public getComponentFormStatus(component: ReactWrapper) {
         let props: any = component.instance().props;
 
-        if (!props.$form) {
+        if (!props.formContext) {
             return null;
         }
 
-        return props.$form;
+        return props.formContext.$form;
     }
 
     /**
@@ -378,7 +380,7 @@ export class RCRETestUtil {
      */
     public getComponentInfo(component: ReactWrapper) {
         let instance: any = component.instance();
-        return instance.props.info;
+        return instance.props;
     }
 
     /**
