@@ -1,5 +1,6 @@
-import {each, isEqual, isObjectLike, clone, has, isNil} from 'lodash';
+import {each, isEqual, isObjectLike, clone, has, isNil, get} from 'lodash';
 import {RootState} from '../../data/reducers';
+import {polyfill} from 'react-lifecycles-compat';
 import {
     BasicProps,
     ContainerSetDataOption,
@@ -58,7 +59,7 @@ export interface ConnectTools<Props> extends BasicProps {
     /**
      * 开启debounce模式，connect组件缓存的cache
      */
-    debounceCache: {[key: string]: any};
+    debounceCache: { [key: string]: any };
     /**
      * 是否正处于debounce状态
      */
@@ -131,7 +132,7 @@ export interface CommonOptions {
     /**
      * 满足一定条件就清空组件的值
      */
-    autoClearCondition?: (props: any) => boolean;
+    autoClearCondition?: (value: any, props: any) => boolean;
 
     /**
      * 如果一个组件持有多个name，则需要实现这个函数来给Connect组件提供所有可能出现的name值
@@ -206,6 +207,11 @@ export interface BasicConnectProps {
     debounce?: number;
 
     /**
+     * 组件禁用, 组件的验证规则也会自动跳过
+     */
+    disabled?: boolean;
+
+    /**
      * 如果组件配置了autoClearCondition, 可以使用这个属性来关闭它
      */
     disabledAutoClear?: boolean;
@@ -213,14 +219,14 @@ export interface BasicConnectProps {
     trigger?: TriggerEventItem[];
 }
 
-export abstract class BasicConnect extends React.Component<BasicConnectProps & BasicProps, {}> {
+class BasicConnect extends React.Component<BasicConnectProps & BasicProps, {}> {
     public $propertyWatch: string[];
     public options: CommonOptions;
-    protected debounceCache: { [key: string]: any };
-    protected debounceTimer: any;
-    protected isDebouncing: boolean;
+    public debounceCache: { [key: string]: any };
+    public debounceTimer: any;
+    public isDebouncing: boolean;
     public nameBindEvents: any = null;
-    protected constructor(props: BasicConnectProps & BasicProps, options: CommonOptions) {
+    public constructor(props: BasicConnectProps & BasicProps, options: CommonOptions) {
         super(props);
 
         this.$propertyWatch = [];
@@ -237,13 +243,13 @@ export abstract class BasicConnect extends React.Component<BasicConnectProps & B
             name = parseExpressionString(name, runTime);
         }
 
+        let state: RootState = props.rcreContext.store.getState();
         // 设置默认值的逻辑
         if ((props.hasOwnProperty('defaultValue') &&
             props.defaultValue !== null &&
             props.defaultValue !== undefined) &&
             name) {
             let defaultValue = props.defaultValue;
-            let state: RootState = props.rcreContext.store.getState();
             runTime.$data = state.$rcre.container[props.containerContext.model];
             if (isExpression(defaultValue)) {
                 defaultValue = parseExpressionString(defaultValue, runTime);
@@ -259,17 +265,12 @@ export abstract class BasicConnect extends React.Component<BasicConnectProps & B
         }
 
         if (name) {
-            let existValue = props.containerContext.$getData(name);
-
+            let existValue = get(state.$rcre.container[props.containerContext.model], name);
             if (!isNil(existValue) && props.debounce) {
                 this.debounceCache[name] = existValue;
             }
-
-            this.registerComponentNames(name);
         }
     }
-
-    componentDidCatch(error: Error, errInfo: any) {}
 
     componentWillUnmount() {
         if (this.props.name) {
@@ -283,13 +284,21 @@ export abstract class BasicConnect extends React.Component<BasicConnectProps & B
         }
     }
 
-    private registerComponentNames = (name: string) => {
-        if (!this.props.formItemContext) {
-            return;
-        }
-
-        this.props.formItemContext.$addNameSet(name);
-    }
+    // private registerComponentNames = (name: string, disabled: boolean) => {
+    //     if (!this.props.formItemContext) {
+    //         return;
+    //     }
+    //
+    //     this.props.formItemContext.$updateDisabledStatus(name, disabled);
+    // }
+    //
+    // private deleteComponentNames = (name: string) => {
+    //     if (!this.props.formItemContext) {
+    //         return;
+    //     }
+    //
+    //     this.props.formItemContext.$deleteDisabledStatus(name);
+    // }
 
     /**
      * 执行一些属性的转换
@@ -303,7 +312,7 @@ export abstract class BasicConnect extends React.Component<BasicConnectProps & B
         });
     }
 
-    protected updateNameValue = (value: any, options: ContainerSetDataOption = {}) => {
+    public updateNameValue = (value: any, options: ContainerSetDataOption = {}) => {
         let name = this.props.name || options.name;
 
         if (name) {
@@ -328,14 +337,14 @@ export abstract class BasicConnect extends React.Component<BasicConnectProps & B
         }
     }
 
-    protected clearNameValue = (name?: string) => {
+    public clearNameValue = (name?: string) => {
         name = name || this.props.name;
         if (name) {
             this.props.containerContext.$deleteData(name);
         }
     }
 
-    protected getFormItemControl = (name: string) => {
+    public getFormItemControl = (name: string) => {
         if (!this.props.formContext) {
             console.warn(name + '组件没有在form组件内部');
             return null;
@@ -344,25 +353,114 @@ export abstract class BasicConnect extends React.Component<BasicConnectProps & B
         return this.props.formContext.$getFormItem(name);
     }
 
+    // private shouldValidateFormItem() {
+    //     // let nextRunTime = getRuntimeContext(this.props.containerContext, this.props.rcreContext, {
+    //     //     iteratorContext: this.props.iteratorContext,
+    //     //     formContext: this.props.formContext
+    //     // });
+    //     // let prevRunTime = getRuntimeContext(prevProps.containerContext, prevProps.rcreContext, {
+    //     //     iteratorContext: prevProps.iteratorContext,
+    //     //     formContext: prevProps.formContext
+    //     // });
+    //     //
+    //     // let isFilterRuleChange = false;
+    //     // if (this.props.filterRule && prevProps.filterRule) {
+    //     //     let oldFilterRule = this.validFilterRule(prevProps.filterRule, null, prevRunTime, prevProps.filterErrMsg);
+    //     //     let nextFilterRule = this.validFilterRule(this.props.filterRule, null, nextRunTime, this.props.filterErrMsg);
+    //     //     isFilterRuleChange = oldFilterRule.isValid !== nextFilterRule.isValid;
+    //     // }
+    //     //
+    //     // let nextValue = this.props.containerContext.$getData(this.nextName);
+    //     // let prevValue = prevProps.containerContext.$getData(this.prevName);
+    //     // let isNameSame = this.prevName === this.nextName;
+    //     // let nextRules = compileExpressionString(this.props.rules, nextRunTime, [], true);
+    //     // let prevRules = compileExpressionString(prevProps.rules, prevRunTime, [], true);
+    //     // let prevRequired = this.props.required;
+    //     // let nextRequired = prevProps.required;
+    //     // let isNameExist = true;
+    //     // let isSameDisabled = this.prevDisabled === this.nextDisabled;
+    //     // let isSameRequired = prevRequired === nextRequired;
+    //     //
+    //     // if (this.nextDisabled &&
+    //     //     this.props.formContext &&
+    //     //     !this.props.formContext.$getFormItem(this.nextName).valid
+    //     // ) {
+    //     //     this.props.formContext.$setFormItem({
+    //     //         formItemName: this.nextName,
+    //     //         valid: true,
+    //     //         status: 'success',
+    //     //         errorMsg: '',
+    //     //         rules: this.props.rules
+    //     //     });
+    //     //     return;
+    //     // }
+    //     //
+    //     // // 如果FormItem在数据模型中不存在也要验证
+    //     // if (isNameSame && this.props.formContext) {
+    //     //     isNameExist = !!this.props.formContext.$getFormItem(this.nextName);
+    //     // }
+    //     //
+    //     // let shouldValidate =
+    //     //     // 值不相同，重新验证
+    //     //     !isEqual(nextValue, prevValue) ||
+    //     //     // 规则不相同，重新验证
+    //     //     !isEqual(nextRules, prevRules) ||
+    //     //     // name不相同，重新验证
+    //     //     !isNameSame ||
+    //     //     // name不存在，触发验证
+    //     //     !isNameExist ||
+    //     //     // disabled不相同，重新验证
+    //     //     !isSameDisabled ||
+    //     //     // required不相同，重新验证
+    //     //     !isSameRequired ||
+    //     //     // filterRule计算结果不同，重新验证
+    //     //     isFilterRuleChange;
+    //     //
+    //     // if (shouldValidate) {
+    //     //     this.validateFormItem(this.nextName, nextValue);
+    //     // }
+    //     //
+    //     // // formItem在数据模型中已存在
+    //     // if (this.props.formContext && this.props.formContext.$getFormItem(this.nextName)) {
+    //     //     let itemInfo = this.props.formContext.$getFormItem(this.nextName);
+    //     //     // 是否强制验证，由triggerSubmit触发
+    //     //     let forceValidate = itemInfo.$validate;
+    //     //     if (forceValidate) {
+    //     //         this.validateFormItem(this.nextName, nextValue);
+    //     //         this.props.formContext.$setFormItem({
+    //     //             formItemName: this.nextName,
+    //     //             $validate: false,
+    //     //         });
+    //     //     }
+    //     // }
+    //     //
+    //     // recycleRunTime(prevRunTime);
+    //     // recycleRunTime(nextRunTime);
+    //     //
+    //     // this.prevName = this.nextName;
+    //     // this.nextName = '';
+    //     // this.prevDisabled = this.nextDisabled;
+    //     // this.nextDisabled = false;
+    // }
+
     public componentWillUpdate(nextProps: BasicConnectProps & BasicProps) {
         let nameKey = this.options.nameKey || 'value';
-        // let prevInfo = this.prepareRender(this.options, this.props);
-        // let nextInfo = this.prepareRender(this.options, nextProps);
 
-        if (nextProps.name && this.props.name && nextProps.debounce) {
-            let prevValue = this.props.containerContext.$getData(this.props.name) || this.props[nameKey];
+        if (this.props.name && nextProps.name) {
             let nextValue = nextProps.containerContext.$getData(nextProps.name) || nextProps[nameKey];
+            let prevValue = this.props.containerContext.$getData(this.props.name) || this.props[nameKey];
 
-            if (!isEqual(prevValue, nextValue)) {
-                this.debounceCache[nextProps.name] = nextValue;
+            if (!isEqual(prevValue, nextValue) && this.props.debounce) {
+                this.debounceCache[this.props.name] = nextValue;
             }
         }
 
-        if (typeof this.options.autoClearCondition === 'function' && !nextProps.disabledAutoClear && nextProps.name) {
-            let clear = this.options.autoClearCondition(nextProps);
+        if (typeof this.options.autoClearCondition === 'function' && !this.props.disabledAutoClear && nextProps.name) {
+            let value = nextProps.containerContext.$getData(nextProps.name) || nextProps[nameKey];
+            let clear = this.options.autoClearCondition(value, nextProps);
 
             if (clear) {
-                this.clearNameValue(nextProps.name);
+                this.clearNameValue(this.props.name);
             }
         }
     }
@@ -471,7 +569,8 @@ export abstract class BasicConnect extends React.Component<BasicConnectProps & B
             env: props,
             debounceCache: this.debounceCache,
             updateNameValue: this.updateNameValue,
-            registerEvent: this.props.triggerContext ? this.props.triggerContext.eventHandle : () => {},
+            registerEvent: this.props.triggerContext ? this.props.triggerContext.eventHandle : () => {
+            },
             clearNameValue: this.clearNameValue,
             getNameValue: this.props.containerContext.$getData
         };
@@ -526,3 +625,9 @@ export abstract class BasicConnect extends React.Component<BasicConnectProps & B
         return this.options.isNameValid(value, this.props);
     }
 }
+
+polyfill(BasicConnect);
+
+export {
+    BasicConnect
+};

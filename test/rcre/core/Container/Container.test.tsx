@@ -173,50 +173,6 @@ describe('Container Component', () => {
         test.unmount();
     });
 
-    it('[$parent]: inner container can access parent container\'s property with $parent', () => {
-        let info = {
-            body: [
-                {
-                    'type': 'container',
-                    'model': 'outer',
-                    'data': {
-                        'name': 'outer'
-                    },
-                    'children': [{
-                        'type': 'container',
-                        'model': 'inner',
-                        'data': {
-                            'name': 'inner'
-                        },
-                        'children': [{
-                            'type': 'text',
-                            'className': 'inner',
-                            'text': '#ES{$data.name}'
-                        }, {
-                            'type': 'text',
-                            'className': 'outer',
-                            'text': '#ES{$parent.name}'
-                        }]
-                    }]
-                }
-            ]
-        };
-
-        let test = new RCRETestUtil(info);
-        const innerElement = test.wrapper.find('.inner').at(0);
-        const outerElement = test.wrapper.find('.outer').at(0);
-
-        let state = test.getState();
-        let container = state.container;
-        expect(container['inner'].name).toBe('inner');
-        expect(container['outer'].name).toBe('outer');
-
-        expect(innerElement.html()).toBe('<span class="rcre-text inner">inner</span>');
-        expect(outerElement.html()).toBe('<span class="rcre-text outer">outer</span>');
-
-        test.unmount();
-    });
-
     it('[bind]: basic usage for bind property', () => {
         const info = {
             body: [
@@ -376,88 +332,6 @@ describe('Container Component', () => {
         expect(container['bindContainer'].username).toBe('mike');
         expect(container['bindContainer'].password).toBe('1234');
         expect(container['childBindContainer'].password).toBe('1234');
-    });
-
-    it('[$parent + $export] sync container in 3th nest container', async () => {
-        const info: any = {
-            body: [
-                {
-                    type: 'container',
-                    model: 'root',
-                    data: {
-                        age: 10,
-                        hidden: false
-                    },
-                    children: [
-                        {
-                            type: 'input',
-                            name: 'age'
-                        },
-                        {
-                            type: 'row',
-                            hidden: '#ES{$data.hidden}',
-                            children: [{
-                                type: 'container',
-                                model: 'textContainer',
-                                children: [{
-                                    type: 'text',
-                                    className: 'textContainer',
-                                    text: '#ES{$parent.age}'
-                                }]
-                            }]
-                        },
-                        {
-                            type: 'container',
-                            model: 'otherContainer',
-                            export: {
-                                age: '#ES{$data.innerAge}'
-                            },
-                            children: [{
-                                type: 'button',
-                                text: 'button container',
-                                trigger: [{
-                                    event: 'onClick',
-                                    targetCustomer: '$this',
-                                    params: {
-                                        innerAge: 'button'
-                                    }
-                                }]
-                            }]
-                        }
-                    ]
-                }
-            ]
-        };
-        let test = new RCRETestUtil(info);
-        let wrapper = test.wrapper;
-
-        let inputs = wrapper.find('RCREConnect(input)');
-        let firstInput: any = inputs.at(0).instance();
-
-        firstInput.TEST_setData('23');
-
-        let state = test.getState();
-        let container = state.container;
-        expect(container['root'].age).toBe('23');
-        let textElement = wrapper.find('.textContainer').at(0);
-        expect(textElement.html()).toBe('<span class="rcre-text textContainer">23</span>');
-
-        firstInput.TEST_setData('2');
-        state = test.getState();
-        container = state.container;
-        expect(container['root'].age).toBe('2');
-        textElement = wrapper.find('.textContainer').at(0);
-        expect(textElement.html()).toBe('<span class="rcre-text textContainer">2</span>');
-
-        let button: any = wrapper.find('RCREConnect(button)').at(0).instance();
-
-        await button.TEST_simulateEvent('onClick', {});
-        state = test.getState();
-
-        expect(state.container.otherContainer.innerAge).toBe('button');
-        expect(state.container.root.age).toBe('button');
-
-        test.unmount();
     });
 
     it('[bind] setMultiData with bind', () => {
@@ -677,6 +551,75 @@ describe('Container Component', () => {
         test.unmount();
     });
 
+    it('[bind]: bind can export child from parent and sync parent into child', () => {
+        let info = {
+            body: [{
+                type: 'container',
+                model: 'demo',
+                data: {
+                    username: 'helloworld'
+                },
+                children: [
+                    {
+                        type: 'input',
+                        name: 'username'
+                    },
+                    {
+                        type: 'container',
+                        model: 'child-A',
+                        bind: [{
+                            parent: 'username',
+                            child: 'uname'
+                        }],
+                        children: [{
+                            type: 'input',
+                            name: 'uname'
+                        }]
+                    },
+                    {
+                        type: 'container',
+                        model: 'child-B',
+                        bind: [{
+                            parent: 'username',
+                            child: 'name'
+                        }],
+                        children: [{
+                            type: 'input',
+                            name: 'name'
+                        }]
+                    }
+                ]
+            }]
+        };
+
+        let test = new RCRETestUtil(info);
+        test.setContainer('demo');
+
+        let state = test.getState();
+
+        expect(state.container.demo.username).toBe('helloworld');
+        expect(state.container['child-A'].uname).toBe('helloworld');
+        expect(state.container['child-B'].name).toBe('helloworld');
+
+        let username = test.getComponentByName('username');
+
+        test.setData(username, 'abc');
+
+        state = test.getState();
+        expect(state.container.demo.username).toBe('abc');
+        expect(state.container['child-A'].uname).toBe('abc');
+        expect(state.container['child-B'].name).toBe('abc');
+
+        test.setContainer('child-A');
+        let uname = test.getComponentByName('uname');
+        test.setData(uname, '666');
+
+        state = test.getState();
+        expect(state.container.demo.username).toBe('666');
+        expect(state.container['child-A'].uname).toBe('666');
+        expect(state.container['child-B'].name).toBe('666');
+    });
+
     it('[bind]: deleteData with bind', async () => {
         let info: any = {
             body: [
@@ -694,6 +637,10 @@ describe('Container Component', () => {
                                 {
                                     child: 'username',
                                     parent: 'username'
+                                },
+                                {
+                                    child: 'userNameShow',
+                                    parent: 'userNameShow'
                                 }
                             ],
                             children: [
@@ -704,7 +651,7 @@ describe('Container Component', () => {
                                         {
                                             type: 'formItem',
                                             label: 'username',
-                                            show: '#ES{$parent.userNameShow}',
+                                            show: '#ES{$data.userNameShow}',
                                             control: {
                                                 type: 'input',
                                                 name: 'username'
@@ -790,7 +737,8 @@ describe('Container Component', () => {
                                 }
                             ],
                             props: {
-                                username: '#ES{$parent.username}'
+                                username: '#ES{$parent.username}',
+                                userNameShow: ({$parent}: any) => $parent.userNameShow
                             },
                             children: [
                                 {
@@ -800,7 +748,7 @@ describe('Container Component', () => {
                                         {
                                             type: 'formItem',
                                             label: 'username',
-                                            show: '#ES{$parent.userNameShow}',
+                                            show: '#ES{$data.userNameShow}',
                                             control: {
                                                 type: 'input',
                                                 name: 'username'

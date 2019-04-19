@@ -27,9 +27,11 @@
         "rcre-runtime": "^0.1.3",
         "react": ">=16",
         "react-dom": ">=16",
+        "react-lifecycles-compat": "^3.0.4",
         "react-memo-polyfill": "^0.0.2",
         "react-redux": "^5.0.7",
-        "redux": "^3.7.2"
+        "redux": "^3.7.2",
+        "warning": "^4.0.3"
     },
     "devDependencies": {
         "chalk": "^2.4.1"

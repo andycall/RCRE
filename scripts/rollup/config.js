@@ -12,6 +12,8 @@ const external = [
     'events',
     'react-redux',
     'bowser',
+    'react-memo-polyfill',
+    'react-lifecycles-compat',
     'axios',
     'qs',
     'enzyme',

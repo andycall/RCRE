@@ -1,7 +1,6 @@
 import {
     addEventListener,
     removeEventListener,
-    clearStore,
     ListenerFnItem,
     removeAllEventListener,
     removeAllEventListenerByEventName
@@ -13,7 +12,6 @@ import axios from 'axios';
 describe('Event', () => {
     beforeEach(() => {
         removeAllEventListener();
-        clearStore();
         moxios.install(axios);
     });
 

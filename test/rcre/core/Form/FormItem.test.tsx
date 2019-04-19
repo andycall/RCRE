@@ -1,6 +1,6 @@
 import React from 'react';
 import {mount} from 'enzyme';
-import {clearStore, filter, JSONRender, FuncCustomerArgs, waitForDataProviderComplete} from 'rcre';
+import {clearStore, filter, JSONRender, FuncCustomerArgs} from 'rcre';
 import {RCRETestUtil} from 'rcre-test-tools';
 import moxios from 'moxios';
 import axios from 'axios';
@@ -9,7 +9,6 @@ import {CoreKind} from '../../../../packages/rcre/src/types';
 describe('FormItem', () => {
     beforeEach(() => {
         moxios.install(axios);
-        clearStore();
     });
 
     afterEach(() => {
@@ -1431,14 +1430,14 @@ describe('FormItem', () => {
         let test = new RCRETestUtil(config);
         test.setContainer('demo');
 
-        await waitForDataProviderComplete();
+        await test.waitForDataProviderComplete();
 
         let A = test.getComponentByName('A');
         test.setData(A, 'test');
         let B = test.getComponentByName('B');
         test.setData(B, 'BBB');
 
-        await waitForDataProviderComplete();
+        await test.waitForDataProviderComplete();
 
         let button = test.getComponentByType('button');
         await test.simulate(button, 'onClick');
@@ -1446,9 +1445,44 @@ describe('FormItem', () => {
         let C = test.getComponentByName('C');
         test.setData(C, 'CCC');
 
-        await waitForDataProviderComplete();
+        await test.waitForDataProviderComplete();
 
         let state = test.getContainerState();
         expect(state.C).toBe('CCC');
+    });
+
+    it('FormItem control multi elements', () => {
+        let config = {
+            body: [{
+                type: 'container',
+                model: 'demo',
+                children: [{
+                    type: 'form',
+                    name: 'demo',
+                    children: [
+                        {
+                            type: 'formItem',
+                            required: true,
+                            control: [
+                                {
+                                    type: 'input',
+                                    name: 'username'
+                                },
+                                {
+                                    type: 'input',
+                                    name: 'password'
+                                }
+                            ]
+                        }
+                    ]
+                }]
+            }]
+        };
+
+        let test = new RCRETestUtil(config);
+        console.log(test.wrapper.debug());
+        test.setContainer('demo');
+        let input = test.getComponentByName('username');
+        test.setData(input, 'helloworld');
     });
 });

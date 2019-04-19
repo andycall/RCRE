@@ -7,6 +7,7 @@ describe('parseExpressString', () => {
 
     beforeEach(() => {
         runTime = getRuntimeContext({
+            // @ts-ignore
             info: {
                 type: 'null'
             }
@@ -70,6 +71,7 @@ describe('parseExpressString', () => {
 
     it('#ES{$data}', () => {
         runTime = getRuntimeContext({
+            // @ts-ignore
             info: {
                 type: 'null'
             },
@@ -84,6 +86,7 @@ describe('parseExpressString', () => {
 
     it('#ES{$data["name"]}', () => {
         runTime = getRuntimeContext({
+            // @ts-ignore
             info: {
                 type: 'null'
             },
@@ -98,6 +101,7 @@ describe('parseExpressString', () => {
 
     it('#ES{$data["name"]}', () => {
         runTime = getRuntimeContext({
+            // @ts-ignore
             info: {
                 type: 'null'
             },
@@ -112,6 +116,7 @@ describe('parseExpressString', () => {
 
     it('#ES{{arr: [{name: 1}, {name: 2}]}["arr"]}', () => {
         runTime = getRuntimeContext({
+            // @ts-ignore
             info: {
                 type: 'null'
             },
@@ -133,6 +138,7 @@ describe('parseExpressString', () => {
 
     it('#ES{{arr: [{name: 1}, {name: 2}]}["arr"].length}', () => {
         runTime = getRuntimeContext({
+            // @ts-ignore
             info: {
                 type: 'null'
             },
@@ -161,6 +167,7 @@ describe('parseExpressString', () => {
 
     it('#ES{$data[0]["name"][1]["age"]}', () => {
         runTime = getRuntimeContext({
+            // @ts-ignore
             info: {
                 type: 'null'
             },

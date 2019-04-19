@@ -10,10 +10,8 @@ import {ContainerContext, RCREContext, IteratorContext, FormContext, TriggerCont
 export function createChild<Config extends BasicConfig, T extends BasicConfig, P extends BasicContainerPropsInterface>
 (info: T, childProps: any): React.ReactNode {
     if (typeof info === 'string') {
-        return <span>{info}</span>;
+        return <span key={childProps.key}>{info}</span>;
     }
-
-    // TODO: do the compile
 
     return (
         <RCREContext.Consumer key={childProps.key}>
@@ -58,13 +56,18 @@ export function createChild<Config extends BasicConfig, T extends BasicConfig, P
 
                                 let compileOptions = {
                                     isDeep: false,
-                                    blackList: [],
+                                    blackList: [
+                                        'defaultValue'
+                                    ],
                                     whiteList: []
                                 };
 
                                 // 组件提供静态方法来自定义属性的编译选项
                                 if ('getComponentParseOptions' in component && typeof component.getComponentParseOptions === 'function') {
-                                    compileOptions = component.getComponentParseOptions();
+                                    let customOptions = component.getComponentParseOptions();
+                                    compileOptions.blackList = compileOptions.blackList.concat(customOptions.blackList);
+                                    compileOptions.whiteList = compileOptions.whiteList.concat(customOptions.whiteList || []);
+                                    compileOptions.isDeep = customOptions.isDeep;
                                 }
 
                                 let parsedInfo = compileExpressionString(info, runTime, compileOptions.blackList, compileOptions.isDeep, compileOptions.whiteList);
@@ -143,7 +146,7 @@ export function createChild<Config extends BasicConfig, T extends BasicConfig, P
                                 }
 
                                 return (
-                                    <ErrorBoundary>
+                                    <ErrorBoundary key={childProps.key}>
                                         {children}
                                     </ErrorBoundary>
                                 );

@@ -4,7 +4,6 @@ import {
     BasicProps,
     FormContextType,
     FormItemContextType,
-    FormItemState,
     RunTimeType
 } from '../../types';
 import {FormItemContext, ContainerContext} from '../context';
@@ -23,9 +22,6 @@ export interface FormItemProps extends BasicProps {
      * 使用接口进行自动验证
      */
     apiRule?: ApiRule;
-    /**
-     * @deprecated
-     */
     filterRule?: any;
     isTextFormItem?: boolean;
     filterErrMsg?: any;
@@ -42,7 +38,12 @@ export class RCREFormItem extends React.Component<FormItemProps, {}> {
     // private infoBlackList: string[];
     private isApiValidate: boolean;
     private isUnMounted?: boolean;
-    private nameSet: Set<{ name: string, disabled: boolean }>;
+
+    static getComponentParseOptions() {
+        return {
+            blackList: ['filterRule', 'filterErrMsg']
+        };
+    }
 
     constructor(props: FormItemProps) {
         super(props);
@@ -50,171 +51,63 @@ export class RCREFormItem extends React.Component<FormItemProps, {}> {
         // this.infoBlackList = ['filterRule', 'filterErrMsg'];
         this.isApiValidate = false;
         this.isUnMounted = false;
-        this.nameSet = new Set();
-    }
-
-    // private getFormItemInfo(props: FormItemProps) {
-    //     // let info = this.getPropsInfo(props.info, props, this.infoBlackList);
-    //     // let runTime = this.getRuntimeContext(props);
-    //     // info.control = compileExpressionString(info.control, runTime, [], false, ['name']);
-    //     // recycleRunTime(runTime);
-    //     // return info;
-    // }
-
-    private addNameSet = (name: string, disabled: boolean = false) => {
-        this.nameSet.add({
-            name: name,
-            disabled: disabled
-        });
     }
 
     private initFormItem = () => {
-        for (let item of this.nameSet) {
-            if (item.disabled) {
-                return;
-            }
+        let valid = true;
+        let required = this.props.required;
 
-            let valid = true;
-            let required = this.props.required;
-
-            if (this.props.rules && !this.props.required) {
-                required = this.props.rules.some(rule => !!rule.required);
-            }
-
-            if ('required' in this.props) {
-                valid = !this.props.required;
-            }
-
-            if (this.props.isTextFormItem) {
-                valid = true;
-            }
-
-            let formValue = this.props.containerContext.$getData(item.name);
-
-            let formDataEmpty = false;
-            if (typeof formValue === 'object') {
-                formDataEmpty = isEmpty(formValue);
-            } else {
-                formDataEmpty = isNil(formValue);
-            }
-
-            if (!formDataEmpty || isExpression(this.props.filterRule)) {
-                this.validateFormItem(name, formValue);
-            } else {
-                this.props.formContext.$setFormItem({
-                    formItemName: item.name,
-                    rules: this.props.rules,
-                    status: 'success',
-                    errorMsg: '',
-                    required: required,
-                    valid: valid
-                });
-            }
+        if (this.props.rules && !this.props.required) {
+            required = this.props.rules.some(rule => !!rule.required);
         }
-    }
 
-    componentWillUnmount() {
-        // TODO unmount
+        if ('required' in this.props) {
+            valid = !this.props.required;
+        }
+
+        if (this.props.isTextFormItem) {
+            valid = true;
+        }
+        // let name = this.nextName;
+        // let disabled = this.nextDisabled;
+
+        // if (disabled) {
+        //     this.props.formContext.$setFormItem({
+        //         formItemName: name,
+        //         rules: this.props.rules,
+        //         status: 'success',
+        //         errorMsg: '',
+        //         required: required,
+        //         valid: valid
+        //     });
+        //     return;
+        // }
+
+        let formValue = this.props.containerContext.$getData(name);
+
+        let formDataEmpty = false;
+        if (typeof formValue === 'object') {
+            formDataEmpty = isEmpty(formValue);
+        } else {
+            formDataEmpty = isNil(formValue);
+        }
+
+        if (!formDataEmpty || isExpression(this.props.filterRule)) {
+            this.validateFormItem(name, formValue);
+        } else {
+            this.props.formContext.$setFormItem({
+                formItemName: name,
+                rules: this.props.rules,
+                status: 'success',
+                errorMsg: '',
+                required: required,
+                valid: valid
+            });
+        }
     }
 
     componentDidMount() {
         this.initFormItem();
-    }
-
-    componentWillReceiveProps(nextProps: FormItemProps) {
-        // let prevInfo = this.getFormItemInfo(this.props);
-        // let nextInfo = this.getFormItemInfo(nextProps);
-        // let prevFormItemList = this.collectCompiledComponentNameFromChild(prevInfo.control);
-        // let nextFormItemList = this.collectCompiledComponentNameFromChild(nextInfo.control, nextProps);
-        // let prevNameList = prevFormItemList.nameList;
-        // let nextNameList = nextFormItemList.nameList;
-        // let isNameSame = isEqual(prevNameList, nextNameList);
-        // let prevDisabledMap = prevFormItemList.disabledMap;
-        // let nextDisabledMap = nextFormItemList.disabledMap;
-        // let nextRunTime = this.getRuntimeContext(nextProps);
-        // let prevRunTime = this.getRuntimeContext();
-        //
-        // let isFilterRuleChange = false;
-        // if (prevInfo.filterRule && nextInfo.filterRule) {
-        //     let oldFilterRule = this.validFilterRule(prevInfo.filterRule, null, prevRunTime, prevInfo.filterErrMsg);
-        //     let nextFilterRule = this.validFilterRule(nextInfo.filterRule, null, nextRunTime, nextInfo.filterErrMsg);
-        //     isFilterRuleChange = oldFilterRule.isValid !== nextFilterRule.isValid;
-        // }
-        //
-        // if (nextProps.$data && nextNameList.length > 0) {
-        //     nextNameList.forEach(name => {
-        //         let nextValue = this.getValueFromDataStore(name, nextProps, nextInfo);
-        //         let prevValue = this.getValueFromDataStore(name, this.props, prevInfo);
-        //         let nextRules = compileExpressionString(nextInfo.rules, nextRunTime, [], true);
-        //         let prevRules = compileExpressionString(prevInfo.rules, prevRunTime, [], true);
-        //         let prevRequired = prevInfo.required;
-        //         let nextRequired = nextInfo.required;
-        //         let isNameExist = true;
-        //         let isSameDisabled =
-        //             typeof prevDisabledMap[name] !== 'boolean'
-        //             ||
-        //             typeof nextDisabledMap[name] !== 'boolean'
-        //             ||
-        //             prevDisabledMap[name] === nextDisabledMap[name];
-        //         let isSameRequired = prevRequired === nextRequired;
-        //
-        //         if (nextDisabledMap[name] === true &&
-        //             nextProps.$form &&
-        //             nextProps.$form.control[name] &&
-        //             !nextProps.$form.control[name].valid
-        //         ) {
-        //             this.props.formItemFunctions.$setFormItem({
-        //                 formItemName: name,
-        //                 valid: true,
-        //                 status: 'success',
-        //                 errorMsg: ''
-        //             });
-        //             return;
-        //         }
-        //
-        //         // 如果FormItem在数据模型中不存在也要验证
-        //         if (isNameSame && nextProps.$form && nextProps.$form.control) {
-        //             isNameExist = !!nextProps.$form.control[name];
-        //         }
-        //
-        //         let shouldValidate =
-        //             // 值不相同，重新验证
-        //             !isEqual(nextValue, prevValue) ||
-        //             // 规则不相同，重新验证
-        //             !isEqual(nextRules, prevRules) ||
-        //             // name不相同，重新验证
-        //             !isNameSame ||
-        //             // name不存在，触发验证
-        //             !isNameExist ||
-        //             // disabled不相同，重新验证
-        //             !isSameDisabled ||
-        //             // required不相同，重新验证
-        //             !isSameRequired ||
-        //             // filterRule计算结果不同，重新验证
-        //             isFilterRuleChange;
-        //
-        //         if (shouldValidate && (this.isReady(nextProps) || this.isReady())) {
-        //             this.validateFormItem(nextInfo, name, nextValue, nextRunTime);
-        //         }
-        //
-        //         // formItem在数据模型中已存在
-        //         if (nextProps.$form && nextProps.$form.control && nextProps.$form.control[name]) {
-        //             let itemInfo = nextProps.$form.control[name];
-        //             // 是否强制验证，由triggerSubmit触发
-        //             let forceValidate = itemInfo.$validate;
-        //             if (forceValidate) {
-        //                 this.validateFormItem(nextInfo, name, nextValue, nextRunTime);
-        //                 this.props.formItemFunctions.$setFormItem({
-        //                     formItemName: name,
-        //                     $validate: false
-        //                 });
-        //             }
-        //         }
-        //     });
-        // }
-        //
-        // recycleRunTime(prevRunTime);
-        // recycleRunTime(nextRunTime);
     }
 
     private apiRuleExport = async (exportConf: string | object, runTime: RunTimeType) => {
@@ -534,34 +427,28 @@ export class RCREFormItem extends React.Component<FormItemProps, {}> {
         this.props.containerContext.$deleteData(name);
     }
 
-    private getFormItemControl = (formItemName: string): FormItemState => {
-        return this.props.formContext.$getFormItem(formItemName);
-    }
+    // private getFormItemControl = (formItemName: string): FormItemState => {
+    //     return this.props.formContext.$getFormItem(formItemName);
+    // }
 
     private handleBlur = () => {
-        // 针对某些含有多个name属性的组件，可以考虑在组件初始化的时候，往formItem组件注册多个name值
-        for (let item of this.nameSet) {
-            if (!item.disabled) {
-                let value = this.props.containerContext.$getData(item.name);
-                this.validateFormItem(item.name, value);
-            }
-        }
+        // // 针对某些含有多个name属性的组件，可以考虑在组件初始化的时候，往formItem组件注册多个name值
+        // if (!this.nextDisabled) {
+        //     let value = this.props.containerContext.$getData(this.nextName);
+        //     this.validateFormItem(this.nextName, value);
+        // }
 
         this.forceUpdate();
     }
 
     private getFormItemValidInfo = (): { valid: boolean, errmsg: string } => {
-        let nameList = this.nameSet;
-
-        for (let item of nameList) {
-            let controlInfo = this.getFormItemControl(item.name);
-            if (!controlInfo.valid) {
-                return {
-                    valid: false,
-                    errmsg: controlInfo.errorMsg || ''
-                };
-            }
-        }
+        // let controlInfo = this.getFormItemControl(this.nextName);
+        // if (!controlInfo.valid) {
+        //     return {
+        //         valid: false,
+        //         errmsg: controlInfo.errorMsg || ''
+        //     };
+        // }
 
         return {
             valid: true,
@@ -573,8 +460,8 @@ export class RCREFormItem extends React.Component<FormItemProps, {}> {
         let formItemStatus = this.getFormItemValidInfo();
 
         let context: FormItemContextType = {
-            $addNameSet: this.addNameSet,
             $handleBlur: this.handleBlur,
+            $validateFormItem: this.validateFormItem,
             valid: formItemStatus.valid,
             errmsg: formItemStatus.errmsg
         };

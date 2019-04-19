@@ -11,7 +11,8 @@ import {
     TriggerContextType,
     FormContextType,
     RCREContextType,
-    IteratorContextType
+    IteratorContextType,
+    ErrorBoundary
 } from 'rcre';
 import {get} from 'lodash';
 
@@ -28,7 +29,7 @@ export interface ESProps {
     name?: string;
 }
 
-export class ES extends React.PureComponent<ESProps> {
+export class ES extends React.Component<ESProps> {
     static displayName = 'ES';
     render() {
         if (typeof this.props.children !== 'function') {
@@ -68,7 +69,11 @@ export class ES extends React.PureComponent<ESProps> {
                                         runTime.$value = get(runTime.$data, name);
                                     }
 
-                                    return this.props.children(runTime, context);
+                                    return (
+                                        <ErrorBoundary>
+                                            {this.props.children(runTime, context) || null}
+                                        </ErrorBoundary>
+                                    );
                                 }}
                             </TriggerContext.Consumer>}
                         </FormContext.Consumer>}

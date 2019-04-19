@@ -1,6 +1,6 @@
 import {BindItem, ContainerContextType, ContainerNodeOptions} from '../../types';
 import {IContainerState} from '../Container/reducer';
-import {isObjectLike, each, isPlainObject, clone} from 'lodash';
+import {isObjectLike, each, isPlainObject, clone, get} from 'lodash';
 import {RunTimeContextCollection} from '../context';
 import {
     compileExpressionString,
@@ -162,11 +162,9 @@ export function syncPropsContainerState(state: IContainerState, context: RunTime
         let $data = state[model];
 
         node.children.forEach(child => {
-            if (!child.props) {
+            if (!child.props && !child.bind) {
                 return;
             }
-
-            let props = child.props;
             let inheritValue = {};
             let childModel = child.model;
             let child$data = state[childModel];
@@ -176,6 +174,9 @@ export function syncPropsContainerState(state: IContainerState, context: RunTime
             } as ContainerContextType, context.rcre, {
                 iteratorContext: context.iterator
             });
+
+            let props = child.props;
+            let bindList = child.bind;
 
             if (typeof props === 'string' || typeof props === 'function') {
                 if (props === 'inherit') {
@@ -214,11 +215,20 @@ export function syncPropsContainerState(state: IContainerState, context: RunTime
                         inheritValue[name] = expression;
                     }
                 });
+            } else if (bindList instanceof Array) {
+                bindList.forEach(bind => {
+                    if (!bind.parent || !bind.child) {
+                        console.error('设置Bind属性的时候，parent和child都是必须选项');
+                        return;
+                    }
 
+                    let parentValue = get(state[model], bind.parent);
+                    state[childModel] = setWith(state[childModel], bind.child, parentValue);
+                });
             }
 
             if (!state[childModel]) {
-                state[childModel] = {};
+                state[childModel] = setWith(state, childModel, {});
             }
 
             each(inheritValue, (value, key) => {

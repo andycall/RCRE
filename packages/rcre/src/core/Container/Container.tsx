@@ -16,6 +16,7 @@ import {
     RCREContextType
 } from '../../types';
 import {connect} from 'react-redux';
+import {$parent} from '../util/compat';
 import {
     ASYNC_LOAD_DATA_FAIL_PAYLOAD,
     ASYNC_LOAD_DATA_PROGRESS_PAYLOAD,
@@ -29,9 +30,7 @@ import {DataCustomer} from '../DataCustomer/index';
 import {ContainerNode} from '../Service/ContainerDepGraph';
 import {ContainerContext} from '../context';
 import {getRuntimeContext} from '../util/util';
-
-// First Init Life Circle:
-// ComponentWillMount -> Render -> ComponentDidMount
+import {polyfill} from 'react-lifecycles-compat';
 
 export interface ContainerProps extends ContainerNodeOptions {
     /**
@@ -87,9 +86,7 @@ export interface ConnectContainerProps extends ContainerProps, BasicProps {
     $data?: any;
 }
 
-// Component Update Life Circle:
-// componentWillReceiveProps -> shouldComponentUpdate -> ComponentWillUpdate -> Render -> ComponentDidMount
-class Container extends React.Component<ConnectContainerProps, {}> {
+class Container extends React.PureComponent<ConnectContainerProps, {}> {
     static displayName = 'RCREContainer';
     private dataProvider: DataProvider;
     private dataCustomer: DataCustomer;
@@ -101,7 +98,6 @@ class Container extends React.Component<ConnectContainerProps, {}> {
         this.dataProvider = new DataProvider(props.dataProvider || []);
         this.dataCustomer = new DataCustomer(props.containerContext.dataCustomer);
         this.isUnmount = false;
-        this.getData = this.getData.bind(this);
         this.$setData = this.$setData.bind(this);
         this.initContainerGraph(props);
         this.initDataCustomer(props);
@@ -165,7 +161,6 @@ class Container extends React.Component<ConnectContainerProps, {}> {
         let defaultValue = {};
         let runTime = getRuntimeContext({
             $data: this.props.$data,
-            $parent: this.props.containerContext.$data
         } as ContainerContextType, this.props.rcreContext, {
             iteratorContext: this.props.iteratorContext
         });
@@ -243,22 +238,7 @@ class Container extends React.Component<ConnectContainerProps, {}> {
         delete this.dataProvider;
         delete this.dataCustomer;
         delete this.$setData;
-        delete this.getData;
         this.isUnmount = true;
-    }
-
-    private getData(nameStr: string) {
-        let $data = this.props.$data;
-
-        if (!$data) {
-            return null;
-        }
-
-        if (typeof nameStr !== 'string') {
-            nameStr = String(nameStr);
-        }
-
-        return get($data, nameStr);
     }
 
     $setData(name: string, value: any, options: ContainerSetDataOption = {}) {
@@ -324,22 +304,35 @@ class Container extends React.Component<ConnectContainerProps, {}> {
             return <div className="err-text">Container: children props must be specific in Container Component</div>;
         }
 
-        let model = this.props.model;
-        let state: RootState = this.props.rcreContext.store.getState();
-        let $data = state.$rcre.container[model] || {};
-        let parentModel = this.props.containerContext.model;
-        let $parent = parentModel ? state.$rcre.container[parentModel] : {};
+        let data = this.props.$data;
+
+        // 初始化的时候，React-Redux无法给予最新的$data
+        if (data === undefined) {
+            let state: RootState = this.props.rcreContext.store.getState();
+            let model = this.props.model;
+            data = state.$rcre.container[model] || {};
+        }
 
         let childElements = this.props.children;
 
         // 通过这样的方式强制子级组件更新
         const context = {
             model: this.props.model,
-            $data: $data,
+            $data: data,
             $parent: $parent,
             dataCustomer: this.dataCustomer,
             $setData: this.$setData,
-            $getData: this.getData,
+            $getData: function (nameStr: string) {
+                if (!this.$data) {
+                    return null;
+                }
+
+                if (typeof nameStr !== 'string') {
+                    nameStr = String(nameStr);
+                }
+
+                return get(this.$data, nameStr);
+            },
             $deleteData: this.$deleteData,
             $setMultiData: this.$setMultiData,
         };
@@ -354,17 +347,20 @@ class Container extends React.Component<ConnectContainerProps, {}> {
 
 const mapStateToProps = (state: RootState, props: ConnectContainerProps) => {
     let model = props.model;
-    let runTime = getRuntimeContext({} as ContainerContextType, props.rcreContext, {
-        iteratorContext: props.iteratorContext,
-    });
-
     if (isExpression(model)) {
+        let runTime = getRuntimeContext({} as ContainerContextType, props.rcreContext, {
+            iteratorContext: props.iteratorContext,
+        });
         model = parseExpressionString(model, runTime);
     }
 
+    let $data = state.$rcre.container[model];
+
     return {
-        $data: state.$rcre.container[model]
+        $data: $data
     };
 };
+
+polyfill(Container);
 
 export const RCREContainer = connect(mapStateToProps)(Container);

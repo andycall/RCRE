@@ -1,7 +1,6 @@
 import {RCRETestUtil} from 'rcre-test-tools';
 import React from 'react';
 import {componentLoader, Connect} from 'rcre';
-import {commonConnect} from '../../../packages/rcre/src/core/Connect/Common/Common';
 
 describe('CommonConnect', () => {
     const TYPE = 'testButton';
@@ -97,34 +96,13 @@ describe('CommonConnect', () => {
     //
     it('debounce feature', () => {
         return new Promise((resolve, reject) => {
-            class Sample extends React.PureComponent<any, {}> {
-                render() {
-                    let {
-                        tools,
-                        ...props
-                    } = this.props;
-
-                    return (
-                        <input
-                            value={props.value || ''}
-                            onChange={(e) => {
-                                let value = e.target.value;
-                                tools.updateNameValue(value);
-                            }}
-                        />
-                    );
-                }
-            }
-
-            componentLoader.addComponent('sample', Connect.commonConnect()(Sample));
-
             let config: any = {
                 body: [{
                     type: 'container',
                     model: 'sampleDemo',
                     children: [
                         {
-                            type: 'sample',
+                            type: 'input',
                             name: 'username',
                             debounce: 500
                         },
@@ -235,62 +213,6 @@ describe('CommonConnect', () => {
         expect(input.prop('value')).toBe('helloworld');
         test.unmount();
     });
-    //
-    it('input component won"t update when value does not changed', () => {
-        let inputUpdateCount = 0;
-
-        class InputDemo extends React.PureComponent<any> {
-            render() {
-                inputUpdateCount++;
-                return (
-                    <input
-                        value={this.props.value || ''}
-                        onChange={(e) => this.props.tools.updateNameValue(e.target.value)}
-                    />
-                );
-            }
-        }
-
-        componentLoader.addComponent('inputDemo', Connect.commonConnect()(InputDemo));
-
-        let config: any = {
-            body: [
-                {
-                    type: 'container',
-                    model: 'demo',
-                    data: {
-                        firstProp: 'aaa'
-                    },
-                    children: [
-                        {
-                            type: 'inputDemo',
-                            name: 'username',
-                            test: '#ES{$data.firstProp}'
-                        },
-                        {
-                            type: 'input',
-                            name: 'password'
-                        }
-                    ]
-                }
-            ]
-        };
-
-        let test = new RCRETestUtil(config);
-        test.setContainer('demo');
-        expect(inputUpdateCount).toBe(1);
-
-        let username = test.getComponentByName('username');
-        test.setData(username, 'helloworld');
-        expect(inputUpdateCount).toBe(2);
-        let password = test.getComponentByName('password');
-        test.setData(password, '12345');
-        expect(inputUpdateCount).toBe(2);
-
-        test.setData(username, 'abcd');
-        expect(inputUpdateCount).toBe(3);
-        test.unmount();
-    });
 
     it('$item update will trigger connect to update', async () => {
         let config = {
@@ -348,203 +270,6 @@ describe('CommonConnect', () => {
         expect(textB.text()).toBe('222');
         expect(textC.text()).toBe('333');
         test.unmount();
-    });
-
-    it('component with name in component with name', () => {
-        class InnerControl extends React.PureComponent<any> {
-            render() {
-                return (
-                    <div>
-                        {this.props.tools.createReactNode(this.props.control, {})}
-                    </div>
-                );
-            }
-        }
-        componentLoader.addComponent('fakeInner', commonConnect()(InnerControl));
-
-        let config = {
-            body: [
-                {
-                    type: 'container',
-                    model: 'popOverContainer',
-                    data: {
-                        username: '1'
-                    },
-                    children: [
-                        {
-                            type: 'fakeInner',
-                            name: 'transfer',
-                            control: {
-                                type: 'div',
-                                children: [
-                                    {
-                                        type: 'input',
-                                        name: 'username'
-                                    }
-                                ]
-                            }
-                        }
-                    ]
-                }
-            ]
-        };
-
-        let test = new RCRETestUtil(config);
-        test.setContainer('popOverContainer');
-        let input = test.getComponentByName('username');
-
-        let instance: any = input.getDOMNode();
-
-        expect(instance.value).toBe('1');
-        input.simulate('change', {
-            target: {
-                value: 'helloworld'
-            }
-        });
-        expect(instance.value).toBe('helloworld');
-        test.unmount();
-    });
-
-    it('name with ES expression update', () => {
-        let inputUpdateCount = 0;
-
-        class InputNameDemo extends React.PureComponent<any> {
-            render() {
-                inputUpdateCount++;
-                return (
-                    <input
-                        value={this.props.value || ''}
-                        onChange={(e) => this.props.tools.updateNameValue(e.target.value)}
-                    />
-                );
-            }
-        }
-
-        componentLoader.addComponent('InputNameDemo', Connect.commonConnect()(InputNameDemo));
-
-        let config: any = {
-            body: [
-                {
-                    type: 'container',
-                    model: 'demo',
-                    data: {
-                        name1: 'aaa',
-                        name2: 'bbb'
-                    },
-                    children: [
-                        {
-                            type: 'InputNameDemo',
-                            name: '#ES{$data.name1}',
-                        }, {
-                            type: 'InputNameDemo',
-                            name: '#ES{$data.name2}',
-                        }, {
-                            type: 'InputNameDemo',
-                            name: 'name3'
-                        }
-                    ]
-                }
-            ]
-        };
-
-        let test = new RCRETestUtil(config);
-        let initUpdateCount = inputUpdateCount;
-        expect(inputUpdateCount).toBe(initUpdateCount);
-
-        let wrapper = test.wrapper;
-        let firstInput = wrapper.find('input').at(0);
-        firstInput.simulate('change', {
-            target: {
-                value: 'helloworld'
-            }
-        });
-        expect(inputUpdateCount).toBe(initUpdateCount + 2);
-
-        let secondInput = wrapper.find('input').at(1);
-        secondInput.simulate('change', {
-            target: {
-                value: '123456'
-            }
-        });
-
-        expect(inputUpdateCount).toBe(initUpdateCount + 4);
-
-        let thirdInput = wrapper.find('input').at(2);
-        thirdInput.simulate('change', {
-            target: {
-                value: '123456'
-            }
-        });
-
-        expect(inputUpdateCount).toBe(initUpdateCount + 7);
-        test.unmount();
-    });
-    //
-    it('custom control is Object update count', () => {
-        let inputUpdateCount = 0;
-
-        class InputControlDemo extends React.PureComponent<any> {
-            render() {
-                inputUpdateCount++;
-                return (
-                    <input
-                        value={this.props.value || ''}
-                        onChange={(e) => this.props.tools.updateNameValue(e.target.value)}
-                    />
-                );
-            }
-        }
-
-        componentLoader.addComponent('inputDemo', Connect.commonConnect()(InputControlDemo));
-
-        let config: any = {
-            body: [
-                {
-                    type: 'container',
-                    model: 'demo',
-                    data: {
-                        name1: 'aaa',
-                        name2: 'bbb',
-                        list: [{
-                            name: '111'
-                        }, {
-                            name: '222',
-                        }, {
-                            name: '333'
-                        }]
-                    },
-                    children: [
-                        {
-                            type: 'foreach',
-                            dataSource: '#ES{$data.list}',
-                            control: {
-                                type: 'inputDemo',
-                                name: '#ES{$item.name}'
-                            }
-                        }, {
-                            type: 'inputDemo',
-                            name: 'name3'
-                        }
-                    ]
-                }
-            ]
-        };
-
-        let test = new RCRETestUtil(config);
-        test.setContainer('demo');
-        let initUpdateCount = inputUpdateCount;
-        expect(inputUpdateCount).toBe(initUpdateCount);
-        let firstInput = test.getComponentByType('inputDemo', 0);
-        test.setData(firstInput, 'helloworld');
-        expect(inputUpdateCount).toBe(initUpdateCount + 3);
-
-        let secondInput = test.getComponentByType('inputDemo', 1);
-        test.setData(secondInput, '123456');
-        expect(inputUpdateCount).toBe(initUpdateCount + 6);
-
-        let thirdInput = test.getComponentByType('inputDemo', 3);
-        test.setData(thirdInput, '123456');
-        expect(inputUpdateCount).toBe(initUpdateCount + 10);
     });
 
     it('component with defaultValue boolean', () => {
@@ -896,8 +621,9 @@ describe('CommonConnect', () => {
         });
 
         componentLoader.addComponent('autoClear', Connect.commonConnect({
-            autoClearCondition: (props) => {
-                if (props.value === 'AAA') {
+            autoClearCondition: (value, props) => {
+                console.log(value);
+                if (value === 'AAA') {
                     return true;
                 }
                 return false;

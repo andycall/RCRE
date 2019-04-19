@@ -15,17 +15,21 @@ export class AjaxAdaptor extends AsyncAdaptor {
             throw new Error('AjaxAdaptor: url is required param for ajax call');
         }
 
+        let data = config.data;
         if (!config.keepEmptyData) {
-            config.data = clone(config.data);
-            for (let key in config.data) {
-                if (isNil(config.data[key]) || config.data[key] === '') {
-                    delete config.data[key];
+            data = clone(config.data);
+            for (let key in data) {
+                if (isNil(data[key]) || data[key] === '') {
+                    delete data[key];
                 }
             }
         }
 
         try {
-            let response: AxiosResponse = await request(config.url!, config);
+            let response: AxiosResponse = await request(config.url!, {
+                ...config,
+                data: data
+            });
             return {
                 success: true,
                 errmsg: '',

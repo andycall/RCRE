@@ -2,43 +2,12 @@
 
 exports[`FormItem Container component updates will also trigger FormItem revalidation 1`] = `
 Object {
-  "username.0": Object {
+  "nodejs": Object {
     "errorMsg": "got something wrong",
-    "formItemName": "username.0",
+    "formItemName": "nodejs",
     "formName": "form2",
-    "required": undefined,
-    "status": "error",
-    "valid": false,
-  },
-  "username.1": Object {
-    "errorMsg": "got something wrong",
-    "formItemName": "username.1",
-    "formName": "form2",
-    "required": undefined,
-    "status": "error",
-    "valid": false,
-  },
-  "username.2": Object {
-    "errorMsg": "got something wrong",
-    "formItemName": "username.2",
-    "formName": "form2",
-    "required": undefined,
-    "status": "error",
-    "valid": false,
-  },
-  "username.3": Object {
-    "errorMsg": "got something wrong",
-    "formItemName": "username.3",
-    "formName": "form2",
-    "required": undefined,
-    "status": "error",
-    "valid": false,
-  },
-  "username.4": Object {
-    "errorMsg": "got something wrong",
-    "formItemName": "username.4",
-    "formName": "form2",
-    "required": undefined,
+    "required": false,
+    "rules": undefined,
     "status": "error",
     "valid": false,
   },

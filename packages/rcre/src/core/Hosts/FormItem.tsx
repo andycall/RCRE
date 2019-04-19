@@ -3,19 +3,20 @@ import {BasicConfig} from '../../types';
 import {FormItemProps, RCREFormItem} from '../Form/FormItem';
 import {componentLoader} from '../util/componentLoader';
 import {createChild} from '../util/createChild';
+import {memo} from 'react-memo-polyfill';
 
 function JSONFormItem(props: FormItemProps) {
     let children = [];
 
-    if (props.control) {
+    if (Array.isArray(props.control)) {
+        children = props.control;
+    } else if (props.control) {
         children = [props.control];
-    } else if (Array.isArray(props.children)) {
-        children = props.children;
     }
 
     children = children.map((child: BasicConfig, index: number) => {
         return createChild(child, {
-            key: index
+            key: child.type + '_' + index
         });
     });
 
@@ -32,4 +33,4 @@ JSONFormItem.getComponentParseOptions = function() {
     };
 };
 
-componentLoader.addComponent('formItem', JSONFormItem);
+componentLoader.addComponent('formItem', memo(JSONFormItem));

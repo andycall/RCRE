@@ -108,6 +108,7 @@ export class RCREForm extends React.Component<FormProps, {}> {
     }
 
     public handleSubmit = async (preventSubmit: boolean = false) => {
+        debugger;
         if (!this.props.name) {
             return;
         }

@@ -179,7 +179,7 @@ describe('CLEAR', () => {
         expect(state.form).toEqual({
             repeatForm:
                 {
-                    type: 'form',
+                    valid: false,
                     name: 'repeatForm',
                     validateFirst: false,
                     clearAfterSubmit: false,

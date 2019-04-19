@@ -575,11 +575,11 @@ export interface IteratorContextType {
 }
 
 export interface FormItemState {
-    valid: boolean;
+    valid?: boolean;
     formItemName: string;
-    rules: any[];
-    status: string;
-    errorMsg: string;
+    rules?: any[];
+    status?: string;
+    errorMsg?: string;
     $validate?: boolean;
     required?: boolean;
 }
@@ -596,7 +596,7 @@ export interface FormContextType {
 }
 
 export interface FormItemContextType {
-    $addNameSet: (name: string) => void;
+    $validateFormItem: (name: string, value: any) => void;
     $handleBlur: () => void;
     valid: boolean;
     errmsg: string;

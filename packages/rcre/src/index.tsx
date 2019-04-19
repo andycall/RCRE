@@ -29,6 +29,7 @@ export * from './data/events';
 export * from './core/RCREProvider';
 export * from './core/context';
 export * from './core/Trigger';
+export * from './core/ErrorBoundary';
 export * from './core/Container';
 
 export * from './data/reducers';

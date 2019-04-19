@@ -28,6 +28,15 @@ Object {
     "test": Object {
       "clearAfterSubmit": false,
       "control": Object {
+        "nodejs": Object {
+          "errorMsg": "",
+          "formItemName": "nodejs",
+          "formName": "test",
+          "required": true,
+          "rules": undefined,
+          "status": "success",
+          "valid": false,
+        },
         "username": Object {
           "errorMsg": "",
           "formItemName": "username",
@@ -39,8 +48,7 @@ Object {
         },
       },
       "name": "test",
-      "type": "form",
-      "valid": true,
+      "valid": false,
       "validateFirst": false,
     },
   },

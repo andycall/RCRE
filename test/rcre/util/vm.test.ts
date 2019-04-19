@@ -158,6 +158,7 @@ describe('compileExpressionString', () => {
             name: '#ES{1 + 1}'
         };
         let runTime = getRuntimeContext({
+            // @ts-ignore
             info: {
                 type: 'null'
             }
@@ -169,6 +170,7 @@ describe('compileExpressionString', () => {
 
     it('{$data: [{name: 1}, {name: 2}]}', () => {
         let runTime = getRuntimeContext({
+            // @ts-ignore
             info: {
                 type: 'null'
             },
@@ -199,6 +201,7 @@ describe('compileExpressionString', () => {
             }, { 'name': 'dongtiancheng', 'age': 21 }]
         };
         let runTime = getRuntimeContext({
+            // @ts-ignore
             info: {
                 type: 'null'
             },
@@ -242,6 +245,7 @@ describe('compileExpressionString', () => {
         ];
 
         let runTime = getRuntimeContext({
+            // @ts-ignore
             info: {
                 type: 'null'
             },
@@ -282,6 +286,7 @@ describe('compileExpressionString', () => {
         ];
 
         let runTime = getRuntimeContext({
+            // @ts-ignore
             info: {
                 type: 'null'
             },

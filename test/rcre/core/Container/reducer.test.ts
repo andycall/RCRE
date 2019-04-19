@@ -1,6 +1,6 @@
 import {containerReducer} from '../../../../packages/rcre/src/core/Container/reducer';
 import {containerActionCreators} from '../../../../packages/rcre/src/core/Container/action';
-import {setWith, deleteWith, RCREContextType, Events, createReduxStore} from 'rcre';
+import {setWith, deleteWith, Events, createReduxStore, RunTimeContextCollection, DataProviderEvent} from 'rcre';
 
 describe('Container State', () => {
     let initState: {
@@ -14,19 +14,28 @@ describe('Container State', () => {
         };
     });
 
-    const context: RCREContextType = {
-        $global: {},
-        $location: {
-            query: '123'
+    const context: RunTimeContextCollection = {
+        rcre: {
+            $global: {},
+            $location: {
+                query: '123'
+            },
+            $query: {},
+            debug: false,
+            lang: '',
+            loadMode: 'default',
+            dataProviderEvent: new DataProviderEvent(),
+            events: new Events(),
+            store: createReduxStore(),
+            containerGraph: new Map(),
+            mode: 'React'
         },
-        $query: {},
-        debug: false,
-        lang: '',
-        loadMode: 'default',
-        events: new Events(),
-        store: createReduxStore(),
-        containerGraph: new Map(),
-        mode: 'React'
+        // @ts-ignore
+        container: {},
+        // @ts-ignore
+        form: {},
+        // @ts-ignore
+        iterator: {}
     };
 
     it('setData', () => {

@@ -4,6 +4,7 @@ import {BasicConfig} from '../../types';
 import {ConnectContainerProps, RCREContainer} from '../Container/Container';
 import {componentLoader} from '../util/componentLoader';
 import {createChild} from '../util/createChild';
+import {memo} from 'react-memo-polyfill';
 
 function JSONContainer(props: ConnectContainerProps) {
     let children = (props.children || []).map((child: BasicConfig, index: number) => {
@@ -38,8 +39,8 @@ function JSONContainer(props: ConnectContainerProps) {
 
 JSONContainer.getComponentParseOptions = function() {
     return {
-        blackList: ['props', 'export', 'dataProvider', 'dataCustomer']
+        blackList: ['props', 'export', 'dataProvider', 'dataCustomer'],
     };
 };
 
-componentLoader.addComponent('container', JSONContainer, '__BUILDIN__');
+componentLoader.addComponent('container', memo(JSONContainer), '__BUILDIN__');

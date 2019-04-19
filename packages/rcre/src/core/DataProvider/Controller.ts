@@ -362,6 +362,7 @@ export class DataProvider {
         }
 
         // 防止adaptor中出现代码改动了provider的值
+        Object.freeze(config);
         this.providerCache[namespace] = config;
 
         return provider;

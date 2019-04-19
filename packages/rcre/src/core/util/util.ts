@@ -4,7 +4,7 @@
  * @param object
  * @returns {boolean}
  */
-import * as _ from "lodash";
+import * as _ from 'lodash';
 import {clone, isObject} from 'lodash';
 import {Global} from 'rcre-runtime';
 import {

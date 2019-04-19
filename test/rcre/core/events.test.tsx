@@ -1,4 +1,3 @@
-import {waitForDataProviderComplete} from 'rcre';
 import {RCRETestUtil} from 'rcre-test-tools';
 
 describe('Events', () => {
@@ -103,11 +102,11 @@ describe('Events', () => {
         };
 
         let test = new RCRETestUtil(config);
-        await waitForDataProviderComplete();
+        await test.waitForDataProviderComplete();
 
         test.setContainer('innerContainer');
         let input = test.getComponentByName('name');
         test.setData(input, 'helloworld');
-        await waitForDataProviderComplete();
+        await test.waitForDataProviderComplete();
     });
 });

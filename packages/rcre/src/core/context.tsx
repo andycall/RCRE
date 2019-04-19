@@ -1,7 +1,8 @@
 import React from 'react';
 import createReactContext from 'create-react-context';
 import URL from 'url';
-import {DataProviderEvent} from "./Events/dataProviderEvent";
+import {DataCustomer} from "./DataCustomer/index";
+import {DataProviderEvent} from './Events/dataProviderEvent';
 import {Events} from './Events/index';
 import createReduxStore from '../data/store';
 import {
@@ -30,9 +31,9 @@ export const RCREContext = createReactContext<RCREContextType>({
 
 export const ContainerContext = createReactContext<ContainerContextType>({
     model: '',
-    $data: null,
+    $data: {},
     $parent: null,
-    dataCustomer: null,
+    dataCustomer: new DataCustomer(),
     $setData: (name: string, value: any) => {},
     $getData: (name: string, isTmp?: boolean) => {},
     $deleteData: (name: string, isTmp?: boolean) => {},
@@ -62,7 +63,7 @@ export const FormContext = createReactContext<FormContextType>({
 });
 
 export const FormItemContext = createReactContext<FormItemContextType>({
-    $addNameSet: (name: string) => {},
+    $validateFormItem: (name: string, value: any) => {},
     $handleBlur: () => {},
     valid: false,
     errmsg: ''
@@ -74,7 +75,7 @@ export const withRCREContext = (Component: any) => {
             {context => <Component rcreContext={context} {...props} />}
         </RCREContext.Consumer>
     );
-}
+};
 
 export const withContainerContext: any = (Component: any) => (
     (props: any) => (
