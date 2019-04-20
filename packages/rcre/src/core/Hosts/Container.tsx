@@ -4,43 +4,45 @@ import {BasicConfig} from '../../types';
 import {ConnectContainerProps, RCREContainer} from '../Container/Container';
 import {componentLoader} from '../util/componentLoader';
 import {createChild} from '../util/createChild';
-import {memo} from 'react-memo-polyfill';
 
-function JSONContainer(props: ConnectContainerProps) {
-    let children = (props.children || []).map((child: BasicConfig, index: number) => {
-        let elements = createChild(child, {
-            key: `${child.type}_${index}`
+class JSONContainer extends React.PureComponent<ConnectContainerProps> {
+    static getComponentParseOptions() {
+        return {
+            blackList: ['props', 'export', 'dataProvider', 'dataCustomer'],
+        };
+    }
+
+    render() {
+        const props = this.props;
+        let children = (props.children || []).map((child: BasicConfig, index: number) => {
+            let elements = createChild(child, {
+                key: `${child.type}_${index}`
+            });
+
+            if (props.rcreContext.debug) {
+                const containerStyle = {
+                    border: props.rcreContext.debug ? '1px dashed #3398FC' : '',
+                };
+
+                return (
+                    <div className={'rcre-container'} style={containerStyle}>
+                        <span>container: {props.model}</span>
+                        {elements}
+                    </div>
+                );
+            }
+
+            return elements;
         });
 
-        if (props.rcreContext.debug) {
-            const containerStyle = {
-                border: props.rcreContext.debug ? '1px dashed #3398FC' : '',
-            };
-
-            return (
-                <div className={'rcre-container'} style={containerStyle}>
-                    <span>container: {props.model}</span>
-                    {elements}
-                </div>
-            );
-        }
-
-        return elements;
-    });
-
-    return (
-        <RCREContainer
-            {...props}
-        >
-            {children}
-        </RCREContainer>
-    );
+        return (
+            <RCREContainer
+                {...props}
+            >
+                {children}
+            </RCREContainer>
+        );
+    }
 }
 
-JSONContainer.getComponentParseOptions = function() {
-    return {
-        blackList: ['props', 'export', 'dataProvider', 'dataCustomer'],
-    };
-};
-
-componentLoader.addComponent('container', memo(JSONContainer), '__BUILDIN__');
+componentLoader.addComponent('container', JSONContainer, '__BUILDIN__');

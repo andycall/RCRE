@@ -22,7 +22,8 @@ export function createChild<Config extends BasicConfig, T extends BasicConfig, P
                             {formItemContext => {
                                 let runTime = getRuntimeContext(containerContext, rootContext, {
                                     iteratorContext: iteratorContext,
-                                    formContext: formContext
+                                    formContext: formContext,
+                                    formItemContext: formItemContext
                                 });
                                 if (Array.isArray(info)) {
                                     return info.map(i => createChild(i, childProps));
@@ -62,9 +63,14 @@ export function createChild<Config extends BasicConfig, T extends BasicConfig, P
                                     whiteList: []
                                 };
 
+                                if (info.type === 'formItem') {
+                                    debugger;
+                                }
+
                                 // 组件提供静态方法来自定义属性的编译选项
                                 if ('getComponentParseOptions' in component && typeof component.getComponentParseOptions === 'function') {
                                     let customOptions = component.getComponentParseOptions();
+                                    console.log(customOptions);
                                     compileOptions.blackList = compileOptions.blackList.concat(customOptions.blackList);
                                     compileOptions.whiteList = compileOptions.whiteList.concat(customOptions.whiteList || []);
                                     compileOptions.isDeep = customOptions.isDeep;

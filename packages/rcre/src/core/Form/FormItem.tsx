@@ -1,16 +1,16 @@
 import * as React from 'react';
 import {RootState} from '../../data/reducers';
 import {
-    BasicProps,
+    BasicProps, ElementsInfo,
     FormContextType,
-    FormItemContextType,
+    FormItemContextType, FormItemState,
     RunTimeType
 } from '../../types';
 import {FormItemContext, ContainerContext} from '../context';
 import {request} from '../Service/api';
 import {getRuntimeContext, isPromise, recycleRunTime} from '../util/util';
 import {applyRule} from './validate';
-import {isPlainObject, isNil, isEmpty} from 'lodash';
+import {isPlainObject, isNil, isEmpty, isEqual} from 'lodash';
 import {ApiRule, ValidateRules} from './types';
 import {compileExpressionString, isExpression, parseExpressionString} from '../util/vm';
 
@@ -38,6 +38,9 @@ export class RCREFormItem extends React.Component<FormItemProps, {}> {
     // private infoBlackList: string[];
     private isApiValidate: boolean;
     private isUnMounted?: boolean;
+    private controlElements: {
+        [name: string]: ElementsInfo;
+    };
 
     static getComponentParseOptions() {
         return {
@@ -48,9 +51,31 @@ export class RCREFormItem extends React.Component<FormItemProps, {}> {
     constructor(props: FormItemProps) {
         super(props);
 
-        // this.infoBlackList = ['filterRule', 'filterErrMsg'];
         this.isApiValidate = false;
         this.isUnMounted = false;
+        this.controlElements = {};
+    }
+
+    private initControlElements = (name: string, info: ElementsInfo) => {
+        if (this.controlElements.hasOwnProperty(name)) {
+            this.updateControlElements(name, info);
+            return;
+        }
+
+        this.controlElements[name] = info;
+    }
+
+    private updateControlElements = (name: string, info: ElementsInfo) => {
+        let exist = this.controlElements[name];
+
+        this.controlElements[name] = {
+            ...exist,
+            ...info
+        };
+    }
+
+    private deleteControlElements = (name: string) => {
+        delete this.controlElements[name];
     }
 
     private initFormItem = () => {
@@ -68,46 +93,88 @@ export class RCREFormItem extends React.Component<FormItemProps, {}> {
         if (this.props.isTextFormItem) {
             valid = true;
         }
-        // let name = this.nextName;
-        // let disabled = this.nextDisabled;
 
-        // if (disabled) {
-        //     this.props.formContext.$setFormItem({
-        //         formItemName: name,
-        //         rules: this.props.rules,
-        //         status: 'success',
-        //         errorMsg: '',
-        //         required: required,
-        //         valid: valid
-        //     });
-        //     return;
-        // }
+        let names = Object.keys(this.controlElements);
 
-        let formValue = this.props.containerContext.$getData(name);
+        for (let name of names) {
+            let element = this.controlElements[name];
 
-        let formDataEmpty = false;
-        if (typeof formValue === 'object') {
-            formDataEmpty = isEmpty(formValue);
-        } else {
-            formDataEmpty = isNil(formValue);
-        }
+            if (element.disabled) {
+                this.props.formContext.$setFormItem({
+                    formItemName: name,
+                    rules: this.props.rules,
+                    status: 'success',
+                    errorMsg: '',
+                    required: required,
+                    valid: true
+                });
+                return;
+            }
 
-        if (!formDataEmpty || isExpression(this.props.filterRule)) {
-            this.validateFormItem(name, formValue);
-        } else {
-            this.props.formContext.$setFormItem({
-                formItemName: name,
-                rules: this.props.rules,
-                status: 'success',
-                errorMsg: '',
-                required: required,
-                valid: valid
-            });
+            let formValue = this.props.containerContext.$getData(name);
+
+            let formDataEmpty = false;
+            if (typeof formValue === 'object') {
+                formDataEmpty = isEmpty(formValue);
+            } else {
+                formDataEmpty = isNil(formValue);
+            }
+
+            if (!formDataEmpty || isExpression(this.props.filterRule)) {
+                this.validateFormItem(name, formValue);
+            } else {
+                this.props.formContext.$setFormItem({
+                    formItemName: name,
+                    rules: this.props.rules,
+                    status: 'success',
+                    errorMsg: '',
+                    required: required,
+                    valid: valid
+                });
+            }
         }
     }
 
     componentDidMount() {
         this.initFormItem();
+    }
+
+    componentDidUpdate(prevProps: Readonly<FormItemProps>, prevState: Readonly<{}>, snapshot?: any): void {
+        let prevRunTime = getRuntimeContext(prevProps.containerContext, prevProps.rcreContext, {
+            formContext: prevProps.formContext,
+            iteratorContext: prevProps.iteratorContext,
+        });
+        let nextRunTime = getRuntimeContext(this.props.containerContext, this.props.rcreContext, {
+            formContext: this.props.formContext,
+            iteratorContext: this.props.iteratorContext
+        });
+
+        let prevRules = compileExpressionString(prevProps.rules || [], prevRunTime, [], true);
+        let nextRules = compileExpressionString(this.props.rules || [], nextRunTime, [], true);
+
+        let isRequiredChanged = prevProps.required === this.props.required;
+        let isRuleChanged = isEqual(prevRules, nextRules);
+        let isFilterRuleChanged;
+
+        if (prevProps.filterRule && this.props.filterRule) {
+            let oldFilterRule = this.validFilterRule(prevProps.filterRule, null, prevRunTime, prevProps.filterErrMsg);
+            let nextFilterRule = this.validFilterRule(this.props.filterRule, null, nextRunTime, this.props.filterErrMsg);
+            isFilterRuleChanged = oldFilterRule === nextFilterRule;
+        }
+
+        if (isRequiredChanged || isRuleChanged || isFilterRuleChanged) {
+            let names = Object.keys(this.controlElements);
+            for (let name of names) {
+                let element = this.controlElements[name];
+
+                if (element.disabled) {
+                    continue;
+                }
+
+                let value = this.props.containerContext.$getData(name);
+                this.validateFormItem(name, value);
+            }
+        }
     }
 
     private apiRuleExport = async (exportConf: string | object, runTime: RunTimeType) => {
@@ -141,7 +208,6 @@ export class RCREFormItem extends React.Component<FormItemProps, {}> {
 
             this.props.containerContext.$setMultiData(items);
         } else if (exportValue) {
-            console.log(exportValue);
             console.warn('apiRule的export属性，需要返回一个普通对象作为返回值');
         }
 
@@ -423,36 +489,48 @@ export class RCREFormItem extends React.Component<FormItemProps, {}> {
     }
 
     private handleDelete = (name: string) => {
+        this.deleteControlElements(name);
         this.props.formContext.$deleteFormItem(name);
         this.props.containerContext.$deleteData(name);
     }
 
-    // private getFormItemControl = (formItemName: string): FormItemState => {
-    //     return this.props.formContext.$getFormItem(formItemName);
-    // }
+    private getFormItemControl = (formItemName: string): FormItemState => {
+        return this.props.formContext.$getFormItem(formItemName);
+    }
 
     private handleBlur = () => {
-        // // 针对某些含有多个name属性的组件，可以考虑在组件初始化的时候，往formItem组件注册多个name值
-        // if (!this.nextDisabled) {
-        //     let value = this.props.containerContext.$getData(this.nextName);
-        //     this.validateFormItem(this.nextName, value);
-        // }
+        // 针对某些含有多个name属性的组件，可以考虑在组件初始化的时候，往formItem组件注册多个name值
+        let names = Object.keys(this.controlElements);
 
-        this.forceUpdate();
+        for (let name of names) {
+            let element = this.controlElements[name];
+
+            if (element.disabled) {
+                continue;
+            }
+
+            this.validateFormItem(name, this.props.containerContext.$getData(name));
+        }
     }
 
     private getFormItemValidInfo = (): { valid: boolean, errmsg: string } => {
-        // let controlInfo = this.getFormItemControl(this.nextName);
-        // if (!controlInfo.valid) {
-        //     return {
-        //         valid: false,
-        //         errmsg: controlInfo.errorMsg || ''
-        //     };
-        // }
+        let names = Object.keys(this.controlElements);
+        let errmsg = '';
+        let isValid = names.every(name => {
+            let formItemInfo = this.getFormItemControl(name);
+            let valid = formItemInfo.valid;
+
+            if (!valid) {
+                errmsg = formItemInfo.errorMsg || '';
+                return false;
+            }
+
+            return true;
+        });
 
         return {
-            valid: true,
-            errmsg: ''
+            valid: isValid,
+            errmsg: errmsg
         };
     }
 
@@ -462,8 +540,13 @@ export class RCREFormItem extends React.Component<FormItemProps, {}> {
         let context: FormItemContextType = {
             $handleBlur: this.handleBlur,
             $validateFormItem: this.validateFormItem,
-            valid: formItemStatus.valid,
-            errmsg: formItemStatus.errmsg
+            initControlElements: this.initControlElements,
+            updateControlElements: this.updateControlElements,
+            deleteControlElements: this.deleteControlElements,
+            $formItem: {
+                valid: formItemStatus.valid,
+                errmsg: formItemStatus.errmsg
+            }
         };
 
         let containerContext = {

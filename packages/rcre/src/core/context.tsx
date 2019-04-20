@@ -1,7 +1,7 @@
 import React from 'react';
 import createReactContext from 'create-react-context';
 import URL from 'url';
-import {DataCustomer} from "./DataCustomer/index";
+import {DataCustomer} from './DataCustomer/index';
 import {DataProviderEvent} from './Events/dataProviderEvent';
 import {Events} from './Events/index';
 import createReduxStore from '../data/store';
@@ -65,8 +65,13 @@ export const FormContext = createReactContext<FormContextType>({
 export const FormItemContext = createReactContext<FormItemContextType>({
     $validateFormItem: (name: string, value: any) => {},
     $handleBlur: () => {},
-    valid: false,
-    errmsg: ''
+    updateControlElements: () => {},
+    deleteControlElements: () => {},
+    initControlElements: () => {},
+    $formItem: {
+        valid: false,
+        errmsg: ''
+    }
 });
 
 export const withRCREContext = (Component: any) => {

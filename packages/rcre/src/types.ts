@@ -71,6 +71,7 @@ export interface RunTimeType {
     $iterator?: any;
     $parent?: any;
     $form?: any;
+    $formItem?: any;
     $prev?: any;
 }
 
@@ -595,11 +596,22 @@ export interface FormContextType {
     $handleSubmit: () => void;
 }
 
+export type ElementsInfo = {
+    disabled?: boolean;
+    type: string;
+    value: any;
+};
+
 export interface FormItemContextType {
     $validateFormItem: (name: string, value: any) => void;
+    deleteControlElements: (name: string) => void;
+    initControlElements: (name: string, info: ElementsInfo) => void;
+    updateControlElements: (name: string, info: ElementsInfo) => void;
     $handleBlur: () => void;
-    valid: boolean;
-    errmsg: string;
+    $formItem: {
+        valid: boolean;
+        errmsg: string;
+    };
 }
 
 export interface PageConfig<T extends BasicConfig> {

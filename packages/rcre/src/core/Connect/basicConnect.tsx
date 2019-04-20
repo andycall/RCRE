@@ -219,13 +219,19 @@ export interface BasicConnectProps {
     trigger?: TriggerEventItem[];
 }
 
+enum ValidateDecision {
+    SKIP = 0, // 跳过本次验证
+    BREAK = 1, // 阻止所有的验证
+    PASS = 2 // 触发验证
+}
+
 class BasicConnect extends React.Component<BasicConnectProps & BasicProps, {}> {
     public $propertyWatch: string[];
     public options: CommonOptions;
     public debounceCache: { [key: string]: any };
     public debounceTimer: any;
     public isDebouncing: boolean;
-    public nameBindEvents: any = null;
+
     public constructor(props: BasicConnectProps & BasicProps, options: CommonOptions) {
         super(props);
 
@@ -243,12 +249,14 @@ class BasicConnect extends React.Component<BasicConnectProps & BasicProps, {}> {
             name = parseExpressionString(name, runTime);
         }
 
+        let value;
         let state: RootState = props.rcreContext.store.getState();
         // 设置默认值的逻辑
         if ((props.hasOwnProperty('defaultValue') &&
             props.defaultValue !== null &&
             props.defaultValue !== undefined) &&
-            name) {
+            name &&
+            !has(runTime.$data, name)) {
             let defaultValue = props.defaultValue;
             runTime.$data = state.$rcre.container[props.containerContext.model];
             if (isExpression(defaultValue)) {
@@ -259,16 +267,22 @@ class BasicConnect extends React.Component<BasicConnectProps & BasicProps, {}> {
                 defaultValue = options.getDefaultValue(defaultValue, props);
             }
 
-            if (!has(runTime.$data, name)) {
-                props.containerContext.$setData(name, defaultValue);
-            }
-        }
-
-        if (name) {
+            props.containerContext.$setData(name, defaultValue);
+            value = defaultValue;
+        } else if (name) {
             let existValue = get(state.$rcre.container[props.containerContext.model], name);
+            value = existValue;
             if (!isNil(existValue) && props.debounce) {
                 this.debounceCache[name] = existValue;
             }
+        }
+
+        if (props.formItemContext && name) {
+            props.formItemContext.initControlElements(name, {
+                type: props.type,
+                disabled: props.disabled,
+                value: value
+            });
         }
     }
 
@@ -280,6 +294,11 @@ class BasicConnect extends React.Component<BasicConnectProps & BasicProps, {}> {
                 this.props.containerContext.$deleteData(this.props.name);
             } else if (this.props.clearWhenDestory) {
                 this.props.containerContext.$deleteData(this.props.name);
+            }
+
+            if (this.props.formItemContext) {
+                // 清空FormItem中监听的状态
+                this.props.formItemContext.deleteControlElements(this.props.name);
             }
         }
     }
@@ -353,95 +372,130 @@ class BasicConnect extends React.Component<BasicConnectProps & BasicProps, {}> {
         return this.props.formContext.$getFormItem(name);
     }
 
-    // private shouldValidateFormItem() {
-    //     // let nextRunTime = getRuntimeContext(this.props.containerContext, this.props.rcreContext, {
-    //     //     iteratorContext: this.props.iteratorContext,
-    //     //     formContext: this.props.formContext
-    //     // });
-    //     // let prevRunTime = getRuntimeContext(prevProps.containerContext, prevProps.rcreContext, {
-    //     //     iteratorContext: prevProps.iteratorContext,
-    //     //     formContext: prevProps.formContext
-    //     // });
-    //     //
-    //     // let isFilterRuleChange = false;
-    //     // if (this.props.filterRule && prevProps.filterRule) {
-    //     //     let oldFilterRule = this.validFilterRule(prevProps.filterRule, null, prevRunTime, prevProps.filterErrMsg);
-    //     //     let nextFilterRule = this.validFilterRule(this.props.filterRule, null, nextRunTime, this.props.filterErrMsg);
-    //     //     isFilterRuleChange = oldFilterRule.isValid !== nextFilterRule.isValid;
-    //     // }
-    //     //
-    //     // let nextValue = this.props.containerContext.$getData(this.nextName);
-    //     // let prevValue = prevProps.containerContext.$getData(this.prevName);
-    //     // let isNameSame = this.prevName === this.nextName;
-    //     // let nextRules = compileExpressionString(this.props.rules, nextRunTime, [], true);
-    //     // let prevRules = compileExpressionString(prevProps.rules, prevRunTime, [], true);
-    //     // let prevRequired = this.props.required;
-    //     // let nextRequired = prevProps.required;
-    //     // let isNameExist = true;
-    //     // let isSameDisabled = this.prevDisabled === this.nextDisabled;
-    //     // let isSameRequired = prevRequired === nextRequired;
-    //     //
-    //     // if (this.nextDisabled &&
-    //     //     this.props.formContext &&
-    //     //     !this.props.formContext.$getFormItem(this.nextName).valid
-    //     // ) {
-    //     //     this.props.formContext.$setFormItem({
-    //     //         formItemName: this.nextName,
-    //     //         valid: true,
-    //     //         status: 'success',
-    //     //         errorMsg: '',
-    //     //         rules: this.props.rules
-    //     //     });
-    //     //     return;
-    //     // }
-    //     //
-    //     // // 如果FormItem在数据模型中不存在也要验证
-    //     // if (isNameSame && this.props.formContext) {
-    //     //     isNameExist = !!this.props.formContext.$getFormItem(this.nextName);
-    //     // }
-    //     //
-    //     // let shouldValidate =
-    //     //     // 值不相同，重新验证
-    //     //     !isEqual(nextValue, prevValue) ||
-    //     //     // 规则不相同，重新验证
-    //     //     !isEqual(nextRules, prevRules) ||
-    //     //     // name不相同，重新验证
-    //     //     !isNameSame ||
-    //     //     // name不存在，触发验证
-    //     //     !isNameExist ||
-    //     //     // disabled不相同，重新验证
-    //     //     !isSameDisabled ||
-    //     //     // required不相同，重新验证
-    //     //     !isSameRequired ||
-    //     //     // filterRule计算结果不同，重新验证
-    //     //     isFilterRuleChange;
-    //     //
-    //     // if (shouldValidate) {
-    //     //     this.validateFormItem(this.nextName, nextValue);
-    //     // }
-    //     //
-    //     // // formItem在数据模型中已存在
-    //     // if (this.props.formContext && this.props.formContext.$getFormItem(this.nextName)) {
-    //     //     let itemInfo = this.props.formContext.$getFormItem(this.nextName);
-    //     //     // 是否强制验证，由triggerSubmit触发
-    //     //     let forceValidate = itemInfo.$validate;
-    //     //     if (forceValidate) {
-    //     //         this.validateFormItem(this.nextName, nextValue);
-    //     //         this.props.formContext.$setFormItem({
-    //     //             formItemName: this.nextName,
-    //     //             $validate: false,
-    //     //         });
-    //     //     }
-    //     // }
-    //     //
-    //     // recycleRunTime(prevRunTime);
-    //     // recycleRunTime(nextRunTime);
-    //     //
-    //     // this.prevName = this.nextName;
-    //     // this.nextName = '';
-    //     // this.prevDisabled = this.nextDisabled;
-    //     // this.nextDisabled = false;
-    // }
+    /**
+     *   组件name的变更是否会触发FormItem验证
+     *   +----------------+-----------------+-----------------+
+     *   |      prev      |       next      |     action      |
+     *   +----------------------------------------------------+
+     *   | name exist     | name not exist  |  delete form    |
+     *   +----------------------------------------------------+
+     *   | name not exist | name exist      |  validate form  |
+     *   +----------------------------------------------------+
+     *   | name not exist | name not exist  |  skip           |
+     *   +----------------------------------------------------+
+     *   | name exist     | name exist      |  validate form  |
+     *   +----------------+-----------------+-----------------+
+     * @param nextProps
+     */
+    private shouldNameTriggerValidate(nextProps: BasicConnectProps & BasicProps): ValidateDecision {
+        // 前后都没有name属性跳过
+        if (!this.props.name && !nextProps.name) {
+            return ValidateDecision.SKIP;
+        }
+
+        // 之前有，现在name没了，销毁
+        if (this.props.name && !nextProps.name) {
+            // delete
+            this.props.containerContext.$deleteData(this.props.name);
+            return ValidateDecision.SKIP;
+        }
+
+        if (this.props.name === nextProps.name) {
+            return ValidateDecision.SKIP;
+        }
+
+        if (this.props.name && nextProps.name && this.props.name !== nextProps.name) {
+            // 清空旧的数据
+            this.props.containerContext.$deleteData(this.props.name);
+        }
+
+        // 剩下都可以
+        return ValidateDecision.PASS;
+    }
+
+    private shouldDisabledTriggerValidate(nextProps: BasicConnectProps & BasicProps): ValidateDecision {
+        if (!this.props.formContext || !nextProps.formContext) {
+            return ValidateDecision.SKIP;
+        }
+
+        // disabled都没变化的情况跳过
+        if (!this.props.disabled && !nextProps.disabled) {
+            return ValidateDecision.SKIP;
+        }
+        // disabled都没变化的情况跳过
+        if (this.props.disabled && nextProps.disabled) {
+            return ValidateDecision.SKIP;
+        }
+
+        // 之前是false，现在改成true，需要强制设置formItem为验证成功
+        if (!this.props.disabled && nextProps.disabled && nextProps.name) {
+            nextProps.formContext.$setFormItem({
+                formItemName: nextProps.name,
+                valid: true,
+                status: 'success',
+                errorMsg: ''
+            });
+            // 这里直接跳过验证，不再进行下一步操作
+            return ValidateDecision.BREAK;
+        }
+
+        // 剩下的情况就是触发验证了
+        return ValidateDecision.PASS;
+    }
+
+    private shouldValueTriggerValidate(nextProps: BasicConnectProps & BasicProps): ValidateDecision {
+        if (!this.props.formContext || !nextProps.formContext) {
+            return ValidateDecision.SKIP;
+        }
+
+        let nextValue = nextProps.name ? nextProps.containerContext.$getData(nextProps.name) : undefined;
+        let prevValue = this.props.name ? this.props.containerContext.$getData(this.props.name) : undefined;
+
+        if (prevValue === nextValue) {
+            return ValidateDecision.SKIP;
+        }
+
+        return ValidateDecision.PASS;
+    }
+
+    /**
+     * 处理值变更，name变更，以及disabled变更这三种情况所触发的表单验证
+     * @param nextProps
+     */
+    private shouldValidateFormItem(nextProps: BasicConnectProps & BasicProps) {
+        if (!this.props.formContext || !nextProps.formContext) {
+            return;
+        }
+
+        if (!nextProps.formItemContext || !this.props.formItemContext) {
+            return;
+        }
+
+        let list = [this.shouldNameTriggerValidate, this.shouldDisabledTriggerValidate, this.shouldValueTriggerValidate];
+
+        let shouldValidate = false;
+        for (let func of list) {
+            let decision: ValidateDecision = func.call(this, nextProps);
+
+            if (decision === ValidateDecision.SKIP) {
+                continue;
+            }
+
+            if (decision === ValidateDecision.BREAK) {
+                return;
+            }
+
+            if (decision === ValidateDecision.PASS) {
+                shouldValidate = true;
+                break;
+            }
+        }
+
+        if (shouldValidate && nextProps.name) {
+            let nextValue = nextProps.containerContext.$getData(nextProps.name);
+            nextProps.formItemContext.$validateFormItem(nextProps.name, nextValue);
+        }
+    }
 
     public componentWillUpdate(nextProps: BasicConnectProps & BasicProps) {
         let nameKey = this.options.nameKey || 'value';
@@ -463,6 +517,8 @@ class BasicConnect extends React.Component<BasicConnectProps & BasicProps, {}> {
                 this.clearNameValue(this.props.name);
             }
         }
+
+        this.shouldValidateFormItem(nextProps);
     }
 
     public hasTriggerEvent(event: string) {

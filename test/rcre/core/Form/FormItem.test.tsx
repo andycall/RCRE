@@ -1,6 +1,6 @@
 import React from 'react';
 import {mount} from 'enzyme';
-import {clearStore, filter, JSONRender, FuncCustomerArgs} from 'rcre';
+import {filter, JSONRender, FuncCustomerArgs} from 'rcre';
 import {RCRETestUtil} from 'rcre-test-tools';
 import moxios from 'moxios';
 import axios from 'axios';
@@ -216,10 +216,6 @@ describe('FormItem', () => {
     });
 
     describe('unexpected form config', () => {
-        afterEach(() => {
-            clearStore();
-        });
-
         it('formItem is not in Form component', () => {
             let config = {
                 body: [{
@@ -1301,6 +1297,7 @@ describe('FormItem', () => {
 
     it('Container component updates will also trigger FormItem revalidation', () => {
         filter.setFilter('isUserValid', (username: any) => {
+            console.log(username);
             if (!username) {
                 return false;
             }
@@ -1465,6 +1462,10 @@ describe('FormItem', () => {
                             required: true,
                             control: [
                                 {
+                                    type: 'text',
+                                    text: '#ES{$formItem.errmsg}'
+                                },
+                                {
                                     type: 'input',
                                     name: 'username'
                                 },
@@ -1480,9 +1481,197 @@ describe('FormItem', () => {
         };
 
         let test = new RCRETestUtil(config);
-        console.log(test.wrapper.debug());
         test.setContainer('demo');
         let input = test.getComponentByName('username');
         test.setData(input, 'helloworld');
+
+        let text = test.getComponentByType('text');
+        expect(text.text()).toBe('不能为空');
+
+        let password = test.getComponentByName('password');
+        test.setData(password, '123456');
+
+        text = test.getComponentByType('text');
+        expect(text.text()).toBe('');
+    });
+
+    it('name changed will trigger FormItem to revalidate', () => {
+        let config = {
+            body: [{
+                type: 'container',
+                model: 'demo',
+                data: {
+                    dynamicName: 'username',
+                    username: 'hello',
+                    password: 'eeieieieieieieieeieieieieieiwqweqweqweqwe'
+                },
+                children: [
+                    {
+                        type: 'form',
+                        name: 'demo',
+                        children: [
+                            {
+                                type: 'formItem',
+                                required: true,
+                                rules: [{
+                                    maxLength: 5,
+                                    message: '字数最大不能超过10'
+                                }],
+                                control: {
+                                    type: 'input',
+                                    name: '#ES{$data.dynamicName}'
+                                }
+                            },
+                            {
+                                type: 'formItem',
+                                required: true,
+                                control: {
+                                    type: 'input',
+                                    name: 'dynamicName'
+                                }
+                            }
+                        ]
+                    },
+                ]
+            }]
+        };
+
+        let test = new RCRETestUtil(config);
+        test.setContainer('demo');
+
+        let formState = test.getFormState('demo');
+        let state = test.getContainerState();
+        expect(formState.valid).toBe(true);
+        expect(formState.control.dynamicName.valid).toBe(true);
+        expect(formState.control.username.valid).toBe(true);
+        expect(state.username).toBe('hello');
+
+        let dynamicName = test.getComponentByName('dynamicName');
+        test.setData(dynamicName, 'password');
+
+        formState = test.getFormState('demo');
+        expect(formState.control.password.valid).toBe(false);
+        expect(formState.control.username).toBe(undefined);
+        expect(formState.control.password.errorMsg).toBe('字数最大不能超过10');
+        expect(formState.valid).toBe(false);
+
+        state = test.getContainerState();
+        expect(state.username).toBe(undefined);
+        expect(state.password).toBe('eeieieieieieieieeieieieieieiwqweqweqweqwe');
+    });
+
+    it('disabled changed will trigger form revalidate', () => {
+        let config = {
+            body: [{
+                type: 'container',
+                model: 'demo',
+                data: {
+                    disabled: true,
+                    username: 'hello'
+                },
+                children: [
+                    {
+                        type: 'form',
+                        name: 'demo',
+                        children: [
+                            {
+                                type: 'formItem',
+                                required: true,
+                                rules: [{
+                                    maxLength: 1
+                                }],
+                                control: {
+                                    type: 'input',
+                                    name: 'username',
+                                    disabled: '#ES{$data.disabled}'
+                                }
+                            },
+                            {
+                                type: 'input',
+                                name: 'disabled'
+                            }
+                        ]
+                    }
+                ]
+            }]
+        };
+
+        let test = new RCRETestUtil(config);
+        test.setContainer('demo');
+
+        let formState = test.getFormState('demo');
+        expect(formState.valid).toBe(true);
+        let disabled = test.getComponentByName('disabled');
+        test.setData(disabled, false);
+        formState = test.getFormState('demo');
+        expect(formState.valid).toBe(false);
+        expect(formState.control.username.valid).toBe(false);
+        expect(formState.control.username.errorMsg).toBe('长度不能大于1');
+    });
+
+    it('change components value will trigger formItem revalidate', async () => {
+        let config = {
+            body: [{
+                type: 'container',
+                model: 'demo',
+                data: {
+                    username: 'helloworld'
+                },
+                children: [{
+                    type: 'form',
+                    name: 'demo',
+                    children: [
+                        {
+                            type: 'formItem',
+                            required: true,
+                            rules: [{
+                                maxLength: 10
+                            }],
+                            control: {
+                                type: 'input',
+                                name: 'username'
+                            }
+                        },
+                        {
+                            type: 'button',
+                            text: 'update',
+                            trigger: [{
+                                event: 'onClick',
+                                targetCustomer: '$this',
+                                params: {
+                                    username: '0000000000000000000000000000000000000000'
+                                }
+                            }]
+                        }
+                    ]
+                }]
+            }]
+        };
+
+        let test = new RCRETestUtil(config);
+        test.setContainer('demo');
+
+        let formStatus = test.getFormState('demo');
+        expect(formStatus.valid).toBe(true);
+
+        let username = test.getComponentByName('username');
+        test.setData(username, '010101010101010101010101010110');
+
+        formStatus = test.getFormState('demo');
+        expect(formStatus.valid).toBe(false);
+        expect(formStatus.control.username.valid).toBe(false);
+        expect(formStatus.control.username.errorMsg).toBe('长度不能大于10');
+
+        test.setData(username, 'test');
+        formStatus = test.getFormState('demo');
+        expect(formStatus.valid).toBe(true);
+
+        let button = test.getComponentByType('button');
+        await test.simulate(button, 'onClick');
+
+        formStatus = test.getFormState('demo');
+        expect(formStatus.valid).toBe(false);
+        expect(formStatus.control.username.valid).toBe(false);
+        expect(formStatus.control.username.errorMsg).toBe('长度不能大于10');
     });
 });

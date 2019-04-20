@@ -29,7 +29,7 @@ function setFormItem(state: FormState, payload: any, formName: string, formItemN
     }
 
     if (!newState[formName].control) {
-        newState[formName].control = {};
+        newState = setWith(newState, formName + '.control', {});
     }
 
     newState[formName] = clone(newState[formName]);

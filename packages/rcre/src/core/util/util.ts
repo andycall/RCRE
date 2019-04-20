@@ -9,7 +9,7 @@ import {clone, isObject} from 'lodash';
 import {Global} from 'rcre-runtime';
 import {
     BasicConfig,
-    ContainerContextType, FormContextType,
+    ContainerContextType, FormContextType, FormItemContextType,
     IteratorContextType,
     RCREContextType,
     runTimeType,
@@ -141,7 +141,8 @@ export function getRuntimeContext<T extends BasicConfig>(
     otherContext?: {
         iteratorContext?: IteratorContextType,
         triggerContext?: TriggerContextType,
-        formContext?: FormContextType
+        formContext?: FormContextType,
+        formItemContext?: FormItemContextType
     }
 ): runTimeType {
     let runtime: runTimeType = {
@@ -167,6 +168,10 @@ export function getRuntimeContext<T extends BasicConfig>(
 
         if (otherContext.formContext) {
             runtime.$form = otherContext.formContext.$form;
+        }
+
+        if (otherContext.formItemContext) {
+            runtime.$formItem = otherContext.formItemContext.$formItem;
         }
     }
 

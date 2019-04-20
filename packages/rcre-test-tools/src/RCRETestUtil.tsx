@@ -551,7 +551,7 @@ export class RCRETestUtil {
         let rendered = Array.isArray(node.rendered) ? flatten(node.rendered) : [node.rendered];
         let nextDepth = depth;
 
-        if (node && node.instance && node.instance.TEST_INFO) {
+        if (node && node.instance) {
             let info = (options && options.raw) ? this.getRawNodeInfo(node) : node.instance.TEST_INFO;
             let type = info.type;
 

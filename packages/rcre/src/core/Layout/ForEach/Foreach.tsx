@@ -35,8 +35,6 @@ export class Foreach extends React.PureComponent<ForeachProps, {}> {
             return <div/>;
         }
 
-        console.log(this.props);
-
         if (!Array.isArray(dataSource)) {
             console.warn('Foreach: dataSource 属性必须是个数组');
         }
@@ -45,6 +43,7 @@ export class Foreach extends React.PureComponent<ForeachProps, {}> {
             <div className={this.props.className} style={this.props.style} id={this.props.id}>
                 {
                     map(dataSource, (source, index) => {
+                        console.log(control);
                         let child = createChild(control, {
                             key: source.rowKey || index
                         });

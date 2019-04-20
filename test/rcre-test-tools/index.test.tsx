@@ -157,61 +157,6 @@ describe('rcre-test-tools', () => {
         expect(state.username).toBe('abc');
     });
 
-    it('debug', () => {
-        let config = {
-            body: [{
-                type: 'container',
-                model: 'demo',
-                data: {
-                    name: 'test'
-                },
-                children: [{
-                    type: 'form',
-                    name: 'form',
-                    children: [
-                        {
-                            type: 'input',
-                            name: '1234'
-                        }
-                        // {
-                        //     type: 'formItem',
-                        //     required: true,
-                        //     rules: [{
-                        //         max: 20,
-                        //         message: 'helloworld'
-                        //     }],
-                        //     control: {
-                        //         type: 'input',
-                        //         disabled: '#ES{$data.name === "test"}',
-                        //         name: 'username'
-                        //     }
-                        // },
-                        // {
-                        //     type: 'text',
-                        //     text: '#ES{$data.name}'
-                        // },
-                        // {
-                        //     type: 'div',
-                        //     hidden: '#ES{true}',
-                        //     children: [
-                        //         {
-                        //             type: 'text',
-                        //             text: 'hidden text'
-                        //         }
-                        //     ]
-                        // }
-                    ]
-                }]
-            }]
-        };
-
-        let test = new RCRETestUtil(config);
-        expect(() => test.debug()).toThrow();
-        test.setContainer('demo');
-
-        console.log(test.debug());
-    });
-
     it('getComponentFormStatus', () => {
         let config = {
             body: [{
