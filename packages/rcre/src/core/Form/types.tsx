@@ -1,4 +1,4 @@
-import {BasicConfig, COREConfig, CoreKind} from '../../types';
+import {BasicConfig, CoreKind} from '../../types';
 
 export interface ValidateRules {
     /**
@@ -169,7 +169,7 @@ export class FormItemConfig<Config> extends BasicConfig {
     /**
      * 控制的表单元素
      */
-    control: (Config | COREConfig<Config>) | (Config | COREConfig<Config>)[];
+    control: (Config) | Config[];
 
     /**
      * 额外的说明文字
