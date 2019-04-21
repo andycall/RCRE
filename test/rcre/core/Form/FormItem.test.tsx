@@ -216,41 +216,6 @@ describe('FormItem', () => {
     });
 
     describe('unexpected form config', () => {
-        it('formItem is not in Form component', () => {
-            let config = {
-                body: [{
-                    type: 'formItem',
-                    control: {
-                        type: 'input',
-                        name: 'name'
-                    }
-                }]
-            };
-            let wrapper = mount(
-                <JSONRender code={JSON.stringify(config)}/>
-            );
-            expect(wrapper.html()).toBe('<div class="page-container"><div class="page-body"><div></div></div></div>');
-            wrapper.unmount();
-        });
-
-        it('formItem should have control', () => {
-            let config = {
-                body: [{
-                    type: 'form',
-                    name: 'test',
-                    children: [{
-                        type: 'formItem'
-                    }]
-                }]
-            };
-
-            let wrapper = mount(
-                <JSONRender code={JSON.stringify(config)}/>
-            );
-            expect(wrapper.text()).toBe('control property is required for FormItem');
-            wrapper.unmount();
-        });
-
         it('formItem required in outside', () => {
             let config = {
                 body: [{

@@ -81,13 +81,21 @@ export class RCREFormItem extends React.Component<FormItemProps, {}> {
     private initFormItem = () => {
         let valid = true;
         let required = this.props.required;
+        let errmsg = '不能为空';
 
         if (this.props.rules && !this.props.required) {
-            required = this.props.rules.some(rule => !!rule.required);
+            required = this.props.rules.some(rule => {
+                let v = !!rule.required;
+                if (v && rule.message) {
+                    errmsg = rule.message;
+                }
+
+                return v;
+            });
         }
 
-        if ('required' in this.props) {
-            valid = !this.props.required;
+        if (required) {
+            valid = !required;
         }
 
         if (this.props.isTextFormItem) {
@@ -126,8 +134,8 @@ export class RCREFormItem extends React.Component<FormItemProps, {}> {
                 this.props.formContext.$setFormItem({
                     formItemName: name,
                     rules: this.props.rules,
-                    status: 'success',
-                    errorMsg: '',
+                    status: valid ? 'success' : 'error',
+                    errorMsg: valid ? '' : errmsg,
                     required: required,
                     valid: valid
                 });
@@ -152,14 +160,14 @@ export class RCREFormItem extends React.Component<FormItemProps, {}> {
         let prevRules = compileExpressionString(prevProps.rules || [], prevRunTime, [], true);
         let nextRules = compileExpressionString(this.props.rules || [], nextRunTime, [], true);
 
-        let isRequiredChanged = prevProps.required === this.props.required;
-        let isRuleChanged = isEqual(prevRules, nextRules);
+        let isRequiredChanged = prevProps.required !== this.props.required;
+        let isRuleChanged = !isEqual(prevRules, nextRules);
         let isFilterRuleChanged;
 
         if (prevProps.filterRule && this.props.filterRule) {
             let oldFilterRule = this.validFilterRule(prevProps.filterRule, null, prevRunTime, prevProps.filterErrMsg);
             let nextFilterRule = this.validFilterRule(this.props.filterRule, null, nextRunTime, this.props.filterErrMsg);
-            isFilterRuleChanged = oldFilterRule === nextFilterRule;
+            isFilterRuleChanged = oldFilterRule !== nextFilterRule;
         }
 
         if (isRequiredChanged || isRuleChanged || isFilterRuleChanged) {
