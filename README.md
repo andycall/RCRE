@@ -1,4 +1,4 @@
-![](https://user-images.githubusercontent.com/4409743/56588853-c1e78500-6616-11e9-814f-8d6bfc8917d9.png)
+![](https://user-images.githubusercontent.com/4409743/56592952-31ad3e00-661e-11e9-81bb-fc946b4663ac.png)
 
 [![CircleCI](https://circleci.com/gh/andycall/RCRE.svg?style=svg)](https://circleci.com/gh/andycall/RCRE)
 [![Stable Release](https://img.shields.io/npm/v/rcre.svg)](https://npm.im/rcre)
