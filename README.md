@@ -23,6 +23,8 @@ RCRE provide 5 powerful features that speed up your application developments.
 3. Always keep your state immutable and not easy to break it.
 4. State change trigger form validation automatically.
 5. Use syntax checker to prevent developer to write complex computing code embed into JSX code to make your template code more readable.
+6. A task controller can help you separate complex user interactions into pure small tasks and assemble it with a simple config.
+
 
 ## Docs (working in progress)
 
@@ -62,10 +64,15 @@ You can play with Formik in your web browser with these live online playgrounds.
     + send value to this container
     + send value to parent container
     + send value to target container
++ Tasks
+    + how to define tasks
+    + how to assemble multi tasks
     + one event to trigger multi tasks
     + how to use pure function to write a task
     + how to use the task map
     + how to get value from every task
+    + how to handle error tasks
+    + how to handle async task
 + Forms 
     + sync validation
     + async validation
