@@ -34,7 +34,7 @@ RCRE provide 5 powerful features that speed up your application developments.
 
 ## In-browser Playgrounds
 
-You can play with Formik in your web browser with these live online playgrounds.
+You can play with RCRE in your web browser with these live online playgrounds.
 
 + CodeSandbox 
 
