@@ -1,4 +1,4 @@
-![](https://user-images.githubusercontent.com/4409743/56588853-c1e78500-6616-11e9-814f-8d6bfc8917d9.png)
+![](https://user-images.githubusercontent.com/4409743/56592952-31ad3e00-661e-11e9-81bb-fc946b4663ac.png)
 
 [![CircleCI](https://circleci.com/gh/andycall/RCRE.svg?style=svg)](https://circleci.com/gh/andycall/RCRE)
 [![Stable Release](https://img.shields.io/npm/v/rcre.svg)](https://npm.im/rcre)
@@ -23,7 +23,7 @@ RCRE provide 5 powerful features that speed up your application developments.
 3. Always keep your state immutable and not easy to break it.
 4. State change trigger form validation automatically.
 5. Use syntax checker to prevent developer to write complex computing code embed into JSX code to make your template code more readable.
-6. A task controller can help you separate complex user interactions into pure small tasks and assemble it with a simple config.
+6. A task controller can help you separate complex user interactions into pure small tasks and assemble them with a simple config.
 
 
 ## Docs (working in progress)
@@ -36,7 +36,7 @@ RCRE provide 5 powerful features that speed up your application developments.
 
 ## In-browser Playgrounds
 
-You can play with Formik in your web browser with these live online playgrounds.
+You can play with RCRE in your web browser with these live online playgrounds.
 
 + CodeSandbox 
 
