@@ -64,6 +64,7 @@ You can play with RCRE in your web browser with these live online playgrounds.
     + send value to this container
     + send value to parent container
     + send value to target container
+    + how to bypass react events into RCRE
 + Tasks
     + how to define tasks
     + how to assemble multi tasks
