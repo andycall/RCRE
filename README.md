@@ -16,7 +16,7 @@ If you've ever read some of the large react project codes, you'll find it hard t
 
 RCRE is designed to make it easy for **everyone** to handle the above issues. It uses completely new design to make some complex problems easier. It has only a few React components, and you only need to known is write simple configuration and components to get everything done. 
 
-RCRE provide 5 powerful features that speed up your application developments. 
+RCRE provide 6 powerful features that help you build your application right. 
 
 1. Manage your component and application's state without writing action and reducers.
 2. Manage your API and trigger them automatically based on your component's state.
