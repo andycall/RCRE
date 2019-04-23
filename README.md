@@ -8,14 +8,18 @@
 
 ## What is RCRE?
 
-Everyone loves to use React to build apps, it's elegant and wonderful. But React does't tell you how to build a complex web application. When the application becomes very complicated, various problems such as the state of the component, the relationship between the components, the state of the entire application, how to organization your API request, and how to handle form validation and submissions. If you've ever read some of the large react project codes, you'll find it hard to figure out how it works. Obviously, not everyone can handle the above problems very well.
+Everyone loves to use React to build apps, it's elegant and wonderful. But React does't tell you how to build **a complex web application**. 
 
-RCRE is designed to make it easy for **everyone** to handle the above issues. It uses completely new design to make some complex problems easier. It has only a few React components, and you only need to write some simple configuration to get everything working. From now on, there will be **no action and reducer**, and no need to write some lifecycle methods such as componentDidUpdate. All your API request are managed in place and can be triggered automatically based on the state of the component. The form can automatically trigger validate based on the state of the component. All your application's state are immutable, and you can use any of the react components to trigger event callbacks and synchronize component data.
+When an application becomes very complex, various issues arise, such as the state of the component, the relationship between the components, the state of the entire application, how to organize the API request, and how to handle form validation and submission. If you don't have a lot of experience to deal with these issues, your code will get worse and the bug will always be with you.
 
-RCRE provide powerful features that help you with the 5 most annoying parts:
+If you've ever read some of the large react project codes, you'll find it hard to figure out how it works. Obviously, not everyone can handle the above problems very well.
 
-1. manage your component and application's state
-2. manage your API and how to trigger them
-3. how to keep your state immutable and not easy to break it.
-4. how to handle form validation, submission and keep everything in state.
-5. how to separate your computing code and jsx code and make code more readable.
+RCRE is designed to make it easy for **everyone** to handle the above issues. It uses completely new design to make some complex problems easier. It has only a few React components, and you only need to known is write simple configuration and get everything done. 
+
+RCRE provide 5 powerful features that speed up your application developments. 
+
+1. Manage your component and application's state without writing action and reducers.
+2. Manage your API and trigger them automatically based on your component's state.
+3. Always keep your state immutable and not easy to break it.
+4. State change trigger form validation automatically.
+5. Use syntax checker to prevent developer to write complex computing code embed into JSX code to make your template code more readable.
