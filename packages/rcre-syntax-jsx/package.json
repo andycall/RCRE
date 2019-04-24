@@ -1,6 +1,6 @@
 {
     "name": "rcre-syntax-jsx",
-    "version": "0.1.1",
+    "version": "0.20.1",
     "description": "RCRE jsx syntax support",
     "main": "./dist/index.js",
     "typings": "./dist/src/index.d.ts",
@@ -10,6 +10,6 @@
     "author": "andycall",
     "license": "MIT",
     "dependencies": {
-        "rcre": "^0.20.0"
+        "rcre": "^0.20.1"
     }
 }
