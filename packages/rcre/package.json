@@ -1,6 +1,6 @@
 {
     "name": "rcre",
-    "version": "0.20.1",
+    "version": "0.20.2",
     "main": "./dist/index.js",
     "typings": "./dist/src/index.d.ts",
     "repository": "https://github.com/andycall/RCRE",
