@@ -13,6 +13,9 @@
             "target": "http://localhost:8844"
         }
     },
+    "files": [
+        "dist"
+    ],
     "dependencies": {
         "axios": "^0.16.2",
         "bowser": "1.9.4",
