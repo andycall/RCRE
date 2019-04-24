@@ -4,7 +4,6 @@ import {FormProps, RCREForm} from '../Form/Form';
 import {componentLoader} from '../util/componentLoader';
 import {createChild} from '../util/createChild';
 import {FormContext} from '../context';
-import {memo} from 'react-memo-polyfill';
 
 function JSONForm(props: FormProps) {
     let children = (props.children || []).map((child: BasicConfig, index: number) => {
@@ -33,4 +32,4 @@ function JSONForm(props: FormProps) {
     );
 }
 
-componentLoader.addComponent('form', memo(JSONForm));
+componentLoader.addComponent('form', JSONForm);

@@ -31,7 +31,6 @@
         "react": ">=16",
         "react-dom": ">=16",
         "react-lifecycles-compat": "^3.0.4",
-        "react-memo-polyfill": "^0.0.2",
         "react-redux": "^5.0.7",
         "redux": "^3.7.2",
         "warning": "^4.0.3"
