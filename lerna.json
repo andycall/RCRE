@@ -4,5 +4,12 @@
     ],
     "version": "0.20.0",
     "npmClient": "yarn",
+    "public": {
+        "skipGit": true,
+        "allowBranch": "master",
+        "ignoreChanges": [
+            "*.md"
+        ]
+    },
     "useWorkspaces": true
 }
