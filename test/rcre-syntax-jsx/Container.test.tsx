@@ -1,7 +1,6 @@
 import {RCRETestUtil} from 'rcre-test-tools';
 import React from 'react';
-import {createReduxStore, RCREProvider} from 'rcre';
-import {Container, ES} from 'rcre-syntax-jsx';
+import {createReduxStore, RCREProvider, Container, ES} from 'rcre';
 
 describe('jsx syntax', function () {
     it('div', () => {

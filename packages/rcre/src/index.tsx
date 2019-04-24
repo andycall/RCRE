@@ -17,7 +17,6 @@ import './core/Hosts';
 import './core/Layout/Row/Row';
 
 export * from './types';
-export * from './core/Hosts/Container';
 export * from './core/util/util';
 export * from './core/Service/api';
 export * from './core/Events';
@@ -30,7 +29,7 @@ export * from './core/RCREProvider';
 export * from './core/context';
 export * from './core/Trigger';
 export * from './core/ErrorBoundary';
-export * from './core/Container';
+export * from './jsx-support';
 
 export * from './data/reducers';
 export * from './data/store';

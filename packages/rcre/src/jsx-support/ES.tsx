@@ -1,20 +1,16 @@
 import React from 'react';
-import {
-    runTimeType,
-    getRuntimeContext,
-    ContainerContext,
-    RCREContext,
-    TriggerContext,
-    IteratorContext,
-    FormContext,
-    ContainerContextType,
-    TriggerContextType,
-    FormContextType,
-    RCREContextType,
-    IteratorContextType,
-    ErrorBoundary
-} from 'rcre';
 import {get} from 'lodash';
+import {ErrorBoundary} from '../core/ErrorBoundary';
+import {getRuntimeContext} from '../core/util/util';
+import {
+    ContainerContextType,
+    FormContextType,
+    IteratorContextType,
+    RCREContextType,
+    runTimeType,
+    TriggerContextType
+} from '../types';
+import {ContainerContext, RCREContext, IteratorContext, TriggerContext, FormContext} from '../core/context';
 
 type ESChild = (runTime: runTimeType, context: {
     container: ContainerContextType;

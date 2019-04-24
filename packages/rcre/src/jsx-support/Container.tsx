@@ -1,12 +1,6 @@
 import React from 'react';
-import {
-    RCREContainer,
-    ContainerContext,
-    RCREContext,
-    IteratorContext,
-    TriggerContext,
-    ContainerProps,
-} from 'rcre';
+import {ContainerProps, RCREContainer} from '../core/Container/Container';
+import {ContainerContext, RCREContext, IteratorContext, TriggerContext} from '../core/context';
 
 export class Container extends React.Component<ContainerProps, {}> {
     render() {
