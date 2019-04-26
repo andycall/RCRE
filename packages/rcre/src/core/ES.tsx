@@ -13,9 +13,8 @@ import {
     runTimeType,
     TriggerContextType
 } from '../types';
-import {
-    withAllContext
-} from './context';
+import {withAllContext} from "./util/withAllContext";
+
 
 type ESChild = (runTime: runTimeType, context: {
     container: ContainerContextType;

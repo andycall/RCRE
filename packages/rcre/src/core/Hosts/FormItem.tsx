@@ -1,10 +1,10 @@
 import React from 'react';
 import {BasicConfig} from '../../types';
-import {FormItemProps, RCREFormItem} from '../Form/FormItem';
+import {RCREFormItem, RCREFormItemProps} from '../Form/FormItem';
 import {componentLoader} from '../util/componentLoader';
 import {createChild} from '../util/createChild';
 
-class JSONFormItem extends React.PureComponent<FormItemProps> {
+class JSONFormItem extends React.PureComponent<RCREFormItemProps> {
     static getComponentParseOptions() {
         return {
             blackList: ['filterRule', 'filterErrMsg']

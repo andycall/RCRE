@@ -9,6 +9,7 @@ const workspace = path.join(__dirname, '../../packages');
 const external = [
     'react',
     'react-dom',
+    'warning',
     'redux',
     'lodash',
     'events',

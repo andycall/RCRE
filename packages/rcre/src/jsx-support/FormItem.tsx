@@ -1,6 +1,6 @@
 import React from 'react';
-import {withAllContext} from '../core/context';
 import {FormItemProps, RCREFormItem, RCREFormItemProps} from '../core/Form/FormItem';
+import {withAllContext} from "../core/util/withAllContext";
 
 class FormItemComponents extends React.PureComponent<RCREFormItemProps, {}> {
     render() {
