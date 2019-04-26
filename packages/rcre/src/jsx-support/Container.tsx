@@ -2,7 +2,7 @@ import React from 'react';
 import {ContainerProps, RCREContainer} from '../core/Container/Container';
 import {ContainerContext, RCREContext, IteratorContext, TriggerContext} from '../core/context';
 
-export class Container extends React.Component<ContainerProps, {}> {
+export class Container extends React.PureComponent<ContainerProps, {}> {
     render() {
         return (
             <RCREContext.Consumer>
