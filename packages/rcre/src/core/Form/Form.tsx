@@ -6,7 +6,7 @@ import {
 import {FormContext} from '../context';
 import {formActions, SET_FORM_ITEM_PAYLOAD} from './actions';
 
-export interface FormProps extends BasicProps {
+export interface FormProps {
     /**
      * 表单的数据模型，会包含整个表单内部所有元素的数据
      */
@@ -32,10 +32,10 @@ export interface FormProps extends BasicProps {
     children?: any;
 }
 
-export class RCREForm extends React.Component<FormProps, {}> {
+export class RCREForm extends React.Component<FormProps & BasicProps, {}> {
     private isSubmitting: boolean;
 
-    constructor(props: FormProps) {
+    constructor(props: FormProps & BasicProps) {
         super(props);
 
         this.isSubmitting = false;

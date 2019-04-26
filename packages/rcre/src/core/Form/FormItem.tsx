@@ -14,9 +14,9 @@ import {isPlainObject, isNil, isEmpty, isEqual} from 'lodash';
 import {ApiRule, ValidateRules} from './types';
 import {compileExpressionString, isExpression, parseExpressionString} from '../util/vm';
 
-export interface FormItemProps extends BasicProps {
+export interface FormItemProps {
     required?: boolean;
-    rules: ValidateRules[];
+    rules?: ValidateRules[];
 
     /**
      * 使用接口进行自动验证
@@ -25,17 +25,18 @@ export interface FormItemProps extends BasicProps {
     filterRule?: any;
     isTextFormItem?: boolean;
     filterErrMsg?: any;
-    /**
-     * 来自Form组件的context
-     */
-    formContext: FormContextType;
-
     control?: any;
     children?: any;
 }
 
-export class RCREFormItem extends React.Component<FormItemProps, {}> {
-    // private infoBlackList: string[];
+export type RCREFormItemProps = FormItemProps & BasicProps & {
+    /**
+     * 来自Form组件的context
+     */
+    formContext: FormContextType;
+};
+
+export class RCREFormItem extends React.Component<RCREFormItemProps, {}> {
     private isApiValidate: boolean;
     private isUnMounted?: boolean;
     private controlElements: {
@@ -48,7 +49,7 @@ export class RCREFormItem extends React.Component<FormItemProps, {}> {
         };
     }
 
-    constructor(props: FormItemProps) {
+    constructor(props: RCREFormItemProps) {
         super(props);
 
         this.isApiValidate = false;
@@ -147,7 +148,7 @@ export class RCREFormItem extends React.Component<FormItemProps, {}> {
         this.initFormItem();
     }
 
-    componentDidUpdate(prevProps: Readonly<FormItemProps>, prevState: Readonly<{}>, snapshot?: any): void {
+    componentDidUpdate(prevProps: Readonly<RCREFormItemProps>, prevState: Readonly<{}>, snapshot?: any): void {
         let prevRunTime = getRuntimeContext(prevProps.containerContext, prevProps.rcreContext, {
             formContext: prevProps.formContext,
             iteratorContext: prevProps.iteratorContext,
