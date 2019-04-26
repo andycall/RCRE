@@ -1,6 +1,7 @@
 import {RCRETestUtil} from 'rcre-test-tools';
 import React from 'react';
 import {createReduxStore, RCREProvider, Container, ES} from 'rcre';
+import {Input} from "./components/Input";
 
 describe('jsx syntax', function () {
     it('div', () => {
@@ -146,124 +147,93 @@ describe('jsx syntax', function () {
         expect(state.username).toBe('abc');
     });
 
-    it('Can exec DataCustomer from ES Component directly', () => {
-        // const store = createReduxStore();
-        // let component = (
-        //     <RCREProvider store={store}>
-        //         <Container
-        //             model={'demo'}
-        //             dataCustomer={{
-        //                 customers: [{
-        //                     mode: 'pass',
-        //                     name: 'sendToOther',
-        //                     config: {
-        //                         model: 'other',
-        //                         assign: {
-        //                             password: (runTime: runTimeType) => runTime.$trigger.password
-        //                         }
-        //                     }
-        //                 }]
-        //             }}
-        //         >
-        //             <div>helloworld</div>
-        //             <ES>
-        //                 {(runTime, context) => {
-        //                     return (
-        //                         <button
-        //                             onClick={() => {
-        //
-        //                             }}
-        //                         >
-        //                             click
-        //                         </button>
-        //                     );
-        //                 }}
-        //             </ES>
-        //         </Container>
-        //         <Container model={'other'} />
-        //     </RCREProvider>
-        // );
+    it('Can exec DataCustomer from ES Component directly', async () => {
+        const store = createReduxStore();
+        let component = (
+            <RCREProvider store={store}>
+                <Container
+                    model={'demo'}
+                    data={{
+                        username: 'abc'
+                    }}
+                >
+                    <div><ES name={'username'}>{({$data}) => $data.username}</ES></div>
+                    <ES type={'button'}>
+                        {(runTime, context) => {
+                            return (
+                                <button
+                                    onClick={async (event) => {
+                                        await context.trigger.execTask('$this', {
+                                            username: 'helloworld'
+                                        });
+                                    }}
+                                >
+                                    click
+                                </button>
+                            );
+                        }}
+                    </ES>
+                </Container>
+                <Container model={'other'} />
+            </RCREProvider>
+        );
+
+        let test = new RCRETestUtil(component);
+        test.setContainer('demo');
+
+        let button = test.getComponentByType('button');
+        await test.execTask(button, '$this', {
+            username: 'helloworld'
+        });
+        let username = test.getComponentByName('username');
+        expect(username.text()).toBe('helloworld');
+
+        let state = test.getContainerState();
+        expect(state.username).toBe('helloworld');
     });
 
     it('[export]: inner container can export value using ExpressionString', () => {
-        // let store = createReduxStore();
-        // let component = (
-        //     <RCREProvider store={store}>
-        //         <Container model={'exportModel'}>
-        //             <div>export: <ES>{({$data}) => $data.name}</ES></div>
-        //             <Container
-        //                 model={'innerModel'}
-        //                 export={{
-        //                     name: ({$data}) => $data.subName + $data.anoSubName
-        //                 }}
-        //             >
-        //                 <ES>
-        //                     {({$data}) => <input value={} />}
-        //                 </ES>
-        //             </Container>
-        //         </Container>
-        //     </RCREProvider>
-        // );
-        // const info = {
-        //     body: [
-        //         {
-        //             'type': 'container',
-        //             'model': exportModel,
-        //             'children': [
-        //                 {
-        //                     'type': 'text',
-        //                     'text': 'export: #ES{$data.name}'
-        //                 },
-        //                 {
-        //                     'type': 'container',
-        //                     'model': innerModel,
-        //                     'export': {
-        //                         'name': '#ES{$data.subName + $data.anoSubName}'
-        //                     },
-        //                     'children': [{
-        //                         'type': 'input',
-        //                         'name': 'subName',
-        //                         'style': {
-        //                             'width': 300
-        //                         },
-        //                         'placeholder': '第一个输入框'
-        //                     }, {
-        //                         'type': 'input',
-        //                         'name': 'anoSubName',
-        //                         'style': {
-        //                             'width': 300
-        //                         },
-        //                         'placeholder': '第二个输入框'
-        //                     }]
-        //                 }
-        //             ]
-        //         }
-        //     ]
-        // };
+        let store = createReduxStore();
 
-        //
-        // let test = new RCRETestUtil(info);
-        // let inputs = test.wrapper.find('input');
-        // let firstInput = inputs.at(0);
-        // let secondInput = inputs.at(1);
-        //
-        // firstInput.simulate('change', {
-        //     target: {
-        //         value: '1'
-        //     }
-        // });
-        //
-        // secondInput.simulate('change', {
-        //     target: {
-        //         value: '2'
-        //     }
-        // });
-        //
-        // let state = test.getState();
-        // let container = state.container;
-        //
-        // expect(container[exportModel].name).toBe('12');
-        // expect(container[innerModel].subName).toBe('1');
-        // expect(container[innerModel].anoSubName).toBe('2');
+        let component = (
+            <RCREProvider store={store}>
+                <Container model={'exportModel'}>
+                    <div>export: <ES>{({$data}) => $data.name}</ES></div>
+                    <Container
+                        model={'innerModel'}
+                        export={{
+                            name: ({$data}) => $data.subName + $data.anoSubName
+                        }}
+                    >
+                        <Input name={'subName'} />
+                        <Input name={'anoSubName'} />
+                    </Container>
+                </Container>
+            </RCREProvider>
+        );
+
+        let test = new RCRETestUtil(component);
+        let inputs = test.wrapper.find('input');
+        let firstInput = inputs.at(0);
+        let secondInput = inputs.at(1);
+
+        firstInput.simulate('change', {
+            target: {
+                value: '1'
+            }
+        });
+
+        secondInput.simulate('change', {
+            target: {
+                value: '2'
+            }
+        });
+
+        let state = test.getState();
+        let container = state.container;
+
+        expect(container.exportModel.name).toBe('12');
+        expect(container.innerModel.subName).toBe('1');
+        expect(container.innerModel.anoSubName).toBe('2');
     });
 });
