@@ -12,6 +12,7 @@ import {
     IteratorContextType,
     TriggerContextType, FormItemContextType
 } from '../types';
+import {RCRETrigger} from './Trigger/Trigger';
 
 export const RCREContext = createReactContext<RCREContextType>({
     $global: {},
@@ -34,14 +35,21 @@ export const ContainerContext = createReactContext<ContainerContextType>({
     $data: {},
     $parent: null,
     dataCustomer: new DataCustomer(),
-    $setData: (name: string, value: any) => {},
-    $getData: (name: string, isTmp?: boolean) => {},
-    $deleteData: (name: string, isTmp?: boolean) => {},
-    $setMultiData: (items: { name: string, value: any, isTmp: boolean }[]) => {}
+    $setData: (name: string, value: any) => {
+    },
+    $getData: (name: string, isTmp?: boolean) => {
+    },
+    $deleteData: (name: string, isTmp?: boolean) => {
+    },
+    $setMultiData: (items: { name: string, value: any, isTmp: boolean }[]) => {
+    }
 });
 
 export const TriggerContext = createReactContext<TriggerContextType>({
-    eventHandle: async (eventName, args, options) => {},
+    eventHandle: async (eventName, args, options) => {
+    },
+    execTask: async (eventName, args) => {
+    },
     $trigger: null
 });
 
@@ -74,7 +82,7 @@ export const FormItemContext = createReactContext<FormItemContextType>({
     }
 });
 
-export const withRCREContext = (Component: any) => {
+export const withRCREContext: any = (Component: any) => {
     return (props: any) => (
         <RCREContext.Consumer>
             {context => <Component rcreContext={context} {...props} />}
@@ -118,6 +126,47 @@ export const IteratorContext = createReactContext<IteratorContextType>({
     $item: null,
     $index: -1
 });
+
+export const withAllContext: any = (Component: any) => (
+    (props: any) => (
+        <RCREContext.Consumer>
+            {rcreContext => <ContainerContext.Consumer>
+                {containerContext => <FormContext.Consumer>
+                    {formContext => <IteratorContext.Consumer>
+                        {iteratorContext => {
+                            return (
+                                <RCRETrigger
+                                    model={containerContext.model}
+                                    dataCustomer={containerContext.dataCustomer}
+                                    trigger={[]}
+                                    rcreContext={rcreContext}
+                                    iteratorContext={iteratorContext}
+                                    containerContext={containerContext}
+                                >
+                                    <TriggerContext.Consumer>
+                                        {triggerContext => <FormItemContext.Consumer>
+                                            {formItemContext => {
+                                                return <Component
+                                                    rcreContext={rcreContext}
+                                                    containerContext={containerContext}
+                                                    formContext={formContext}
+                                                    iteratorContext={iteratorContext}
+                                                    triggerContext={triggerContext}
+                                                    formItemContext={formItemContext}
+                                                    {...props}
+                                                />;
+                                            }}
+                                        </FormItemContext.Consumer>}
+                                    </TriggerContext.Consumer>
+                                </RCRETrigger>
+                            );
+                        }}
+                    </IteratorContext.Consumer>}
+                </FormContext.Consumer>}
+            </ContainerContext.Consumer>}
+        </RCREContext.Consumer>
+    )
+);
 
 export type RunTimeContextCollection = {
     container: ContainerContextType;
