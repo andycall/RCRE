@@ -188,7 +188,8 @@ describe('DataCustomer', () => {
             };
 
             let test = new RCRETestUtil(config);
-            let button = test.wrapper.find('RCREConnect(button)');
+            test.setContainer('demo');
+            let button = test.getComponentByType('button');
 
             test.simulate(button, 'onClick').then(() => {
             });
@@ -464,9 +465,10 @@ describe('DataCustomer', () => {
                 ]
             };
 
-            let component = <JSONRender code={config}/>;
-            let wrapper = mount(component);
-            let button = wrapper.find('RCREConnect(button)');
+            let test = new RCRETestUtil(config);
+            let wrapper = test.wrapper;
+            test.setContainer('submit');
+            let button = test.getComponentByType('button');
 
             moxios.wait(async () => {
                 let request = moxios.requests.mostRecent();
@@ -543,9 +545,10 @@ describe('DataCustomer', () => {
                 ]
             };
 
-            let component = <JSONRender code={config}/>;
-            let wrapper = mount(component);
-            let button = wrapper.find('RCREConnect(button)');
+            let test = new RCRETestUtil(config);
+            let wrapper = test.wrapper;
+            test.setContainer('submit');
+            let button = test.getComponentByType('button');
 
             moxios.wait(async () => {
                 let request = moxios.requests.mostRecent();
@@ -619,9 +622,10 @@ describe('DataCustomer', () => {
                 ]
             };
 
-            let component = <JSONRender code={config}/>;
-            let wrapper = mount(component);
-            let button = wrapper.find('RCREConnect(button)');
+            let test = new RCRETestUtil(config);
+            let wrapper = test.wrapper;
+            test.setContainer('submit');
+            let button = test.getComponentByType('button');
 
             moxios.wait(async () => {
                 let request = moxios.requests.mostRecent();
@@ -700,7 +704,9 @@ describe('DataCustomer', () => {
 
             let test = new RCRETestUtil(config);
             let wrapper = test.wrapper;
-            let button = wrapper.find('RCREConnect(button)');
+            test.setContainer('submit');
+
+            let button = test.getComponentByType('button');
 
             moxios.wait(async () => {
                 let request = moxios.requests.mostRecent();
@@ -786,8 +792,9 @@ describe('DataCustomer', () => {
 
             let test = new RCRETestUtil(config);
             let wrapper = test.wrapper;
-            let button = wrapper.find('RCREConnect(button)');
+            test.setContainer('submit');
 
+            let button = test.getComponentByType('button');
             moxios.wait(async () => {
                 let request = moxios.requests.mostRecent();
                 expect(request.config.data).toBe('username=andycall&password=123456');
@@ -838,9 +845,10 @@ describe('DataCustomer', () => {
         };
 
         let test = new RCRETestUtil(config);
+        test.setContainer('inner');
         let wrapper = test.wrapper;
 
-        let button = wrapper.find('RCREConnect(button)');
+        let button = test.getComponentByType('button');
 
         await simulate(wrapper, button, 'onClick');
 
@@ -909,7 +917,9 @@ describe('DataCustomer', () => {
         let test = new RCRETestUtil(config);
         let wrapper = test.wrapper;
 
-        let button = wrapper.find('RCREConnect(button)');
+        test.setContainer('outer');
+
+        let button = test.getComponentByType('button');
         await simulate(wrapper, button, 'onClick');
 
         let state = test.getState();

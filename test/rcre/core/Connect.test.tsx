@@ -122,6 +122,7 @@ describe('CommonConnect', () => {
             };
             let test = new RCRETestUtil(config);
             let input = test.wrapper.find('input').at(0);
+            test.setContainer('sampleDemo');
 
             input.simulate('change', {
                 target: {
@@ -138,7 +139,7 @@ describe('CommonConnect', () => {
             setTimeout(() => {
                 state = test.getState();
                 expect(state.container.sampleDemo.username).toBe('helloworld');
-                let button = test.wrapper.find('RCREConnect(button)');
+                let button = test.getComponentByType('button');
 
                 test.simulate(button, 'onClick').then(() => {
                     state = test.getState();

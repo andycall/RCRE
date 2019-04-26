@@ -346,6 +346,15 @@ class ESComponent extends React.PureComponent<ESProps & ESComponentInternalProps
         return this.props.triggerContext.execTask(task, args, options);
     }
 
+    public async TEST_simulateEvent(event: string, args: Object = {}) {
+        if (!this.props.triggerContext) {
+            console.warn('Connect: 组件没有绑定事件');
+            return null;
+        }
+
+        return this.props.triggerContext.eventHandle(event, args);
+    }
+
     public TEST_setData(value: any) {
         if (this.props.name) {
             return this.props.containerContext.$setData(this.props.name, value);

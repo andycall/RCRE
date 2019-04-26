@@ -1203,8 +1203,8 @@ describe('Container Component', () => {
         let state = test.getState();
         let container = state.container;
         expect(container['receiveData'].text).toBe('empty');
-
-        let buttonElement = test.wrapper.find('RCREConnect(button)').at(0);
+        test.setContainer('dataPass');
+        let buttonElement = test.getComponentByType('button').at(0);
         await test.simulate(buttonElement, 'onClick');
 
         state = test.getState();
@@ -1273,9 +1273,10 @@ describe('Container Component', () => {
 
         let test = new RCRETestUtil(config);
         let state = test.getState();
+        test.setContainer('initTest');
 
-        let hidden = test.wrapper.find('RCREConnect(button)').at(0);
-        let show = test.wrapper.find('RCREConnect(button)').at(1);
+        let hidden = test.getComponentByType('button');
+        let show = test.getComponentByType('button', 1);
         await test.simulate(hidden, 'onClick');
 
         state = test.getState();
@@ -1656,7 +1657,7 @@ describe('Container Component', () => {
 
         let test = new RCRETestUtil(info);
         test.setContainer('middle');
-        let button = test.wrapper.find('RCREConnect(button)').at(0);
+        let button = test.getComponentByType('button').at(0);
         await test.simulate(button, 'onClick');
 
         let state = test.getState();
@@ -2059,8 +2060,8 @@ describe('Container Component', () => {
 
         let test = new RCRETestUtil(config);
         test.setContainer('demo');
-        let hide = test.wrapper.find('RCREConnect(button)').at(0);
-        let show = test.wrapper.find('RCREConnect(button)').at(1);
+        let hide = test.getComponentByType('button');
+        let show = test.getComponentByType('button', 1);
         await test.simulate(hide, 'onClick');
         let state = test.getState();
         expect(state.container.containerModel).toBe(undefined);
@@ -2127,7 +2128,7 @@ describe('Container Component', () => {
 
         let test = new RCRETestUtil(config);
         test.setContainer('outer');
-        let button = test.wrapper.find('RCREConnect(button)');
+        let button = test.getComponentByType('button');
         let input = test.wrapper.find('RCREConnect(input)').at(0);
 
         test.setData(input, 'andycall');

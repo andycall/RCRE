@@ -9,7 +9,7 @@ interface ButtonProps {
 class RCREButton extends React.Component<ButtonProps, any> {
     render() {
         return (
-            <ES>
+            <ES type={'button'}>
                 {({$data}, context) => {
                     return (
                         <button
