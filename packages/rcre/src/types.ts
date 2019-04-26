@@ -555,7 +555,7 @@ export interface ContainerContextType {
     model: string;
     $data: any;
     $parent?: any;
-    dataCustomer?: DataCustomer | null;
+    dataCustomer: DataCustomer;
     $setData: (name: string, value: any, options?: ContainerSetDataOption) => void;
     $getData: (name: string) => any;
     $deleteData: (name: string) => void;
@@ -563,9 +563,14 @@ export interface ContainerContextType {
 }
 
 type TriggerContextOptions = { index?: number, preventSubmit?: boolean };
+export type ExecTaskOptions = {
+    // 延迟一定时间触发
+    wait?: number;
+};
 export interface TriggerContextType {
     $trigger: any;
     eventHandle: (eventName: string, args: Object, options?: TriggerContextOptions) => Promise<any>;
+    execTask: (targetTask: string, args: any, options?: ExecTaskOptions) => Promise<any>;
 }
 
 export interface IteratorContextType {
@@ -598,7 +603,7 @@ export interface FormContextType {
 
 export type ElementsInfo = {
     disabled?: boolean;
-    type: string;
+    type?: string;
     value: any;
 };
 

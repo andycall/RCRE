@@ -2,7 +2,7 @@ import React from 'react';
 import {RootState} from '../../data/reducers';
 import {
     BasicConfig,
-    ContainerContextType, IteratorContextType,
+    ContainerContextType, ExecTaskOptions, IteratorContextType,
     RCREContextType,
     TriggerContextType
 } from '../../types';
@@ -23,7 +23,8 @@ export class TriggerEventItem {
     /**
      * 指定的目标DataCustomer
      */
-    targetCustomer: string | string[];
+    targetCustomer?: string | string[];
+    targetTask: string | string[];
 
     /**
      * 传递给目标的参数
@@ -103,7 +104,8 @@ export class RCRETrigger<Config extends BasicConfig> extends React.Component<Tri
         this.eventHandle = this.eventHandle.bind(this);
         this.contextValue = {
             $trigger: null,
-            eventHandle: this.eventHandle
+            eventHandle: this.eventHandle,
+            execTask: this.execTask
         };
     }
 
@@ -216,6 +218,18 @@ export class RCRETrigger<Config extends BasicConfig> extends React.Component<Tri
         });
     }
 
+    private execTask = async (targetTask: string, params: any, options?: ExecTaskOptions) => {
+        let event: TriggerEventItem = {
+            event: '__INTENAL__',
+            targetTask: targetTask,
+            params: params,
+            ...options
+        };
+        let customerMap = {};
+        let execItem = this.execEvent(event, params, 0);
+        return this.postProcessEvent(execItem, customerMap);
+    }
+
     private async eventHandle(eventName: string, args: Object, options: { index?: number, preventSubmit?: boolean } = {}) {
         let eventList = this.props.trigger;
         let validEventList = eventList.filter(event => event.event === eventName);
@@ -245,14 +259,14 @@ export class RCRETrigger<Config extends BasicConfig> extends React.Component<Tri
     }
 
     private async execEvent(event: TriggerEventItem, args: Object, index: number): Promise<UnCookedTriggerEventItem | undefined> {
-        if (!event.targetCustomer) {
-            console.warn('触发事件必须指定targetCustomer');
+        if (!event.targetCustomer && !event.targetTask) {
+            console.warn('触发事件必须指定targetTask');
             return;
         }
 
         let params = event.params || {};
         let debug = event.debug;
-        let targetCustomer = event.targetCustomer;
+        let targetCustomer = event.targetTask || event.targetCustomer || '';
 
         if (event.wait) {
             await new Promise((resolve) => {
