@@ -63,6 +63,8 @@
         "dev": "node scripts/rollup/watch.js",
         "build": "node scripts/rollup/build.js",
         "testMockServer": "node test/__mock__/server.js &",
+        "website": "cd website && docusaurus-build",
+        "deploy": "cd website && docusaurus-publish",
         "test": "jest --env=jsdom -c ./jest.config.json --silent --verbose",
         "commit": "npx git-cz"
     },
