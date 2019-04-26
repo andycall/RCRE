@@ -226,7 +226,6 @@ enum ValidateDecision {
 }
 
 class BasicConnect extends React.Component<BasicConnectProps & BasicProps, {}> {
-    public $propertyWatch: string[];
     public options: CommonOptions;
     public debounceCache: { [key: string]: any };
     public debounceTimer: any;
@@ -235,7 +234,6 @@ class BasicConnect extends React.Component<BasicConnectProps & BasicProps, {}> {
     public constructor(props: BasicConnectProps & BasicProps, options: CommonOptions) {
         super(props);
 
-        this.$propertyWatch = [];
         this.debounceCache = {};
         this.isDebouncing = false;
         this.options = options;
@@ -302,22 +300,6 @@ class BasicConnect extends React.Component<BasicConnectProps & BasicProps, {}> {
             }
         }
     }
-
-    // private registerComponentNames = (name: string, disabled: boolean) => {
-    //     if (!this.props.formItemContext) {
-    //         return;
-    //     }
-    //
-    //     this.props.formItemContext.$updateDisabledStatus(name, disabled);
-    // }
-    //
-    // private deleteComponentNames = (name: string) => {
-    //     if (!this.props.formItemContext) {
-    //         return;
-    //     }
-    //
-    //     this.props.formItemContext.$deleteDisabledStatus(name);
-    // }
 
     /**
      * 执行一些属性的转换
