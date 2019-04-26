@@ -1,32 +1,31 @@
 import React from 'react';
-import {BasicConnectProps} from '../Connect/basicConnect';
-import {commonConnect} from '../Connect/Common/Common';
+import {ES} from '../ES';
 import {componentLoader} from '../util/componentLoader';
 
-interface RCREButtonProps extends BasicConnectProps {
+interface ButtonProps {
     text: string;
 }
 
-class RCREButton extends React.Component<RCREButtonProps, any> {
+class RCREButton extends React.Component<ButtonProps, any> {
     render() {
-        let {
-            tools,
-            ...props
-        } = this.props;
-
         return (
-            <button
-                {...props}
-                onClick={event => {
-                    tools.registerEvent('onClick', {
-                        event: event
-                    });
+            <ES>
+                {({$data}, context) => {
+                    return (
+                        <button
+                            onClick={event => {
+                                context.trigger.eventHandle('onClick', {
+                                    event: event
+                                });
+                            }}
+                        >
+                            {this.props.text}
+                        </button>
+                    );
                 }}
-            >
-                {this.props.text}
-            </button>
+            </ES>
         );
     }
 }
 
-componentLoader.addComponent('button', commonConnect()(RCREButton));
+componentLoader.addComponent('button', RCREButton);
