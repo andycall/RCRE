@@ -68,6 +68,19 @@ jobs:
                   root: ~/RCRE
                   paths: .
 
+    website:
+        <<: *defaults
+        steps:
+            - attach_workspace:
+                  at: ~/RCRE
+            - run:
+                  name: Deploying to GitHub Pages
+                  command: |
+                      git config --global user.email "andycall@users.noreply.github.com"
+                      git config --global user.name "andycall"
+                      echo "machine github.com login andycall password $GITHUB_TOKEN" > ~/.netrc
+                      cd website && GIT_USER=andycall yarn run publish-gh-pages
+
     deploy:
         <<: *defaults
         steps:
@@ -96,6 +109,12 @@ workflows:
                           only: /^v.*/
             - build:
                   requires:
+                      - install
+                  filters:
+                      tags:
+                          only: /^v.*/
+            - website:
+                  - required:
                       - install
                   filters:
                       tags:
