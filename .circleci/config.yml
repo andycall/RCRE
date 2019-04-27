@@ -114,7 +114,7 @@ workflows:
                       tags:
                           only: /^v.*/
             - website:
-                  - required:
+                  requires:
                       - install
                   filters:
                       tags:
