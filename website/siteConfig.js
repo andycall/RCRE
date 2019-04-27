@@ -10,90 +10,92 @@
 
 // List of projects/orgs using your project for the users page.
 const users = [
-  {
-    caption: 'Baidu',
-    // You will need to prepend the image path with your baseUrl
-    // if it is not '/', like: '/test-site/img/image.jpg'.
-    image: 'https://www.baidu.com/img/bd_logo1.png',
-    infoLink: 'http://www.baidu.com',
-    pinned: true,
-  },
+    {
+        caption: 'Baidu',
+        // You will need to prepend the image path with your baseUrl
+        // if it is not '/', like: '/test-site/img/image.jpg'.
+        image: 'https://www.baidu.com/img/bd_logo1.png',
+        infoLink: 'http://www.baidu.com',
+        pinned: true,
+    },
 ];
 
 const siteConfig = {
-  title: 'RCRE', // Title for your website.
-  tagline: 'Build complex applications without tears',
-  url: 'https://andycall.github.io', // Your website URL
-  baseUrl: '/RCRE/', // Base URL for your project */
-  // Used for publishing and more
-  projectName: 'RCRE',
-  organizationName: 'andycall',
+    title: 'RCRE', // Title for your website.
+    tagline: 'Build complex applications without tears',
+    url: 'https://andycall.github.io', // Your website URL
+    baseUrl: '/RCRE/', // Base URL for your project */
+    // Used for publishing and more
+    projectName: 'RCRE',
+    organizationName: 'andycall',
 
-  // For no header links in the top nav bar -> headerLinks: [],
-  headerLinks: [
-    {doc: 'doc1', label: 'Docs'},
-    {doc: 'doc4', label: 'API'},
-    {page: 'help', label: 'Help'},
-    {blog: true, label: 'Blog'},
-  ],
-
-  // If you have users set above, you add it here:
-  users,
-
-  /* path to images for header/footer */
-  headerIcon: 'img/favicon.ico',
-  footerIcon: 'img/favicon.ico',
-  favicon: 'img/favicon.ico',
-
-  /* Colors for website */
-  colors: {
-    primaryColor: '#7984a9',
-    secondaryColor: '#545c76',
-  },
-
-  /* Custom fonts for website */
-  /*
-  fonts: {
-    myFont: [
-      "Times New Roman",
-      "Serif"
+    // For no header links in the top nav bar -> headerLinks: [],
+    headerLinks: [
+        {doc: 'doc1', label: 'Docs'},
+        {doc: 'doc4', label: 'API'},
+        {page: 'help', label: 'Help'},
+        {blog: true, label: 'Blog'},
     ],
-    myOtherFont: [
-      "-apple-system",
-      "system-ui"
-    ]
-  },
-  */
 
-  // This copyright info is used in /core/Footer.js and blog RSS/Atom feeds.
-  copyright: `Copyright © ${new Date().getFullYear()} AndyCall`,
+    // If you have users set above, you add it here:
+    users,
 
-  highlight: {
-    // Highlight.js theme to use for syntax highlighting in code blocks.
-    theme: 'default',
-  },
+    /* path to images for header/footer */
+    headerIcon: '',
+    footerIcon: '',
+    // favicon: 'img/favicon.ico',
 
-  // Add custom scripts here that would be placed in <script> tags.
-  scripts: [],
+    /* Colors for website */
+    colors: {
+        primaryColor: '#111',
+        secondaryColor: '#111',
+        grayDarker: '#333',
+        gray: '#555',
+        grayLighter: '#888',
+        accentColor: '#785BA3',
+        actionColor: '#008cf2',
+    },
 
-  // On page navigation for the current documentation page.
-  onPageNav: 'separate',
-  // No .html extensions for paths.
-  cleanUrl: true,
+    editUrl: 'https://github.com/andycall/RCRE/edit/master/docs/',
 
-  // Open Graph and Twitter card images.
-  ogImage: 'img/undraw_online.svg',
-  twitterImage: 'img/undraw_tweetstorm.svg',
+    // This copyright info is used in /core/Footer.js and blog RSS/Atom feeds.
+    copyright: `Copyright © ${new Date().getFullYear()} AndyCall`,
 
-  // Show documentation's last contributor's name.
-  // enableUpdateBy: true,
+    highlight: {
+        // Highlight.js theme to use for syntax highlighting in code blocks.
+        theme: 'default',
+    },
 
-  // Show documentation's last update time.
-  // enableUpdateTime: true,
+    // Add custom scripts here that would be placed in <script> tags.
+    scripts: [],
 
-  // You may provide arbitrary config keys to be used as needed by your
-  // template. For example, if you need your repo's URL...
-  //   repoUrl: 'https://github.com/facebook/test-site',
+    // On page navigation for the current documentation page.
+    onPageNav: 'separate',
+    // No .html extensions for paths.
+    cleanUrl: true,
+
+    // Open Graph and Twitter card images.
+    ogImage: 'img/undraw_online.svg',
+    twitterImage: 'img/undraw_tweetstorm.svg',
+
+    // Show documentation's last contributor's name.
+    enableUpdateBy: true,
+
+    // Show documentation's last update time.
+    enableUpdateTime: true,
+
+    scrollToTop: true,
+    scrollToTopOptions: {
+        zIndex: 100,
+    },
+
+    usePrism: ['jsx', 'typescript'],
+
+    gaTrackingId: 'UA-139149146-1',
+
+    // You may provide arbitrary config keys to be used as needed by your
+    // template. For example, if you need your repo's URL...
+    repoUrl: 'https://github.com/andycall/RCRE',
 };
 
 module.exports = siteConfig;
