@@ -79,7 +79,7 @@ jobs:
                       git config --global user.email "andycall@users.noreply.github.com"
                       git config --global user.name "andycall"
                       echo "machine github.com login andycall password $GITHUB_TOKEN" > ~/.netrc
-                      cd website && GIT_USER=andycall yarn run publish-gh-pages
+                      cd website && yarn install && GIT_USER=andycall yarn run publish-gh-pages
 
     deploy:
         <<: *defaults
