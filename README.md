@@ -47,6 +47,7 @@ You can play with RCRE in your web browser with these live online playgrounds.
 + [Todos](https://codesandbox.io/s/github/andycall/RCRE/tree/master/examples/todos)
 + [Keep All state immutable](https://codesandbox.io/s/github/andycall/RCRE/tree/master/examples/immutable)
 + [Simple Search](https://codesandbox.io/s/github/andycall/RCRE/tree/master/examples/simple-search)
++ [Combine Search](https://github.com/andycall/RCRE/tree/master/examples/combine-search)
 + Container
     + use init data
     + sync value between parent and child container
