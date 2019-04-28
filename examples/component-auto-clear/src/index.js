@@ -12,7 +12,8 @@ function App() {
         <Container
           model={'test'}
           data={{
-            hideUserName: false
+            hideUserName: false,
+            clear: true
           }}
         >
           <p>Component Will AutoClear When destroy</p>
@@ -22,15 +23,21 @@ function App() {
                 return null;
               }
 
-              return <Input name={'username'} clearWhenDestory={true} />
+              return <Input name={'username'} clearWhenDestory={$data.clear} />
             }}</ES>
             <ES>{({$data}, context) => (
-              <button onClick={event => context.trigger.execTask('$this', {
-                hideUserName: !$data.hideUserName
-              })}>{$data.hideUserName ? 'show' : 'hide'}</button>
+              <button onClick={event => context.container.$setData('hideUserName', !$data.hideUserName)}>
+                {$data.hideUserName ? 'show' : 'hide'}
+              </button>
             )}</ES>
           </div>
 
+          <ES>{({$data}, context) => (
+            <div>
+              <button onClick={event => context.container.$setData('clear', !$data.clear)}>{$data.clear ? 'turn off' : 'turn on'}</button>
+              <span>auto clear: {$data.clear ? 'true' : 'false'}</span>
+            </div>
+          )}</ES>
 
           <p>State Value</p>
           <ES>{({$data}) => (
