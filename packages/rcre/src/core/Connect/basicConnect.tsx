@@ -181,6 +181,7 @@ export interface BasicConnectProps {
     disableClearWhenDestroy?: boolean;
     // 非表单模式下，开启此功能组件销毁自动清除数据
     clearWhenDestory?: boolean;
+    clearWhenDestroy?: boolean;
 
     tools: ConnectTools<BasicConnectProps>;
 
@@ -286,11 +287,11 @@ class BasicConnect extends React.Component<BasicConnectProps & BasicProps, {}> {
 
     componentWillUnmount() {
         if (this.props.name) {
-            if (this.props.formContext && this.props.clearFormStatusOnlyWhenDestroy) {
+            if (this.props.formContext && this.props.formContext.$form && this.props.clearFormStatusOnlyWhenDestroy) {
                 this.props.formContext.$deleteFormItem(this.props.name);
-            } else if (this.props.formContext && !this.props.disableClearWhenDestroy) {
+            } else if (this.props.formContext && this.props.formContext.$form && !this.props.disableClearWhenDestroy) {
                 this.props.containerContext.$deleteData(this.props.name);
-            } else if (this.props.clearWhenDestory) {
+            } else if (this.props.clearWhenDestory || this.props.clearWhenDestroy) {
                 this.props.containerContext.$deleteData(this.props.name);
             }
 

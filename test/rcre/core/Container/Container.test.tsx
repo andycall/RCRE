@@ -2543,4 +2543,67 @@ describe('Container Component', () => {
 
         test.unmount();
     });
+    
+    it('clearWhenDestroy', async () => {
+        let config = {
+            body: [{
+                type: 'container',
+                model: 'demo',
+                data: {
+                    clear: false,
+                    hide: false,
+                },
+                children: [{
+                    type: 'input',
+                    name: 'username',
+                    hidden: ({$data}: any) => $data.hide,
+                    clearWhenDestroy: ({$data}: any) => $data.clear
+                }, {
+                   type: 'button',
+                   text: 'hide',
+                   trigger: [{
+                       event: 'onClick',
+                       targetCustomer: '$this',
+                       params: {
+                           hide: ({$data}: any) => !$data.hide
+                       }
+                   }]
+                }, {
+                    type: 'button',
+                    text: 'turn on',
+                    trigger: [{
+                        event: 'onClick',
+                        targetCustomer: '$this',
+                        params: {
+                            clear: true
+                        }
+                    }]
+                }]
+            }]
+        };
+
+        let test = new RCRETestUtil(config);
+        test.setContainer('demo');
+
+        let input = test.getComponentByName('username');
+        test.setData(input, 'helloworld');
+
+        let hideButton = test.getComponentByType('button');
+        await test.simulate(hideButton, 'onClick');
+
+        let state = test.getContainerState();
+        expect(state.username).toBe('helloworld');
+        expect(test.hasComponentByName('username')).toBe(false);
+
+        await test.simulate(hideButton, 'onClick');
+        expect(test.hasComponentByName('username')).toBe(true);
+
+        let clearButton = test.getComponentByType('button', 1);
+        await test.simulate(clearButton, 'onClick');
+
+        await test.simulate(hideButton, 'onClick');
+        state = test.getContainerState();
+        expect(state.username).toBe(undefined);
+        expect(test.hasComponentByName('username')).toBe(false);
+    });
 });

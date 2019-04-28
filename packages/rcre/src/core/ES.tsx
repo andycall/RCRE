@@ -33,6 +33,7 @@ export interface ESProps {
     clearFormStatusOnlyWhenDestroy?: boolean;
     disableClearWhenDestroy?: boolean;
     clearWhenDestory?: boolean;
+    clearWhenDestroy?: boolean;
 
     /**
      * 满足一定条件就清空组件的值
@@ -102,11 +103,11 @@ class ESComponent extends React.PureComponent<ESProps & ESComponentInternalProps
 
     componentWillUnmount() {
         if (this.props.name) {
-            if (this.props.formContext && this.props.clearFormStatusOnlyWhenDestroy) {
+            if (this.props.formContext && this.props.formContext.$form && this.props.clearFormStatusOnlyWhenDestroy) {
                 this.props.formContext.$deleteFormItem(this.props.name);
-            } else if (this.props.formContext && !this.props.disableClearWhenDestroy) {
+            } else if (this.props.formContext && this.props.formContext.$form && !this.props.disableClearWhenDestroy) {
                 this.props.containerContext.$deleteData(this.props.name);
-            } else if (this.props.clearWhenDestory) {
+            } else if (this.props.clearWhenDestory || this.props.clearWhenDestroy) {
                 this.props.containerContext.$deleteData(this.props.name);
             }
 

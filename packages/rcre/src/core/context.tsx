@@ -28,6 +28,8 @@ export const RCREContext = createReactContext<RCREContextType>({
     mode: 'React',
     containerGraph: new Map()
 });
+// @ts-ignore
+RCREContext.displayName = 'RCREContext';
 
 export const ContainerContext = createReactContext<ContainerContextType>({
     model: '',
@@ -43,6 +45,8 @@ export const ContainerContext = createReactContext<ContainerContextType>({
     $setMultiData: (items: { name: string, value: any, isTmp: boolean }[]) => {
     }
 });
+// @ts-ignore
+ContainerContext.displayName = 'ContainerContext';
 
 export const TriggerContext = createReactContext<TriggerContextType>({
     eventHandle: async (eventName, args, options) => {
