@@ -1,5 +1,5 @@
 {
-  "name": "use-container-component",
+  "name": "counter",
   "version": "1.0.0",
   "description": "",
   "keywords": [],
@@ -14,7 +14,7 @@
     "typescript": "3.3.3"
   },
   "scripts": {
-    "start": "react-scripts start",
+    "start": "SKIP_PREFLIGHT_CHECK=true react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject"

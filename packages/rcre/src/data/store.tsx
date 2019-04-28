@@ -9,6 +9,7 @@ const composeEnhancers = ((
 ));
 
 export function createReduxStore(): Store<RootState> {
+    console.log('create store');
     return createStore<RootState>(
         combineReducers({
             $rcre: rcreReducer

@@ -1,10 +1,10 @@
 import React from 'react';
 import createReactContext from 'create-react-context';
+import {createStore} from 'redux';
 import URL from 'url';
 import {DataCustomer} from './DataCustomer/index';
 import {DataProviderEvent} from './Events/dataProviderEvent';
 import {Events} from './Events/index';
-import createReduxStore from '../data/store';
 import {
     RCREContextType,
     ContainerContextType,
@@ -23,7 +23,7 @@ export const RCREContext = createReactContext<RCREContextType>({
     // lang: PropsTypes.string,
     events: new Events(),
     dataProviderEvent: new DataProviderEvent(),
-    store: createReduxStore(),
+    store: createStore((state) => state),
     options: {},
     mode: 'React',
     containerGraph: new Map()

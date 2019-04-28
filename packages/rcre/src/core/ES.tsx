@@ -13,8 +13,7 @@ import {
     runTimeType,
     TriggerContextType
 } from '../types';
-import {withAllContext} from "./util/withAllContext";
-
+import {withAllContext} from './util/withAllContext';
 
 type ESChild = (runTime: runTimeType, context: {
     container: ContainerContextType;
@@ -118,10 +117,8 @@ class ESComponent extends React.PureComponent<ESProps & ESComponentInternalProps
         }
     }
 
-    public updateNameValue = (value: any, options: ContainerSetDataOption = {}) => {
-        let name = this.props.name || options.name;
-
-        if (name) {
+    public updateNameValue = (name: string, value: any, options: ContainerSetDataOption = {}) => {
+        if (name === this.props.name) {
             if (typeof this.props.debounce === 'number' && !options.skipDebounce) {
                 this.debounceCache[name] = value;
                 clearTimeout(this.debounceTimer);
@@ -134,9 +131,9 @@ class ESComponent extends React.PureComponent<ESProps & ESComponentInternalProps
                 this.forceUpdate();
                 return;
             }
-
-            this.props.containerContext.$setData(name, value, options);
         }
+
+        this.props.containerContext.$setData(name, value, options);
     }
 
     public clearNameValue = (name?: string) => {
@@ -304,12 +301,16 @@ class ESComponent extends React.PureComponent<ESProps & ESComponentInternalProps
             return this.props.children;
         }
         let context = {
-            container: this.props.containerContext,
+            container: {
+                ...this.props.containerContext,
+                $setData: this.updateNameValue
+            },
             rcre: this.props.rcreContext,
             form: this.props.formContext,
             trigger: this.props.triggerContext,
             iterator: this.props.iteratorContext
         };
+
         let name = this.props.name;
         let runTime = getRuntimeContext(this.props.containerContext, this.props.rcreContext, {
             iteratorContext: this.props.iteratorContext,
