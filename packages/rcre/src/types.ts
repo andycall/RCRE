@@ -4,7 +4,7 @@ import {Store} from 'redux';
 import {UrlWithStringQuery} from 'url';
 // import {ContainerConfig} from './core/Container/AbstractContainer';
 import {DataCustomer} from './core/DataCustomer/index';
-import {DataProviderEvent} from "./core/Events/dataProviderEvent";
+import {DataProviderEvent} from './core/Events/dataProviderEvent';
 import {Events} from './core/Events/index';
 // import {RowConfig} from './core/Layout/Row/Row';
 // import {DivConfig} from './core/Layout/Div/Div';
@@ -506,16 +506,18 @@ export interface CustomerGroup {
     keepWhenError?: boolean;
 }
 
-export interface CustomerSourceConfig {
+export interface TaskConfig {
     /**
      * 单个customer配置
      */
-    customers: CustomerItem[];
+    customers?: CustomerItem[];
+    tasks?: CustomerItem[];
 
     /**
      * 业务组合
      */
     groups?: CustomerGroup[];
+    taskMap?: CustomerGroup[];
 }
 
 export type RCREOptions = {

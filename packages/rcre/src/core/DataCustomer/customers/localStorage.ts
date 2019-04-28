@@ -64,7 +64,6 @@ export async function localStoreCustomer(config: PassCustomerExecConfig, params:
             return {key: key, value: value};
         });
     } else {
-        console.error('LocalStorage的groups需要是一个数组');
-        return null;
+        throw new Error('LocalStorage的groups需要是一个数组');
     }
 }

@@ -62,6 +62,7 @@ export function locationCustomer(config: PassCustomerExecConfig, customParams: C
             history.pushState('', '', location.origin + location.pathname + '?' + updatedParamsString);
             return true;
         }
-        default: return true;
+        default:
+            throw new Error('location mode is not supported');
     }
 }

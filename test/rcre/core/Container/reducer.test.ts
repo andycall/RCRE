@@ -188,6 +188,7 @@ describe('Container State', () => {
         let state = containerReducer(initState, updateAction);
         expect(state[KEY]).toEqual({
             name: 1,
+            $error: null,
             $loading: false
         });
     });

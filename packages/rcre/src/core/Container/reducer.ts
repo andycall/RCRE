@@ -173,6 +173,7 @@ export const containerReducer: Reducer<IContainerState> =
                 }
 
                 state = setWith(state, combineKeys(model, '$loading'), false);
+                state = setWith(state, combineKeys(model, '$error'), null);
 
                 each(data, (value, name) => {
                     state = setWith(state, combineKeys(model, name), value);

@@ -33,8 +33,7 @@ export function passCustomer(config: PassCustomerExecConfig, params: CustomerPar
     }
 
     if (!output) {
-        console.error('pass output is not valid, please check your ExpressionString');
-        return;
+        throw new Error('pass output is not valid, please check your ExpressionString');
     }
 
     params.rcreContext.store.dispatch(containerActionCreators.dataCustomerPass({

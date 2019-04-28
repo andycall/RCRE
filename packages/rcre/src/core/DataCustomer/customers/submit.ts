@@ -77,8 +77,7 @@ function handleError(error: Error, response: AxiosResponse, config: SubmitCustom
 
 export async function submitCustomer(config: SubmitCustomerExecConfig, params: CustomerParams) {
     if (!config.url) {
-        console.error('URL is Required for submit request');
-        return;
+        throw new Error('URL is Required for submit request');
     }
 
     if (!config.method) {
@@ -105,24 +104,61 @@ export async function submitCustomer(config: SubmitCustomerExecConfig, params: C
         proxyUrl = runTime.$global.proxy;
     }
 
-    console.log(params.options);
     // 在某些特殊场景(E2E TEST)下，不提交，直接返回待提交的数据
     if (params.options && params.options.preventSubmit) {
         return config;
     }
+
+    params.rcreContext.store.dispatch(
+        containerActionCreators.setData({
+            name: '$loading',
+            value: true
+        }, params.model, {
+            container: params.containerContext,
+            iterator: params.iteratorContext,
+            rcre: params.rcreContext
+        })
+    );
 
     let ret;
     try {
         ret = await request(config.url, config, proxyUrl);
     } catch (e) {
         let errResponse = e.response;
+        params.rcreContext.store.dispatch(
+            containerActionCreators.setMultiData([{
+                name: '$loading',
+                value: false
+            }, {
+                name: '$error',
+                value: e
+            }], params.model, {
+                container: params.containerContext,
+                iterator: params.iteratorContext,
+                rcre: params.rcreContext
+            })
+        );
 
         handleError(e, errResponse, config, runTime);
         return;
     }
 
     if (ret.status !== 200) {
-        throw new Error('Request Failed' + ret.statusText);
+        let error = new Error('Request Failed' + ret.statusText);
+        params.rcreContext.store.dispatch(
+            containerActionCreators.setMultiData([{
+                name: '$loading',
+                value: true
+            }, {
+                name: '$error',
+                value: error
+            }], params.model, {
+                container: params.containerContext,
+                iterator: params.iteratorContext,
+                rcre: params.rcreContext
+            })
+        );
+        throw error;
     }
 
     if (config.retCheckPattern) {
@@ -132,6 +168,16 @@ export async function submitCustomer(config: SubmitCustomerExecConfig, params: C
         });
 
         if (!isValid) {
+            params.rcreContext.store.dispatch(
+                containerActionCreators.setData({
+                    name: '$loading',
+                    value: false
+                }, params.model, {
+                    container: params.containerContext,
+                    iterator: params.iteratorContext,
+                    rcre: params.rcreContext
+                })
+            );
             handleError(new Error(), ret, config, runTime);
             return;
         }
@@ -152,7 +198,13 @@ export async function submitCustomer(config: SubmitCustomerExecConfig, params: C
         let multiItems = keys.map(key => ({
             name: key,
             value: exportValue[key]
-        }));
+        })).concat([{
+            name: '$loading',
+            value: false
+        }, {
+            name: '$error',
+            value: null
+        }]);
 
         params.rcreContext.store.dispatch(
             containerActionCreators.setMultiData(multiItems, params.model, {

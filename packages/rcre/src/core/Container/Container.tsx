@@ -11,7 +11,7 @@ import {
 import {
     BasicProps, BindItem,
     ContainerContextType, ContainerNodeOptions, ContainerSetDataOption,
-    CustomerSourceConfig, defaultData, ESFunc,
+    TaskConfig, defaultData, ESFunc,
     ProviderSourceConfig,
     RCREContextType
 } from '../../types';
@@ -71,7 +71,8 @@ export interface ContainerProps extends ContainerNodeOptions {
     /**
      * dataCustomer配置
      */
-    dataCustomer?: CustomerSourceConfig;
+    dataCustomer?: TaskConfig;
+    task?: TaskConfig;
 
     /**
      * 子级组件
@@ -100,11 +101,11 @@ class Container extends React.PureComponent<ConnectContainerProps, {}> {
         this.isUnmount = false;
         this.$setData = this.$setData.bind(this);
         this.initContainerGraph(props);
-        this.initDataCustomer(props);
+        this.initTask(props);
         this.initDefaultData(props);
     }
 
-    private initDataCustomer(props: ConnectContainerProps) {
+    private initTask(props: ConnectContainerProps) {
         const defaultCustomer = {
             mode: 'pass',
             name: '$SELF_PASS_CUSTOMER',
@@ -123,28 +124,28 @@ class Container extends React.PureComponent<ConnectContainerProps, {}> {
             }
         };
 
-        let dataCustomer = props.dataCustomer;
-
-        if (dataCustomer) {
-            if (!Array.isArray(dataCustomer.customers)) {
-                console.error('DataCustomer: customer属性必须是个数组');
-                return;
-            }
-
-            if (dataCustomer.groups && !Array.isArray(dataCustomer.groups)) {
-                console.error('DataCustomer: groups属性必须是个数组');
-                return;
-            }
-
-            dataCustomer.customers.unshift(defaultCustomer);
-            dataCustomer.customers.unshift(defaultParentCustomer);
-        } else {
+        let dataCustomer = props.dataCustomer || props.task;
+        if (!dataCustomer) {
             dataCustomer = {
-                customers: [defaultCustomer, defaultParentCustomer],
+                customers: [],
                 groups: []
             };
         }
-        this.dataCustomer.initCustomerConfig(dataCustomer);
+
+        let customers: any[] = dataCustomer.customers || dataCustomer.tasks || [];
+        let groups = dataCustomer.groups || dataCustomer.taskMap || [];
+
+        if (!Array.isArray(customers)) {
+            console.error('DataCustomer: customer属性必须是个数组');
+            return;
+        }
+
+        customers = [defaultCustomer, defaultParentCustomer].concat(customers);
+
+        this.dataCustomer.initCustomerConfig({
+            customers: customers,
+            groups: groups
+        });
     }
 
     private getContextCollection() {

@@ -4,7 +4,10 @@ exports[`DataCustomer customer exec when add keepWhenError property in groups 1`
 Object {
   "container": Object {
     "__TMP_MODEL__DO_NO_USE_IT": Object {},
-    "customerGroup": Object {},
+    "customerGroup": Object {
+      "$error": [Error: Request failed with status code 500],
+      "$loading": true,
+    },
   },
   "form": Object {},
   "trigger": Object {

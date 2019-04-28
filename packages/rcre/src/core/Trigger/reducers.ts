@@ -10,7 +10,6 @@ export const triggerReducers: Reducer<TriggerState> = (state: TriggerState = tri
     switch (actions.type) {
         case TRIGGER_SET_DATA: {
             let payload = actions.payload;
-
             payload.forEach(pay => {
                 let model = pay.model;
 

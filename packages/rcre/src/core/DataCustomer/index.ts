@@ -2,7 +2,7 @@ import {RootState} from '../../data/reducers';
 import {
     BasicConfig,
     ContainerContextType,
-    CustomerSourceConfig,
+    TaskConfig,
     IteratorContextType,
     RCREContextType,
     runTimeType
@@ -139,9 +139,9 @@ export class DataCustomer extends EventEmitter {
         // this.emit('errors', e);
     }
 
-    public initCustomerConfig(info: CustomerSourceConfig) {
-        let customers = info.customers;
-        let groups = info.groups;
+    public initCustomerConfig(info: TaskConfig) {
+        let customers = info.customers || [];
+        let groups = info.groups || [];
 
         customers.forEach(customer => {
             if (!customer.name) {
@@ -298,3 +298,4 @@ DataCustomer.registerCustomerInstance('localStorage', localStoreCustomer);
 DataCustomer.registerCustomerInstance('location', locationCustomer);
 DataCustomer.registerCustomerInstance('pass', passCustomer);
 DataCustomer.registerCustomerInstance('submit', submitCustomer);
+DataCustomer.registerCustomerInstance('request', submitCustomer);
