@@ -96,7 +96,7 @@ function recursionExpressionString<T> (data: T,
             let oldKey = key;
             key = parseExpressionString(key, runTime);
             if (key) {
-                data = deleteWith(oldKey, data);
+                data = deleteWith(data, oldKey);
                 data = setWith(data, key, item);
             }
         }

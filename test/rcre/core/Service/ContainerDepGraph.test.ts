@@ -33,7 +33,7 @@ describe('ContainerDepGraph', () => {
 
         let affectNode: ContainerNode[] = [];
         // @ts-ignore
-        syncExportContainerState(state, affectNode, {
+        state = syncExportContainerState(state, affectNode, {
             // @ts-ignore
             container: {},
             // @ts-ignore
@@ -86,7 +86,7 @@ describe('ContainerDepGraph', () => {
 
         let affectNode: ContainerNode[] = [];
         // @ts-ignore
-        syncExportContainerState(state, affectNode, {
+        state = syncExportContainerState(state, affectNode, {
             // @ts-ignore
             container: {},
             // @ts-ignore
@@ -96,8 +96,6 @@ describe('ContainerDepGraph', () => {
             // @ts-ignore
             form: {}
         }, C);
-
-        console.log(state);
 
         expect(state.C.name).toBe('andycall');
         expect(state.A.name).toBe('andycall');

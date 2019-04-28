@@ -23,7 +23,7 @@ import {
     syncExportContainerState,
     syncDeleteContainerState, syncPropsContainerState, ContainerNode
 } from '../Service/ContainerDepGraph';
-import {setWith, deleteWith} from '../util/util';
+import {setWith, deleteWith, combineKeys} from '../util/util';
 
 export const TMP_MODEL = '__TMP_MODEL__DO_NO_USE_IT';
 
@@ -60,11 +60,11 @@ export const containerReducer: Reducer<IContainerState> =
                 // 初次挂载的时候，继承父级的数据
                 if (container.parent) {
                     let affectNode: ContainerNode[] = [container.parent];
-                    syncPropsContainerState(state, actions.context, container.parent);
-                    syncExportContainerState(state, affectNode, actions.context, container);
+                    state = syncPropsContainerState(state, actions.context, container.parent);
+                    state = syncExportContainerState(state, affectNode, actions.context, container);
 
                     affectNode.forEach(node => {
-                        syncPropsContainerState(state, actions.context, node);
+                        state = syncPropsContainerState(state, actions.context, node);
                     });
                 }
 
@@ -106,21 +106,21 @@ export const containerReducer: Reducer<IContainerState> =
                     let newPaginationValue = clone(oldPaginationCache.value);
                     let paginationKey = oldPaginationCache.key;
                     newPaginationValue.current = 1;
-                    state[model] = setWith(state[model], paginationKey, newPaginationValue);
+                    state = setWith(state, combineKeys(model, paginationKey), newPaginationValue);
                 }
 
-                state[model] = setWith(state[model], name, newValue);
+                state = setWith(state, combineKeys(model, name), newValue);
 
                 let container = context.rcre.containerGraph.get(model);
                 let affectNode: ContainerNode[] = [];
 
-                syncExportContainerState(state, affectNode, actions.context, container);
+                state = syncExportContainerState(state, affectNode, actions.context, container);
 
                 affectNode.forEach(node => {
-                    syncPropsContainerState(state, actions.context, node);
+                    state = syncPropsContainerState(state, actions.context, node);
                 });
 
-                return clone(state);
+                return state;
             }
             case SET_MULTI_DATA: {
                 let payload = actions.payload;
@@ -136,17 +136,17 @@ export const containerReducer: Reducer<IContainerState> =
                     let value = item.value;
                     model = actions.model;
 
-                    state[model] = setWith(state[model], name, value);
+                    state = setWith(state, combineKeys(model, name), value);
                 });
 
                 let container = context.rcre.containerGraph.get(model);
                 let affectNode: ContainerNode[] = [];
-                syncExportContainerState(state, affectNode, actions.context, container);
+                state = syncExportContainerState(state, affectNode, actions.context, container);
                 affectNode.forEach(node => {
-                    syncPropsContainerState(state, actions.context, node);
+                    state = syncPropsContainerState(state, actions.context, node);
                 });
 
-                return clone(state);
+                return state;
             }
             case ASYNC_LOAD_DATA_PROGRESS: {
                 let payload = actions.payload;
@@ -158,9 +158,9 @@ export const containerReducer: Reducer<IContainerState> =
                     });
                 }
 
-                state[model] = setWith(state[model], '$loading', true);
+                state = setWith(state, combineKeys(model, '$loading'), true);
 
-                return clone(state);
+                return state;
             }
             case ASYNC_LOAD_DATA_SUCCESS: {
                 let payload = actions.payload;
@@ -172,10 +172,10 @@ export const containerReducer: Reducer<IContainerState> =
                     state = setWith(state, model, {});
                 }
 
-                state[model] = setWith(state[model], '$loading', false);
+                state = setWith(state, combineKeys(model, '$loading'), false);
 
                 each(data, (value, name) => {
-                    state[model] = setWith(state[model], name, value);
+                    state = setWith(state, combineKeys(model, name), value);
                 });
 
                 let container = context.rcre.containerGraph.get(model);
@@ -185,12 +185,12 @@ export const containerReducer: Reducer<IContainerState> =
                 if (container && container.parent) {
                     affectNode.push(container.parent);
                 }
-                syncExportContainerState(state, affectNode, payload.context, container);
+                state = syncExportContainerState(state, affectNode, payload.context, container);
                 affectNode.forEach(node => {
-                    syncPropsContainerState(state, payload.context, node);
+                    state = syncPropsContainerState(state, payload.context, node);
                 });
 
-                return clone(state);
+                return state;
             }
             case ASYNC_LOAD_DATA_FAIL: {
                 let payload = actions.payload;
@@ -201,10 +201,10 @@ export const containerReducer: Reducer<IContainerState> =
                     state = setWith(state, model, {});
                 }
 
-                state[model] = setWith(state[model], '$loading', false);
-                state[model] = setWith(state[model], '$error', error);
+                state = setWith(state, combineKeys(model, '$loading'), false);
+                state = setWith(state, combineKeys(model, '$error'), error);
 
-                return clone(state);
+                return state;
             }
             case SYNC_LOAD_DATA_SUCCESS: {
                 let payload = actions.payload;
@@ -217,7 +217,7 @@ export const containerReducer: Reducer<IContainerState> =
                 }
 
                 each(data, (val, key) => {
-                    state[model] = setWith(state[model], key, val);
+                    state = setWith(state, combineKeys(model, key), val);
                 });
 
                 let container = context.rcre.containerGraph.get(model);
@@ -226,14 +226,14 @@ export const containerReducer: Reducer<IContainerState> =
                 // 初次挂载的时候，继承父级的数据
                 if (container && container.parent) {
                     affectNode.push(container.parent);
-                    syncPropsContainerState(state, payload.context, container.parent);
+                    state = syncPropsContainerState(state, payload.context, container.parent);
                 }
-                syncExportContainerState(state, affectNode, payload.context, container);
+                state = syncExportContainerState(state, affectNode, payload.context, container);
                 affectNode.forEach(node => {
-                    syncPropsContainerState(state, payload.context, node);
+                    state = syncPropsContainerState(state, payload.context, node);
                 });
 
-                return clone(state);
+                return state;
             }
             case SYNC_LOAD_DATA_FAIL: {
                 let payload = actions.payload;
@@ -244,7 +244,7 @@ export const containerReducer: Reducer<IContainerState> =
                     state = setWith(state, model, {});
                 }
 
-                state = setWith(state, model + '.$error', error);
+                state = setWith(state, combineKeys(model, '$error'), error);
                 return state;
             }
             case DATA_CUSTOMER_PASS: {
@@ -259,17 +259,17 @@ export const containerReducer: Reducer<IContainerState> =
                 }
 
                 each(data, (val, key) => {
-                    state[model] = setWith(state[model], key, val);
+                    state = setWith(state, combineKeys(model, key), val);
                 });
 
                 let container = context.rcre.containerGraph.get(model);
                 let affectNode: ContainerNode[] = [];
-                syncExportContainerState(state, affectNode, actions.context, container);
+                state = syncExportContainerState(state, affectNode, actions.context, container);
                 affectNode.forEach(node => {
-                    syncPropsContainerState(state, actions.context, node);
+                    state = syncPropsContainerState(state, actions.context, node);
                 });
 
-                return clone(state);
+                return state;
             }
             case CLEAR_DATA: {
                 let delKey = actions.payload.model;
@@ -277,11 +277,11 @@ export const containerReducer: Reducer<IContainerState> =
                 let node = context.rcre.containerGraph.get(delKey);
 
                 if (node && node.options.clearDataToParentsWhenDestroy) {
-                    syncDeleteContainerState(state, actions.payload.context, node);
+                    state = syncDeleteContainerState(state, actions.payload.context, node);
                 }
 
-                delete state[delKey];
-                return clone(state);
+                state = deleteWith(state, delKey);
+                return state;
             }
             case RESET_CONTAINER:
                 state = {
@@ -300,14 +300,14 @@ export const containerReducer: Reducer<IContainerState> =
                 }
 
                 if (container && container.options.syncDelete) {
-                    syncDeleteContainerState(state, context, container, name);
-                    state[model] = deleteWith(name, state[model]);
+                    state = syncDeleteContainerState(state, context, container, name);
+                    state = deleteWith(state, combineKeys(model, name));
                 } else {
-                    state[model] = deleteWith(name, state[model]);
-                    syncExportContainerState(state, [], actions.context, container);
+                    state = deleteWith(state, combineKeys(model, name));
+                    state = syncExportContainerState(state, [], actions.context, container);
                 }
 
-                return clone(state);
+                return state;
             }
             default:
                 return state;

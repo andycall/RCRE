@@ -4,7 +4,7 @@ import {ITriggerAction} from '../core/Trigger';
 import {IFormActions} from '../core/Form';
 
 export interface ListenerFnItem {
-    (action: IContainerAction & ITriggerAction & IFormActions, state: RootState): void;
+    (action: IContainerAction & ITriggerAction & IFormActions, state: RootState, prevState: RootState): void;
 }
 
 interface Listener {
@@ -47,8 +47,9 @@ export const triggerEvents = (store: any) => (next: any) => (action: any) => {
     if (Array.isArray(listeners[type]) && listeners[type].length > 0) {
         // 确保事件触发完成时，state已经被更新
         // reducer 内部都要识同步操作，异步都要在触发action之前完成
+        let prevState = store.getState();
         Promise.resolve().then(() => {
-            listeners[type].forEach(fn => fn(action, store.getState()));
+            listeners[type].forEach(fn => fn(action, store.getState(), prevState));
         });
     }
 

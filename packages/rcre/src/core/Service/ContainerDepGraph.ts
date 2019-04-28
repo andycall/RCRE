@@ -1,6 +1,6 @@
 import {BindItem, ContainerContextType, ContainerNodeOptions} from '../../types';
 import {IContainerState} from '../Container/reducer';
-import {isObjectLike, each, isPlainObject, clone, get} from 'lodash';
+import {isObjectLike, each, isPlainObject, get} from 'lodash';
 import {RunTimeContextCollection} from '../context';
 import {
     compileExpressionString,
@@ -8,7 +8,7 @@ import {
     isExpression,
     parseExpressionString
 } from '../util/vm';
-import {setWith, deleteWith, getRuntimeContext, injectFilterIntoContext} from '../util/util';
+import {setWith, deleteWith, getRuntimeContext, injectFilterIntoContext, combineKeys} from '../util/util';
 import {parseExpressionToken} from 'rcre-runtime';
 
 /**
@@ -76,7 +76,7 @@ export function syncExportContainerState(
     node?: ContainerNode
 ) {
     if (!node) {
-        return;
+        return state;
     }
 
     if (affectNode.indexOf(node) === -1) {
@@ -87,12 +87,12 @@ export function syncExportContainerState(
     let bindConfig = node.bind;
 
     if (!exportConfig && !bindConfig) {
-        return;
+        return state;
     }
 
     if (exportConfig && bindConfig) {
         console.error('bind和export功能不建议一起使用，会有值覆盖的风险');
-        return;
+        return state;
     }
 
     let model = node.model;
@@ -117,7 +117,7 @@ export function syncExportContainerState(
                 if (isUnExportValue(value) && node.options.noNilToParent) {
                     return;
                 }
-                state[parentModel] = setWith(state[parentModel], key, value);
+                state = setWith(state, combineKeys(parentModel, key), value);
             });
         } else if (isExpression(exportConfig)) {
             let exportValue = parseExpressionString(exportConfig, runTime);
@@ -126,7 +126,7 @@ export function syncExportContainerState(
                     if (isUnExportValue(value) && node.options.noNilToParent) {
                         return;
                     }
-                    state[parentModel] = setWith(state[parentModel], key, value);
+                    state = setWith(state, combineKeys(parentModel, key), value);
                 });
             }
         } else if (bindConfig instanceof Array) {
@@ -142,28 +142,32 @@ export function syncExportContainerState(
                     return;
                 }
 
-                state[parentModel] = setWith(state[parentModel], bind.parent, childValue);
+                state = setWith(state, combineKeys(parentModel, bind.parent), childValue);
             });
         } else if (exportConfig === 'all') {
-            Object.assign(state[parentModel], state[model]);
+            Object.keys(state[model]).forEach(key => {
+                state = setWith(state, combineKeys(parentModel, key), state[model][key]);
+            });
         }
 
-        syncExportContainerState(state, affectNode, context, parentNode);
+        state = syncExportContainerState(state, affectNode, context, parentNode);
     }
+
+    return state;
 }
 
 export function syncPropsContainerState(state: IContainerState, context: RunTimeContextCollection, node?: ContainerNode) {
     if (!node) {
-        return;
+        return state;
     }
 
     if (node.children.length > 0) {
         let model = node.model;
         let $data = state[model];
 
-        node.children.forEach(child => {
+        for (let child of node.children) {
             if (!child.props && !child.bind) {
-                return;
+                continue;
             }
             let inheritValue = {};
             let childModel = child.model;
@@ -203,11 +207,6 @@ export function syncPropsContainerState(state: IContainerState, context: RunTime
                         // 字级优先，而字级又没有值的时候，就给个初始值
                         if (priority === 'parent') {
                             console.warn('priority === parent is no longer supported');
-                            // console.log(name, child$data);
-                            // if (!(name in child$data)) {
-                            //     setWith(inheritValue, name, result, setWithTransformer);
-                            // }
-                            // return;
                         }
 
                         inheritValue = setWith(inheritValue, name, result);
@@ -223,23 +222,23 @@ export function syncPropsContainerState(state: IContainerState, context: RunTime
                     }
 
                     let parentValue = get(state[model], bind.parent);
-                    state[childModel] = setWith(state[childModel], bind.child, parentValue);
+                    state = setWith(state, combineKeys(childModel, bind.child), parentValue);
                 });
             }
 
             if (!state[childModel]) {
-                state[childModel] = setWith(state, childModel, {});
+                state = setWith(state, childModel, {});
             }
 
             each(inheritValue, (value, key) => {
-                state[childModel] = setWith(state[childModel], key, value);
+                state = setWith(state, combineKeys(childModel, key), value);
             });
 
-            state[childModel] = clone(state[childModel]);
-
-            syncPropsContainerState(state, context, child);
-        });
+            state = syncPropsContainerState(state, context, child);
+        }
     }
+
+    return state;
 }
 
 /**
@@ -253,14 +252,14 @@ export function syncPropsContainerState(state: IContainerState, context: RunTime
  */
 export function syncDeleteContainerState(state: IContainerState, context: RunTimeContextCollection, node?: ContainerNode, key?: string) {
     if (!node) {
-        return;
+        return state;
     }
 
     let exportConfig = node.export;
     let bindConfig = node.bind;
 
     if (!exportConfig && !bindConfig) {
-        return;
+        return state;
     }
 
     let model = node.model;
@@ -280,16 +279,16 @@ export function syncDeleteContainerState(state: IContainerState, context: RunTim
 
                 if (!isPlainObject(ret)) {
                     console.warn('使用字符串的export功能，返回值必须是一个普通对象');
-                    return;
+                    return state;
                 }
 
                 if (key && !node.options.forceSyncDelete) {
                     console.warn('使用字符串的export配置将无法执行按照key进行删除的操作，请使用对象作为export的值，让RCRE能够获取到具体要删除的key');
-                    return;
+                    return state;
                 }
 
                 Object.keys(ret).map((depKey) => {
-                    state[parentModel] = deleteWith(depKey, state[parentModel]);
+                    state = deleteWith(state, combineKeys(parentModel, depKey));
                 });
             } else if (typeof exportConfig === 'object' && !Array.isArray(exportConfig)) {
                 let depKey = {};
@@ -342,20 +341,20 @@ export function syncDeleteContainerState(state: IContainerState, context: RunTim
                 if (key) {
                     each(depKey, (dep, depName) => {
                         if (dep === key) {
-                            state[parentModel] = deleteWith(depName, state[parentModel]);
+                            state = deleteWith(state, combineKeys(parentModel, depName));
                         }
                     });
                 } else {
                     each(depKey, (dep, depName) => {
-                        state[parentModel] = deleteWith(depName, state[parentModel]);
+                        state = deleteWith(state, combineKeys(parentModel, depName));
                     });
                 }
             }
-            syncDeleteContainerState(state, context, parentNode, key);
+            state = syncDeleteContainerState(state, context, parentNode, key);
         }
 
-        return parentNode;
+        return state;
     }
 
-    return node;
+    return state;
 }

@@ -93,7 +93,26 @@ export function setWith<T>(obj: T, path: string, value: any): T {
     return copy;
 }
 
-export function deleteWith<T>(path: string, obj: T): T {
+/**
+ * 拼装key
+ * @param keys
+ */
+export function combineKeys(...keys: any[]) {
+    let key = keys[0];
+
+    for (let k of keys.slice(1)) {
+        if (typeof k === 'number') {
+            key += '[' + key + ']';
+
+        } else if (typeof k === 'string') {
+            key += '.' + k;
+        }
+    }
+
+    return key;
+}
+
+export function deleteWith<T>(obj: T, path: string): T {
     if (!obj) {
         return obj;
     }

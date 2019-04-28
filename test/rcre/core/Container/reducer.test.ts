@@ -324,15 +324,15 @@ describe('Container State', () => {
             }, 2, 3, {name: 1}, 5]
         };
 
-        let retObj = deleteWith('name', obj);
+        let retObj = deleteWith(obj, 'name');
         expect(retObj['11111'] === obj['11111']).toBe(true);
 
-        let retObj2 = deleteWith('arr.name', obj);
+        let retObj2 = deleteWith(obj, 'arr.name');
         expect(retObj2['11111'] === retObj['11111']).toBe(true);
         expect(retObj2.arr === retObj.arr).toBe(false);
         expect(retObj2.arr.some === retObj.arr.some).toBe(true);
 
-        let retObj3 = deleteWith('testArr[0]', retObj2);
+        let retObj3 = deleteWith(retObj2, 'testArr[0]');
         expect(retObj3.testArr[0]).toBe(undefined);
         expect(retObj3.testArr[3] === retObj.testArr[3]).toBe(true);
     });
