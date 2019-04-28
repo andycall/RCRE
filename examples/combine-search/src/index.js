@@ -39,9 +39,9 @@ const TableColumns = [{
   key: 'updated_at',
   dataIndex: 'updated_at'
 }, {
-  title: 'push_at',
-  key: 'push_at',
-  dataIndex: 'push_at'
+  title: 'pushed_at',
+  key: 'pushed_at',
+  dataIndex: 'pushed_at'
 }];
 
 function App() {
@@ -70,16 +70,16 @@ function App() {
           }]}
         >
           <p>Github User Profile</p>
-          <Row>
+          <Row style={{width: 1200}}>
             <Col span={3}><div>Github UserName: </div></Col>
-            <Col span={4}>
+            <Col span={6}>
               <ESInput name={'username'} />
             </Col>
-            <Col span={4}>
+            <Col span={6}>
               <span>Sort: </span>
               <ESSelect name={'sort'} defaultValue={'full_name'} options={RepoSortOptions} />
             </Col>
-            <Col span={4} >
+            <Col span={6} >
               <span>Type: </span>
               <ESSelect name={'type'} defaultValue={'owner'} options={TypeSortOptions} />
             </Col>
