@@ -2,11 +2,12 @@ import React from 'react';
 import {RootState} from '../../data/reducers';
 import {
     BasicConfig,
-    ContainerContextType, ExecTaskOptions, IteratorContextType,
+    ContainerContextType, ExecTaskOptions, FormContextType, IteratorContextType,
     RCREContextType,
     TriggerContextType
 } from '../../types';
-import {TriggerContext} from '../context';
+import {containerActionCreators} from '../Container/action';
+import {RunTimeContextCollection, TriggerContext} from '../context';
 import {componentLoader} from '../util/componentLoader';
 import {getRuntimeContext, isPromise} from '../util/util';
 import {formActions, TRIGGER_SET_DATA_OPTIONS, TRIGGER_SET_DATA_PAYLOAD} from './actions';
@@ -84,6 +85,8 @@ export interface TriggerProps {
      * 来自父级Container的context对象
      */
     containerContext: ContainerContextType;
+
+    formContext?: FormContextType;
 }
 
 type UnCookedTriggerEventItem = {
@@ -113,6 +116,12 @@ export class RCRETrigger<Config extends BasicConfig> extends React.Component<Tri
         let runTime = getRuntimeContext(this.props.containerContext, this.props.rcreContext, {
             iteratorContext: this.props.iteratorContext
         });
+        let context: RunTimeContextCollection = {
+            rcre: this.props.rcreContext,
+            container: this.props.containerContext,
+            iterator: this.props.iteratorContext,
+            form: this.props.formContext
+        };
         let state: RootState = this.props.rcreContext.store.getState();
         runTime.$trigger = state.$rcre.trigger[this.props.model];
         let prev = null;
@@ -131,6 +140,11 @@ export class RCRETrigger<Config extends BasicConfig> extends React.Component<Tri
                 prev: prev,
                 params: runTime.$trigger![item.customer],
                 model: this.props.model,
+                actions: {
+                    taskPass: (payload) => this.props.rcreContext.store.dispatch(
+                        containerActionCreators.dataCustomerPass(payload, context)
+                    )
+                },
                 options: item.options,
                 rcreContext: this.props.rcreContext,
                 containerContext: this.props.containerContext,

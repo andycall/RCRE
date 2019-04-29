@@ -7,6 +7,7 @@ import {
     RCREContextType,
     runTimeType
 } from '../../types';
+import {DATA_CUSTOMER_PASS_PAYLOAD} from '../Container/action';
 import {ContainerProps} from '../Container/Container';
 import {passCustomer} from './customers/pass';
 import {EventEmitter} from 'events';
@@ -43,6 +44,9 @@ export interface CustomerParams {
     prev: any;
     params: any;
     customer: string;
+    actions: {
+        taskPass?: (payload: DATA_CUSTOMER_PASS_PAYLOAD) => any
+    };
     rcreContext: RCREContextType;
     containerContext: ContainerContextType;
     iteratorContext: IteratorContextType;
@@ -65,7 +69,7 @@ export type FuncCustomerArgs<Config extends BasicConfig> = {
 type DataCustomerItem = {
     mode?: string;
     config?: any;
-    func?: string;
+    func?: string | typeof Function;
 };
 
 /**
@@ -234,11 +238,13 @@ export class DataCustomer extends EventEmitter {
             return await new Promise((resolve, reject) => {
                 injectDataCustomerIntoContext(runTime);
                 try {
-                    let func = parseExpressionString(funcStr, runTime);
+                    let func = funcStr as Function;
+                    if (typeof funcStr === 'string') {
+                        func = parseExpressionString(funcStr, runTime);
+                    }
 
                     if (typeof func !== 'function') {
-                        console.error('提供给func的值需要是一个函数');
-                        return resolve(false);
+                        throw new Error('提供给func的值需要是一个函数');
                     }
 
                     let ret: Promise<any> = func({
