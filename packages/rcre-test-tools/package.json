@@ -1,6 +1,6 @@
 {
     "name": "rcre-test-tools",
-    "version": "0.20.7",
+    "version": "0.20.8",
     "description": "rcre test utils",
     "main": "./dist/index.js",
     "typings": "./dist/index.d.ts",
@@ -16,7 +16,7 @@
         "json-format": "^1.0.1",
         "lodash": "^4.17.4",
         "pretty-format": "^23.6.0",
-        "rcre": "^0.20.7"
+        "rcre": "^0.20.8"
     },
     "gitHead": "3cccf68d4c841aebe60ca2663fd523952591c859"
 }
