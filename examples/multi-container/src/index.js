@@ -3,6 +3,7 @@ import ReactDOM from "react-dom";
 import {RCREProvider, Container, ES, createReduxStore} from 'rcre';
 
 import "./styles.css";
+import {Input} from "./components/Input";
 
 const store = createReduxStore();
 
@@ -21,9 +22,7 @@ function App() {
             )}</ES>
 
             <div>Components in the same container will share the same name</div>
-            <ES name={'username'}>{({$name, $value}, context) => (
-              <input value={$value || ''} onChange={event => context.container.$setData($name, event.target.value)}/>
-            )}</ES>
+            <Input name={'username'} />
             <div>demo1 state value: <ES>{({$data}) => <span>{JSON.stringify($data)}</span>}</ES></div>
           </Container>
         </div>
@@ -31,9 +30,7 @@ function App() {
           <div>demo 1 Container</div>
           <Container model={'demo2'}>
             <span>UserName: </span>
-            <ES name={'username'}>{({$name, $value}, context) => (
-              <input value={$value || ''} onChange={event => context.container.$setData($name, event.target.value)}/>
-            )}</ES>
+            <Input name={'username'} />
             <div>demo1 state value: <ES>{({$data}) => <span>{JSON.stringify($data)}</span>}</ES></div>
           </Container>
         </div>
