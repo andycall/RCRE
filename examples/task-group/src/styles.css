@@ -2,17 +2,27 @@
     font-family: sans-serif;
 }
 
+h2 {
+    margin-top: 20px;
+    margin-bottom: 0;
+}
+
+p {
+    margin: 5px 0 5px 0 !important;
+}
+
 .demo1, .demo2 {
-    margin-bottom: 50px;
+    margin-bottom: 15px;
     border: 1px solid #000;
+    line-height: 25px;
 }
 
 .demo1 div, .demo2 div {
-    margin-bottom: 20px;
-    margin-top: 20px;
+    margin-bottom: 10px;
+    margin-top: 10px;
 }
 
 .container-inherit {
     border: 1px solid #000;
-    padding: 0 30px 0 30px;
+    padding: 0 10px 0 10px;
 }

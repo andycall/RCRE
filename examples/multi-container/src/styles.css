@@ -2,8 +2,17 @@
     font-family: sans-serif;
 }
 
+h2 {
+    margin-top: 20px;
+    margin-bottom: 0;
+}
+
+p {
+    margin: 5px 0 5px 0;
+}
+
 .demo1, .demo2 {
-    margin-bottom: 50px;
+    margin-bottom: 15px;
     border: 1px solid #000;
-    line-height: 50px;
+    line-height: 25px;
 }
