@@ -27,7 +27,7 @@ function App() {
           </Container>
         </div>
         <div className={'demo2'}>
-          <div>demo 1 Container</div>
+          <div>demo 2 Container</div>
           <Container model={'demo2'}>
             <span>UserName: </span>
             <Input name={'username'} />
