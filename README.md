@@ -16,15 +16,14 @@ If you've ever read some of the large react project codes, you'll find it hard t
 
 RCRE is designed to make it easy for **everyone** to handle the above issues. It uses completely new design to make some complex problems easier. It has only a few React components, and you only need to known is write simple configuration and components to get everything done. 
 
-RCRE provide 7 powerful features that help you build your application right. 
+RCRE provide 6 powerful features that help you build your application right. 
 
 1. Manage your component and application's state without writing action and reducers.
 2. Manage your API and trigger them automatically based on your component's state.
 3. Always keep your state immutable and not easy to break it.
 4. State change trigger form validation automatically.
-5. Use syntax checker to prevent developer to write complex computing code embed into JSX code to make your template code more readable.
-6. A task controller can help you separate complex user interactions into pure small tasks and assemble them with a simple config.
-7. A useful test-tools can help search for a component with name or type key, trigger an component's event, read form validation status, or do somethings after all API has called.
+5. A task controller can help you separate complex user interactions into pure small tasks and assemble them with a simple config.
+6. A useful test-tools can help search for a component with name or type key, trigger an component's event, read form validation status, or do somethings after all API has called.
 
 
 ## Docs (working in progress)
@@ -47,6 +46,10 @@ You can play with RCRE in your web browser with these live online playgrounds.
 + [Todos](https://codesandbox.io/s/github/andycall/RCRE/tree/master/examples/todos)
 + [Keep All state immutable](https://codesandbox.io/s/github/andycall/RCRE/tree/master/examples/immutable)
 + [AutoClear when destroy](https://codesandbox.io/s/github/andycall/RCRE/tree/master/examples/component-auto-clear)
++ [Multi Container](https://codesandbox.io/s/github/andycall/RCRE/tree/master/examples/multi-container)
++ [Container Inheritance](https://codesandbox.io/s/github/andycall/RCRE/tree/master/examples/container-inheritance)
++ [Pass Tasks](https://codesandbox.io/s/github/andycall/RCRE/tree/master/examples/pass-tasks)
++ [Task Group](https://codesandbox.io/s/github/andycall/RCRE/tree/master/examples/task-group)
 + [Simple Search](https://codesandbox.io/s/github/andycall/RCRE/tree/master/examples/simple-search)
 + [Combine Search](https://codesandbox.io/s/github/andycall/RCRE/tree/master/examples/combine-search)
 + Container
