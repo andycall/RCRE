@@ -1,0 +1,9 @@
+.App {
+    font-family: sans-serif;
+}
+
+.demo1, .demo2 {
+    margin-bottom: 50px;
+    border: 1px solid #000;
+    line-height: 50px;
+}

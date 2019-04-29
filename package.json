@@ -50,6 +50,7 @@
         "express": "^4.16.4",
         "jest": "^23.6.0",
         "js-beautify": "^1.9.0",
+        "json-format": "^1.0.1",
         "lerna": "^3.13.1",
         "moxios": "^0.4.0",
         "request": "^2.88.0",

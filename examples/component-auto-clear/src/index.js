@@ -23,7 +23,7 @@ function App() {
                 return null;
               }
 
-              return <Input name={'username'} clearWhenDestory={$data.clear} />
+              return <Input name={'username'} clearWhenDestroy={$data.clear} />
             }}</ES>
             <ES>{({$data}, context) => (
               <button onClick={event => context.container.$setData('hideUserName', !$data.hideUserName)}>
