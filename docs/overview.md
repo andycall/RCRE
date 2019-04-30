@@ -23,34 +23,17 @@ I ([@andycall](https://github.com/andycall)) wrote RCRE and created a large adve
 
 ## Why not RCRE ?
 
-Vue is easy to use, everyone likes to directly modify the data view automatic update experience, but after the project becomes bigger, such a design will bring a lot of trouble.
+People use Redux to build the applications they want, but it's not enough to just known how to use Redux. You also need a series of Redux plugins such as redux-thunk, redux-sega and so on to do some complex functions.
  
-React is difficult to get started, but when the project is big, you will gradually realize the advantages of one-way data flow and immutable data change. 
+Maybe learning some of these libraries can better understand Redux, but if you just want to get your job done quickly and have a good night with your girlfriend, you might want to try RCRE. It automatically helps you control Redux and manage your application state. You don't even need to learn how to use Redux! .
 
-My goal is to combine the advantages of vue and react to maximize the technical advantage of react with lower learning and usage costs.
+Maybe your daily job is to write Action, Reducer, and manually maintain your application state through line-by-line code. With RCRE, the state of the application is automatically mapped according to the structure of the component, and automatically updated according to the component's update, destruction, and mount. You don't need to write Action, Reducer anymore.
 
-## Installation
-You can install Formik with NPM, Yarn.
+Maybe you used Redux-Thunk or Redux-Sega to manage your asynchronous requests. With RCRE, the interface can automatically initiate requests and synchronize to the state according to the parameter changes. You don't need to write a line related to the calling interface.
+ 
+Maybe you used Redux-Form to synchronize the form state to State and write a lot of code to handle form validation. With RCRE, form validation will automatically trigger based on component changes and automatically synchronize all relevant information to the state. You don't need to write a line that triggers form validation. 
+ 
+ 
+Maybe you have a hard time reusing a bunch of user interactive code. You must split existing code and may cause an error. With RCRE, each separate interactive logic code will be separated at the time of initial development, and when you want to reuse it, you only need one array to get everything done.
 
-### NPM
-
-```sh
-npm install rcre --save
-```
-or
-```
-yarn add rcre
-```
-
-RCRE is compatible with React v15+ and works with ReactDOM and React Native.
-
-### CDN
-
-// TODO
-
-### In-browser Playgrounds
-
-You can play with RCRE in your web browser with these live online playgrounds.
-
-* CodeSandbox (ReactDOM) https://codesandbox.io/s/pywlq1vqq0
-
+It can be seen that the use of RCRE for application development is still the concept of ​​Redux, but it is simpler, more portable to use, can effectively improve development efficiency. let programmers get off work early, no longer to be work like 996.

@@ -5,14 +5,8 @@
     "previous": "Previous",
     "tagline": "Build complex applications without tears",
     "docs": {
-      "api/api": {
-        "title": "api/api"
-      },
-      "blog/blog": {
-        "title": "blog/blog"
-      },
-      "guides/guide": {
-        "title": "guides/guide"
+      "installation": {
+        "title": "Installation"
       },
       "overview": {
         "title": "Overview"
@@ -22,7 +16,7 @@
       "Docs": "Docs"
     },
     "categories": {
-      "Getting Started": "Getting Started"
+      "Introduction": "Introduction"
     }
   },
   "pages-strings": {
