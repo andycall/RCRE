@@ -8,22 +8,20 @@
 
 ## What is RCRE?
 
-Everyone loves to use React to build apps, it's elegant and wonderful. But React does't tell you how to build **a complex web application**. 
+Everyone loves to use React to build apps, it's elegant and wonderful. But React does't tell you how to build a complex web application.
 
-When an application becomes very complex, various issues arise, such as the state of the component, the relationship between the components, the state of the entire application, how to organize the API request, and how to handle form validation and submission. If you don't have a lot of experience to deal with these issues, your code will get worse and the bug will always be with you.
+When an application becomes very complex, various issues arise, such as the state of the component, the relationship between the components, how to organize the API request, and how to handle form validation and submission. If you don't have a lot of experience to deal with these issues, your code will get worse and the bug will always be with you.
 
-If you've ever read some of the large react project codes, you'll find it hard to figure out how it works. Obviously, not everyone can handle the above problems very well.
+RCRE is a library that designed to make it easy for everyone to handle the above issues. It uses completely new design to make some complex problems easier. It has only a few React components, and you only need to known is write simple configuration and components to get everything done.
 
-RCRE is designed to make it easy for **everyone** to handle the above issues. It uses completely new design to make some complex problems easier. It has only a few React components, and you only need to known is write simple configuration and components to get everything done. 
 
-RCRE provide 6 powerful features that help you build your application right. 
+RCRE provide 5 powerful features that help you build your application right. 
 
 1. Manage your component and application's state without writing action and reducers.
 2. Manage your API and trigger them automatically based on your component's state.
 3. Always keep your state immutable and not easy to break it.
 4. State change trigger form validation automatically.
 5. A task controller can help you separate complex user interactions into pure small tasks and assemble them with a simple config.
-6. A useful test-tools can help search for a component with name or type key, trigger an component's event, read form validation status, or do somethings after all API has called.
 
 
 ## Docs (working in progress)

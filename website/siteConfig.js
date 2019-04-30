@@ -31,10 +31,14 @@ const siteConfig = {
 
     // For no header links in the top nav bar -> headerLinks: [],
     headerLinks: [
-        {doc: 'doc1', label: 'Docs'},
-        {doc: 'doc4', label: 'API'},
-        {page: 'help', label: 'Help'},
-        {blog: true, label: 'Blog'},
+        {
+            doc: 'overview',
+            label: 'Docs'
+        }
+        // {doc: 'doc1', label: 'Docs'},
+        // {doc: 'doc4', label: 'API'},
+        // {page: 'help', label: 'Help'},
+        // {blog: true, label: 'Blog'},
     ],
 
     // If you have users set above, you add it here:
@@ -67,7 +71,14 @@ const siteConfig = {
     },
 
     // Add custom scripts here that would be placed in <script> tags.
-    scripts: [],
+    scripts: [
+        'https://buttons.github.io/buttons.js',
+        'https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js',
+        '/RCRE/js/code-block-button.js',
+    ],
+    stylesheets: ['/formik/css/code-block-button.css'],
+
+    // Add custom scripts here that would be placed in <script> tags.
 
     // On page navigation for the current documentation page.
     onPageNav: 'separate',

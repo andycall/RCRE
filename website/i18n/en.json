@@ -5,31 +5,24 @@
     "previous": "Previous",
     "tagline": "Build complex applications without tears",
     "docs": {
-      "doc1": {
-        "title": "Latin-ish",
-        "sidebar_label": "Example Page"
+      "api/api": {
+        "title": "api/api"
       },
-      "doc2": {
-        "title": "document number 2"
+      "blog/blog": {
+        "title": "blog/blog"
       },
-      "doc3": {
-        "title": "This is document number 3"
+      "guides/guide": {
+        "title": "guides/guide"
       },
-      "doc4": {
-        "title": "Other Document"
-      },
-      "doc5": {
-        "title": "Fifth Document"
+      "overview": {
+        "title": "Overview"
       }
     },
     "links": {
-      "Docs": "Docs",
-      "API": "API",
-      "Help": "Help",
-      "Blog": "Blog"
+      "Docs": "Docs"
     },
     "categories": {
-      "Docusaurus": "Docusaurus"
+      "Getting Started": "Getting Started"
     }
   },
   "pages-strings": {
