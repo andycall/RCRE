@@ -168,7 +168,7 @@ export class RCREFormItem extends React.Component<RCREFormItemProps, {}> {
         if (prevProps.filterRule && this.props.filterRule) {
             let oldFilterRule = this.validFilterRule(prevProps.filterRule, null, prevRunTime, prevProps.filterErrMsg);
             let nextFilterRule = this.validFilterRule(this.props.filterRule, null, nextRunTime, this.props.filterErrMsg);
-            isFilterRuleChanged = oldFilterRule !== nextFilterRule;
+            isFilterRuleChanged = !isEqual(oldFilterRule, nextFilterRule);
         }
 
         if (isRequiredChanged || isRuleChanged || isFilterRuleChanged) {
@@ -504,7 +504,11 @@ export class RCREFormItem extends React.Component<RCREFormItemProps, {}> {
     }
 
     private getFormItemControl = (formItemName: string): FormItemState => {
-        return this.props.formContext.$getFormItem(formItemName);
+        if (!this.props.formContext.$form) {
+            return { valid: false, formItemName: '-' };
+        }
+
+        return this.props.formContext.$form.control[formItemName];
     }
 
     private handleBlur = () => {

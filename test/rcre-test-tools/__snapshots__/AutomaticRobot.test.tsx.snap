@@ -24,25 +24,6 @@ Object {
       "username": "1234",
     },
   },
-  "form": Object {
-    "test": Object {
-      "clearAfterSubmit": false,
-      "control": Object {
-        "username": Object {
-          "errorMsg": "",
-          "formItemName": "username",
-          "formName": "test",
-          "required": true,
-          "rules": undefined,
-          "status": "success",
-          "valid": true,
-        },
-      },
-      "name": "test",
-      "valid": true,
-      "validateFirst": false,
-    },
-  },
   "trigger": Object {
     "demo": Object {
       "$SELF_PASS_CUSTOMER": Object {

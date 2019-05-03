@@ -25,7 +25,6 @@ describe('jsx syntax', function () {
         let state = test.getState();
         expect(state).toEqual({
             'container': {'__TMP_MODEL__DO_NO_USE_IT': {}, 'demo': {'username': 'helloworld'}},
-            'form': {},
             'trigger': {}
         });
 

@@ -1,10 +1,10 @@
 import * as React from 'react';
-import {RootState} from '../../data/reducers';
 import {
     FormItemState, BasicProps, TriggerContextType
 } from '../../types';
 import {FormContext} from '../context';
-import {formActions, SET_FORM_ITEM_PAYLOAD} from './actions';
+import {getActiveElement} from '../util/util';
+import warning from 'warning';
 
 export interface FormProps {
     /**
@@ -32,73 +32,102 @@ export interface FormProps {
     children?: any;
 }
 
-export class RCREForm extends React.Component<FormProps & BasicProps, {}> {
-    private isSubmitting: boolean;
+export interface RCREFormState {
+    name: string;
+    valid: boolean;
+    validateFirst?: boolean;
+    clearAfterSubmit?: boolean;
+    errors: {
+        [key: string]: any
+    };
+    touched: {
+        [key: string]: any
+    };
+    control: {
+        [s: string]: FormItemState
+    };
+    isValidating: boolean;
+    isSubmitting: boolean;
+}
+
+export class RCREForm extends React.Component<FormProps & BasicProps, RCREFormState> {
+    private didMount: boolean;
 
     constructor(props: FormProps & BasicProps) {
         super(props);
 
-        this.isSubmitting = false;
-
+        this.didMount = false;
         let name = props.name;
 
         if (!name) {
             return;
         }
 
-        props.rcreContext.store.dispatch(formActions.initForm({
+        this.state = {
             name: name,
-            data: {
-                name: name,
-                valid: false,
-                validateFirst: props.validateFirst || false,
-                clearAfterSubmit: props.clearAfterSubmit || false,
-                control: {}
-            }
-        }));
+            errors: {},
+            touched: {},
+            valid: false,
+            isValidating: false,
+            isSubmitting: false,
+            validateFirst: props.validateFirst || false,
+            clearAfterSubmit: props.clearAfterSubmit || false,
+            control: {}
+        };
+    }
+
+    componentDidMount() {
+        this.didMount = true;
     }
 
     componentWillUnmount() {
-        this.props.rcreContext.store.dispatch(formActions.deleteForm({
-            name: this.props.name
-        }));
+        this.didMount = false;
     }
 
     private $setFormItem = (payload: FormItemState) => {
-        this.props.rcreContext.store.dispatch(formActions.setFormItem({
-            formName: this.props.name,
-            formItemName: payload.formItemName!,
-            ...payload
-        }));
+        let name = payload.formItemName;
+        let control = this.state.control;
+        control[name] = payload;
+
+        this.setState({
+            control: control,
+            valid: this.isFormValid(control)
+        });
     }
 
     private $getFormItem = (formItemName: string) => {
-        let state: RootState = this.props.rcreContext.store.getState();
-        let formState = state.$rcre.form[this.props.name];
-        return formState.control[formItemName];
+        return this.state.control[formItemName];
     }
 
-    private $setFormItems = (payload: SET_FORM_ITEM_PAYLOAD[]) => {
-        payload = payload.map(pay => ({
-            formName: this.props.name,
-            formItemName: pay.formItemName,
-            ...pay
-        }));
+    private isFormValid = (control: any) => {
+        let keys = Object.keys(control);
 
-        this.props.rcreContext.store.dispatch(formActions.setFormItems(payload));
+        return keys.every(key => control[key].valid);
+    }
+
+    private $setFormItems = (payload: FormItemState[]) => {
+        let control = this.state.control;
+        payload.forEach(pay => {
+            control[pay.formItemName] = pay;
+        });
+
+        this.setState({
+            control: control,
+            valid: this.isFormValid(control)
+        });
     }
 
     private $deleteFormItem = (itemName: string) => {
-        this.props.rcreContext.store.dispatch(formActions.deleteFormItem({
-            formName: this.props.name,
-            formItemName: itemName
-        }));
+        let control = this.state.control;
+        delete control[itemName];
+        this.setState({
+            control: control,
+            valid: this.isFormValid(control)
+        });
     }
 
     private getFormItems = () => {
-        let state: RootState = this.props.rcreContext.store.getState();
-        let formState = state.$rcre.form[this.props.name];
-        return Object.keys(formState.control);
+        return Object.keys(this.state.control);
     }
 
     private resetForm = () => {
@@ -107,46 +136,19 @@ export class RCREForm extends React.Component<FormProps & BasicProps, {}> {
         this.props.containerContext.$setMultiData(values);
     }
 
-    public handleSubmit = async (preventSubmit: boolean = false) => {
-        if (!this.props.name) {
-            return;
-        }
+    public submitForm = async () => {
+        let control = this.state.control;
 
-        if (this.isSubmitting) {
-            return;
-        }
-
-        let name = this.props.name;
-        let state: RootState = this.props.rcreContext.store.getState();
-        let $form = state.$rcre.form[name];
-        // let info = this.getPropsInfo(this.props.info);
-        let control = $form.control;
-
-        let invalidItems: SET_FORM_ITEM_PAYLOAD[] = [];
         let submitData = {};
 
         for (let itemName in control) {
             if (control.hasOwnProperty(itemName)) {
-                let item: SET_FORM_ITEM_PAYLOAD = control[itemName];
-                let valid = item.valid;
-
                 let data = this.props.containerContext.$getData(itemName);
                 submitData[itemName] = data;
-
-                // 设置validateFirst只验证第一个表单控件
-                if (!valid && name) {
-                    invalidItems.push({
-                        formName: name,
-                        formItemName: itemName,
-                        $validate: true
-                    });
-                }
             }
         }
 
-        if (invalidItems.length > 0) {
-            this.props.rcreContext.store.dispatch(formActions.setFormItems(invalidItems));
-            this.forceUpdate();
+        if (!this.didMount) {
             return;
         }
 
@@ -154,30 +156,62 @@ export class RCREForm extends React.Component<FormProps & BasicProps, {}> {
             this.resetForm();
         }
 
-        this.isSubmitting = true;
-
         if (!this.props.triggerContext) {
             return;
         }
 
-        let ret = await this.props.triggerContext.eventHandle('onSubmit', submitData, {
-            preventSubmit: preventSubmit
+        this.setState({
+            isSubmitting: true
         });
 
-        this.isSubmitting = false;
+        let ret = await this.props.triggerContext.eventHandle('onSubmit', submitData);
+
+        this.setState({
+            isSubmitting: false
+        });
 
         return ret;
     }
 
-    render() {
-        let name = this.props.name;
-        let state = this.props.rcreContext.store.getState();
-
-        if (!name) {
-            return <div>Form组件需要一个name属性</div>;
+    public handleSubmit = async (e: React.FormEvent<HTMLFormElement> | undefined) => {
+        if (!this.props.name) {
+            return;
         }
 
-        let $form = state.$rcre.form[this.props.name] || {};
+        if (e && e.preventDefault) {
+            e.preventDefault();
+        }
+
+        // copy and paste from formik
+        // Warn if form submission is triggered by a <button> without a
+        // specified `type` attribute during development. This mitigates
+        // a common gotcha in forms with both reset and submit buttons,
+        // where the dev forgets to add type="button" to the reset button.
+        if (
+            process.env.NODE_ENV !== 'production' &&
+            typeof document !== 'undefined'
+        ) {
+            // Safely get the active element (works with IE)
+            const activeElement = getActiveElement();
+            if (
+                activeElement !== null &&
+                activeElement instanceof HTMLButtonElement
+            ) {
+                warning(
+                    !!(
+                        activeElement.attributes &&
+                        activeElement.attributes.getNamedItem('type')
+                    ),
+                    'You submitted a form using a button with an unspecified `type` attribute.  Most browsers default button elements to `type="submit"`. If this is not a submit button, please add `type="button"`.'
+                );
+            }
+        }
+
+        return await this.submitForm();
+    }
+
+    render() {
+        let $form = this.state;
 
         return (
             <FormContext.Provider

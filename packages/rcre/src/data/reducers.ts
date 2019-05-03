@@ -1,7 +1,7 @@
 import {combineReducers, Reducer} from 'redux';
 import {IContainerState, containerReducer, TMP_MODEL} from '../core/Container/reducer';
 import {TriggerState, triggerReducers} from '../core/Trigger/reducers';
-import {FormState, formReducer} from '../core/Form/reducers';
+// import {FormState, formReducer} from '../core/Form/reducers';
 
 export interface RootState {
     $rcre: RCREState;
@@ -10,13 +10,13 @@ export interface RootState {
 export interface RCREState {
     container: IContainerState;
     trigger: TriggerState;
-    form: FormState;
+    // form: FormState;
 }
 
 const appReducer: Reducer<RootState> = combineReducers<RootState>({
     container: containerReducer,
     trigger: triggerReducers,
-    form: formReducer
+    // form: formReducer
 });
 
 export const rcreReducer: Reducer<any> = (state, action) => {

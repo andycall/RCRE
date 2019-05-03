@@ -1,17 +1,13 @@
 import {ParsedUrlQuery} from 'querystring';
+import * as React from 'react';
 import {CSSProperties} from 'react';
 import {Store} from 'redux';
 import {UrlWithStringQuery} from 'url';
-// import {ContainerConfig} from './core/Container/AbstractContainer';
 import {DataCustomer} from './core/DataCustomer/index';
 import {DataProviderEvent} from './core/Events/dataProviderEvent';
 import {Events} from './core/Events/index';
-// import {RowConfig} from './core/Layout/Row/Row';
-// import {DivConfig} from './core/Layout/Div/Div';
-// import {BasicConnectProps} from './core/Connect/basicConnect';
-// import {TextConfig} from './core/Layout/Text/Text';
-import {SET_FORM_ITEM_PAYLOAD} from './core/Form';
 import moment from 'moment';
+import {RCREFormState} from './core/Form/Form';
 import {gridPositionItems} from './core/Layout/Row/Row';
 import {ContainerNode} from './core/Service/ContainerDepGraph';
 import {TriggerEventItem} from './core/Trigger/Trigger';
@@ -583,7 +579,7 @@ export interface IteratorContextType {
 }
 
 export interface FormItemState {
-    valid?: boolean;
+    valid: boolean;
     formItemName: string;
     rules?: any[];
     status?: string;
@@ -593,14 +589,14 @@ export interface FormItemState {
 }
 
 export interface FormContextType {
-    $form?: any;
+    $form: RCREFormState | null;
     isSubmitting?: boolean;
     $setFormItem: (payload: FormItemState) => void;
     $getFormItem: (formItemName: string) => FormItemState;
-    $setFormItems: (payload: SET_FORM_ITEM_PAYLOAD[]) => void;
+    $setFormItems: (payload: FormItemState[]) => void;
     $deleteFormItem: (itemName: string) => void;
     $resetForm: () => void;
-    $handleSubmit: () => void;
+    $handleSubmit: (e: React.FormEvent<HTMLFormElement> | undefined) => Promise<void>;
 }
 
 export type ElementsInfo = {

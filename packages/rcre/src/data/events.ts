@@ -1,10 +1,9 @@
 import {RootState} from './reducers';
 import {IContainerAction} from '../core/Container';
 import {ITriggerAction} from '../core/Trigger';
-import {IFormActions} from '../core/Form';
 
 export interface ListenerFnItem {
-    (action: IContainerAction & ITriggerAction & IFormActions, state: RootState, prevState: RootState): void;
+    (action: IContainerAction & ITriggerAction, state: RootState, prevState: RootState): void;
 }
 
 interface Listener {

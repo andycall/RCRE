@@ -9,7 +9,6 @@ Object {
       "$loading": true,
     },
   },
-  "form": Object {},
   "trigger": Object {
     "customerGroup": Object {
       "step1": Object {},

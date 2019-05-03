@@ -4,7 +4,7 @@ import {filter, JSONRender, FuncCustomerArgs} from 'rcre';
 import {RCRETestUtil} from 'rcre-test-tools';
 import moxios from 'moxios';
 import axios from 'axios';
-import {CoreKind} from '../../../../packages/rcre/src/types';
+// import {CoreKind} from '../../../../packages/rcre/src/types';
 
 describe('FormItem', () => {
     beforeEach(() => {
@@ -128,8 +128,9 @@ describe('FormItem', () => {
                 }
             });
             let state = test.getState();
+            let formState = test.getFormState('basicForm');
             expect(state.container.form.username).toBe('andycall');
-            expect(state.form.basicForm.control.username.valid).toBe(true);
+            expect(formState.control.username.valid).toBe(true);
 
             username.simulate('change', {
                 target: {
@@ -138,8 +139,8 @@ describe('FormItem', () => {
             });
 
             username.simulate('blur', {});
-            state = test.getState();
-            expect(state.form.basicForm.valid).toBe(false);
+            formState = test.getFormState('basicForm');
+            expect(formState.valid).toBe(false);
 
             price.simulate('change', {
                 target: {
@@ -148,7 +149,8 @@ describe('FormItem', () => {
             });
 
             state = test.getState();
-            let formControl = state.form.basicForm.control;
+            formState = test.getFormState('basicForm');
+            let formControl = formState.control;
             let priceControl = formControl.price;
             expect(priceControl.valid).toBe(false);
             expect(priceControl.status).toBe('error');
@@ -160,9 +162,9 @@ describe('FormItem', () => {
                 }
             });
 
-            state = test.getState();
+            formState = test.getFormState('basicForm');
 
-            expect(state.form.basicForm.control.price.valid).toBe(true);
+            expect(formState.control.price.valid).toBe(true);
 
             const str = 'abfdeijwidjwijdwijdoqwijdqiodjqiwojdwoqijdqw';
             username.simulate('change', {
@@ -171,17 +173,17 @@ describe('FormItem', () => {
                 }
             });
             state = test.getState();
+            formState = test.getFormState('basicForm');
             expect(state.container.form.username).toBe(str);
-            expect(state.form.basicForm.control.username.valid).toBe(false);
-            expect(state.form.basicForm.control.username.errorMsg).toBe('长度不能超过20个字符');
+            expect(formState.control.username.valid).toBe(false);
+            expect(formState.control.username.errorMsg).toBe('长度不能超过20个字符');
 
             max.simulate('change', {
                 target: {
                     value: str.length + 1
                 }
             });
-            state = test.getState();
-            expect(state.form.basicForm.control.username.valid).toBe(true);
+            expect(formState.control.username.valid).toBe(true);
 
             function asyncCallback($args: FuncCustomerArgs<any>) {
                 let params = $args.params;
@@ -240,11 +242,10 @@ describe('FormItem', () => {
 
             let test = new RCRETestUtil(config);
             let wrapper = test.wrapper;
-            let state = test.getState();
-            let form = state.form.testForm;
-            expect(form.valid).toBe(false);
-            expect(form.control.username.valid).toBe(false);
-            expect(form.control.username.required).toBe(true);
+            let formState = test.getFormState('testForm');
+            expect(formState.valid).toBe(false);
+            expect(formState.control.username.valid).toBe(false);
+            expect(formState.control.username.required).toBe(true);
             wrapper.unmount();
         });
 
@@ -275,17 +276,16 @@ describe('FormItem', () => {
 
             let test = new RCRETestUtil(config);
             let wrapper = test.wrapper;
-            let state = test.getState();
-            let form = state.form.nestTestForm;
-            expect(form.valid).toBe(false);
-            expect(form.control.username.valid).toBe(false);
-            expect(form.control.username.required).toBe(true);
+            let formState = test.getFormState('nestTestForm');
+            expect(formState.valid).toBe(false);
+            expect(formState.control.username.valid).toBe(false);
+            expect(formState.control.username.required).toBe(true);
 
             let username = wrapper.find('input').at(0);
             username.simulate('blur', {});
-            state = test.getState();
+            formState = test.getFormState('nestTestForm');
 
-            expect(state.form.nestTestForm.control.username.errorMsg).toBe('内容必填');
+            expect(formState.control.username.errorMsg).toBe('内容必填');
             wrapper.unmount();
         });
     });
@@ -342,9 +342,9 @@ describe('FormItem', () => {
         util.setContainer('rootContainer');
         let button = util.getComponentByType('button');
         await util.simulate(button, 'onClick');
-        let state = util.getState();
-        expect(state.form[FORM_NAME].valid).toBe(true);
-        expect(state.form[FORM_NAME].control.username.valid).toBe(true);
+        let formState = util.getFormState(FORM_NAME);
+        expect(formState.valid).toBe(true);
+        expect(formState.control.username.valid).toBe(true);
     });
 
     it('sync FormItem Value in parent Container using dataProvider', () => {
@@ -401,8 +401,8 @@ describe('FormItem', () => {
 
             let test = new RCRETestUtil(config);
 
-            let state = test.getState();
-            expect(state.form.testForm.valid).toBe(false);
+            let formState = test.getFormState(FORM_NAME);
+            expect(formState.valid).toBe(false);
 
             moxios.wait(async () => {
                 let request = moxios.requests.mostRecent();
@@ -421,12 +421,13 @@ describe('FormItem', () => {
                     }
                 });
 
-                state = test.getState();
+                let state = test.getState();
+                formState = test.getFormState(FORM_NAME);
 
                 expect(state.container.rootContainer.username).toBe('andycall');
                 expect(state.container.formContainer.username).toBe('andycall');
 
-                expect(state.form.testForm.valid).toBe(true);
+                expect(formState.valid).toBe(true);
 
                 resolve();
             });
@@ -491,23 +492,23 @@ describe('FormItem', () => {
         let input = util.getComponentByType('input');
         util.setData(input, 'aaa');
 
-        let state = util.getState();
-        expect(state.form.disabledForm.valid).toBe(false);
-        expect(state.form.disabledForm.control.username.valid).toBe(false);
+        let formState = util.getFormState('disabledForm');
+        expect(formState.valid).toBe(false);
+        expect(formState.control.username.valid).toBe(false);
 
         let button = util.getComponentByType('button');
         await util.simulate(button, 'onClick');
 
-        state = util.getState();
-        expect(state.form.disabledForm.valid).toBe(true);
-        expect(state.form.disabledForm.control.username.valid).toBe(true);
+        formState = util.getFormState('disabledForm');
+        expect(formState.valid).toBe(true);
+        expect(formState.control.username.valid).toBe(true);
 
         let enableButton = util.getComponentByType('button', 1);
         await util.simulate(enableButton, 'onClick');
 
-        state = util.getState();
-        expect(state.form.disabledForm.valid).toBe(false);
-        expect(state.form.disabledForm.control.username.valid).toBe(false);
+        formState = util.getFormState('disabledForm');
+        expect(formState.valid).toBe(false);
+        expect(formState.control.username.valid).toBe(false);
     });
 
     it('formItem with hidden or show should not be mounted', () => {
@@ -548,9 +549,10 @@ describe('FormItem', () => {
 
         let test = new RCRETestUtil(config);
         let state = test.getState();
+        let formState = test.getFormState('hiddenTestForm');
         expect(state.container.showHiddenTest.hideInput).toBe(true);
-        expect(state.form.hiddenTestForm.control.username).toBe(undefined);
-        expect(state.form.hiddenTestForm.control.password.valid).toBe(false);
+        expect(formState.control.username).toBe(undefined);
+        expect(formState.control.password.valid).toBe(false);
     });
 
     it('change formItem required will trigger validate', () => {
@@ -591,12 +593,12 @@ describe('FormItem', () => {
         let userName = wrapper.find('input').at(0);
         let password = wrapper.find('input').at(1);
 
-        let state = test.getState();
-        expect(state.form.requiredForm.control.username.valid).toBe(false);
-        expect(state.form.requiredForm.control.username.required).toBe(true);
-        expect(state.form.requiredForm.control.password.valid).toBe(false);
-        expect(state.form.requiredForm.control.password.required).toBe(true);
-        expect(state.form.requiredForm.valid).toBe(false);
+        let formState = test.getFormState('requiredForm');
+        expect(formState.control.username.valid).toBe(false);
+        expect(formState.control.username.required).toBe(true);
+        expect(formState.control.password.valid).toBe(false);
+        expect(formState.control.password.required).toBe(true);
+        expect(formState.valid).toBe(false);
 
         userName.simulate('change', {
             target: {
@@ -609,12 +611,12 @@ describe('FormItem', () => {
             }
         });
 
-        state = test.getState();
-        expect(state.form.requiredForm.control.username.valid).toBe(true);
-        expect(state.form.requiredForm.control.username.required).toBe(true);
-        expect(state.form.requiredForm.control.password.valid).toBe(true);
-        expect(state.form.requiredForm.control.password.required).toBe(false);
-        expect(state.form.requiredForm.valid).toBe(true);
+        formState = test.getFormState('requiredForm');
+        expect(formState.control.username.valid).toBe(true);
+        expect(formState.control.username.required).toBe(true);
+        expect(formState.control.password.valid).toBe(true);
+        expect(formState.control.password.required).toBe(false);
+        expect(formState.valid).toBe(true);
 
         userName.simulate('change', {
             target: {
@@ -628,12 +630,12 @@ describe('FormItem', () => {
             }
         });
 
-        state = test.getState();
-        expect(state.form.requiredForm.control.username.valid).toBe(true);
-        expect(state.form.requiredForm.control.username.required).toBe(false);
-        expect(state.form.requiredForm.control.password.valid).toBe(true);
-        expect(state.form.requiredForm.control.password.required).toBe(true);
-        expect(state.form.requiredForm.valid).toBe(true);
+        formState = test.getFormState('requiredForm');
+        expect(formState.control.username.valid).toBe(true);
+        expect(formState.control.username.required).toBe(false);
+        expect(formState.control.password.valid).toBe(true);
+        expect(formState.control.password.required).toBe(true);
+        expect(formState.valid).toBe(true);
     });
 
     it('formItem init value validate', () => {
@@ -714,15 +716,16 @@ describe('FormItem', () => {
         let userName = wrapper.find('input').at(0);
         let age = wrapper.find('input').at(1);
 
+        let formState = test.getFormState('initFormValidate');
         let state = test.getState();
 
         expect(state.container.initFormValidate.userName).toBe('lx');
-        expect(state.form.initFormValidate.control.userName.valid).toBe(true);
-        expect(state.form.initFormValidate.control.age.valid).toBe(true);
-        expect(state.form.initFormValidate.control.gender.valid).toBe(false);
-        expect(state.form.initFormValidate.control.localPerson.valid).toBe(true);
-        expect(state.form.initFormValidate.control.edu.valid).toBe(false);
-        expect(state.form.initFormValidate.control.interest.valid).toBe(false);
+        expect(formState.control.userName.valid).toBe(true);
+        expect(formState.control.age.valid).toBe(true);
+        expect(formState.control.gender.valid).toBe(false);
+        expect(formState.control.localPerson.valid).toBe(true);
+        expect(formState.control.edu.valid).toBe(false);
+        expect(formState.control.interest.valid).toBe(false);
 
         userName.simulate('change', {
             target: {
@@ -736,10 +739,10 @@ describe('FormItem', () => {
             }
         });
 
-        state = test.getState();
-        expect(state.form.initFormValidate.control.userName.valid).toBe(false);
-        expect(state.form.initFormValidate.control.age.valid).toBe(true);
-        expect(state.form.initFormValidate.valid).toBe(false);
+        formState = test.getFormState('initFormValidate');
+        expect(formState.control.userName.valid).toBe(false);
+        expect(formState.control.age.valid).toBe(true);
+        expect(formState.valid).toBe(false);
     });
 
     // it('formItem updateCount', () => {
@@ -1195,7 +1198,7 @@ describe('FormItem', () => {
                         type: 'form',
                         name: 'demoForm',
                         children: [{
-                            type: CoreKind.formItem,
+                            type: 'formItem',
                             rules: [{
                                 pattern: /^\d+$/,
                                 message: 'ABC'
@@ -1262,13 +1265,11 @@ describe('FormItem', () => {
 
     it('Container component updates will also trigger FormItem revalidation', () => {
         filter.setFilter('isUserValid', (username: any) => {
-            console.log(username);
             if (!username) {
                 return false;
             }
 
             let keys = Object.keys(username);
-            console.log(keys.some(key => !!username[key]));
             if (keys.some(key => !!username[key])) {
                 return true;
             }
@@ -1302,16 +1303,17 @@ describe('FormItem', () => {
 
         let test = new RCRETestUtil(config);
         test.setContainer('demo');
-        let form = test.getState().form.form2;
-        expect(form.valid).toBe(false);
-        expect(form.control).toMatchSnapshot();
+        let formState = test.getFormState('form2');
+        expect(formState.valid).toBe(false);
+        expect(formState.control).toMatchSnapshot();
 
         let firstUserName = test.getComponentByName('username.0');
         test.setData(firstUserName, '123456');
 
-        form = test.getState().form.form2;
-        expect(form.valid).toBe(true);
-        expect(form.control).toMatchSnapshot();
+        formState = test.getFormState('form2');
+        
+        expect(formState.valid).toBe(true);
+        expect(formState.control).toMatchSnapshot();
     });
 
     it('FormItem validate should be triggered after component mounted', async () => {

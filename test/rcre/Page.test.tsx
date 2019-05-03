@@ -130,7 +130,6 @@ describe('Store', () => {
                 }
             },
             trigger: {},
-            form: {}
         });
         test.unmount();
         let rootState: any = store.getState();
@@ -140,7 +139,6 @@ describe('Store', () => {
         expect(rootState.$rcre).toEqual({
             container: {__TMP_MODEL__DO_NO_USE_IT: {}},
             trigger: {},
-            form: {}
         });
     });
 });
@@ -176,16 +174,6 @@ describe('CLEAR', () => {
         let test = new RCRETestUtil(config);
         let state = test.getState();
         expect(state.container).toEqual({__TMP_MODEL__DO_NO_USE_IT: {}, repeat: {}});
-        expect(state.form).toEqual({
-            repeatForm:
-                {
-                    valid: false,
-                    name: 'repeatForm',
-                    validateFirst: false,
-                    clearAfterSubmit: false,
-                    control: {}
-                }
-        });
         test.unmount();
     });
 });

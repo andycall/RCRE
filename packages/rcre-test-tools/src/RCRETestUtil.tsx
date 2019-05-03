@@ -378,13 +378,9 @@ export class RCRETestUtil {
             throw new Error('component is unmounted');
         }
 
-        let state: RootState = this.store.getState();
+        let element = this.wrapper.find('RCREForm[name="' + form + '"]');
 
-        if (!state.$rcre.form[form]) {
-            throw new Error('can not find form name: ' + form);
-        }
-
-        return state.$rcre.form[form];
+        return element.state();
     }
 
     /**

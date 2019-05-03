@@ -186,12 +186,7 @@ describe('rcre-test-tools', () => {
         let godUser = test.getComponentByName('godUser');
 
         expect(test.getComponentFormStatus(badUsername)).toBe(null);
-        expect(test.getComponentFormStatus(godUser)).toEqual({
-            name: 'basicForm',
-            valid: false,
-            validateFirst: false,
-            clearAfterSubmit: false,
-            control: {} });
+        expect(test.getComponentFormStatus(godUser)).toEqual({'clearAfterSubmit': false, 'control': {}, 'errors': {}, 'isSubmitting': false, 'isValidating': false, 'name': 'basicForm', 'touched': {}, 'valid': false, 'validateFirst': false});
     });
 
     it('get dynamicName element', () => {

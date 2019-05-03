@@ -69,7 +69,7 @@ export const FormContext = createReactContext<FormContextType>({
     }),
     $setFormItems: payload => {},
     $deleteFormItem: itemName => {},
-    $handleSubmit: () => {},
+    $handleSubmit: async (e: React.FormEvent<HTMLFormElement> | undefined) => {},
     $resetForm: () => {}
 });
 

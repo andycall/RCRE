@@ -48,6 +48,7 @@
         "enzyme": "^3.9.0",
         "enzyme-adapter-react-16": "^1.10.0",
         "express": "^4.16.4",
+        "formik": "^1.5.4",
         "jest": "^23.6.0",
         "js-beautify": "^1.9.0",
         "json-format": "^1.0.1",
