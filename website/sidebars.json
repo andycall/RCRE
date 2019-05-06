@@ -1,5 +1,85 @@
 {
-  "docs": {
-    "Introduction": ["overview", "installation"]
-  }
+    "docs": {
+        "Introduction": [
+            "overview",
+            "installation"
+        ],
+        "Basic Tutorial": [
+            "basic-tutorial/basic-tutorial-info",
+            "basic-tutorial/state-management",
+            "basic-tutorial/automatic-api",
+            "basic-tutorial/tasks",
+            "basic-tutorial/form-validation"
+        ],
+        "State Management": [
+            "state-management/container-init-value",
+            "state-management/state-auto-recycle",
+            "state-management/use-lodash-path",
+            "state-management/cross-container-assignment",
+            "state-management/dynamic-components",
+            "state-management/dynamic-container",
+            "state-management/multi-container"
+        ],
+        "Automatic API": [
+            "automatic-api/required-params",
+            "automatic-api/condition",
+            "automatic-api/response-rewrite",
+            "automatic-api/serial-and-parallel-api",
+            "automatic-api/api-loading-state"
+        ],
+        "Tasks": [
+            "tasks/handle-task-error",
+            "tasks/task-group",
+            "tasks/custom-tasks"
+        ],
+        "Form Validation": [
+            "form/dynamic-rules",
+            "form/custom-validation",
+            "form/read-form-state",
+            "form/automatic-api-validation"
+        ],
+        "Recipes": [
+            "recipes/use-with-redux",
+            "recipes/use-with-react-router",
+            "recipes/watch-state-events",
+            "recipes/writing-tests",
+            "recipes/debug-tools",
+            "recipes/usage-with-typescript",
+            "recipes/keep-state-immutable"
+        ],
+        "JSON Render": [
+            "json-render/how-to-use-json-render",
+            "json-render/use-dynamic-props",
+            "json-render/use-external-functions",
+            "json-render/print-text",
+            "json-render/trigger-event",
+            "json-render/layout-system",
+            "json-render/dynamic-render",
+            "json-render/render-control"
+        ],
+        "Test": [
+            "test/use-test-tools",
+            "test/find-your-components",
+            "test/read-container-state",
+            "test/set-data",
+            "test/simulate-event",
+            "test/read-form-state",
+            "test/trigger-form-submit",
+            "test/use-debug-mode",
+            "test/waiting-for-api",
+            "test/write-automatic-scripts"
+        ],
+        "FAQ": [
+
+        ],
+        "Other": [
+
+        ],
+        "API Reference": [
+            "api/container",
+            "api/ES",
+            "api/task",
+            "api/data-provider"
+        ]
+    }
 }

@@ -29,10 +29,7 @@ Maybe learning some of these libraries can better understand Redux, but if you j
 
 Maybe your daily job is to write Action, Reducer, and manually maintain your application state through line-by-line code. With RCRE, the state of the application is automatically mapped according to the structure of the component, and automatically updated according to the component's update, destruction, and mount. You don't need to write Action, Reducer anymore.
 
-Maybe you used Redux-Thunk or Redux-Sega to manage your asynchronous requests. With RCRE, the interface can automatically initiate requests and synchronize to the state according to the parameter changes. You don't need to write a line related to the calling interface.
- 
-Maybe you used Redux-Form to synchronize the form state to State and write a lot of code to handle form validation. With RCRE, form validation will automatically trigger based on component changes and automatically synchronize all relevant information to the state. You don't need to write a line that triggers form validation. 
- 
+Maybe you used Redux-Thunk or Redux-Sega to manage your asynchronous requests. With RCRE, the interface can automatically initiate requests and synchronize to the state according to the parameter changes. You don't need to write a line related to the calling interface. 
  
 Maybe you have a hard time reusing a bunch of user interactive code. You must split existing code and may cause an error. With RCRE, each separate interactive logic code will be separated at the time of initial development, and when you want to reuse it, you only need one array to get everything done.
 

@@ -49,7 +49,7 @@ class HomeSplash extends React.Component {
                 <div className="inner">
                     <ProjectTitle siteConfig={siteConfig}/>
                     <PromoSection>
-                        <a className="btn primary">Get Started</a>
+                        <a className="btn primary" href={docUrl('overview')}>Getting Started</a>
                         <a className="btn ghost" href={'https://github.com/andycall/RCRE'}>Github</a>
                     </PromoSection>
                 </div>
@@ -133,16 +133,16 @@ class Index extends React.Component {
             <Block layout="fourColumn">
                 {[
                     {
-                        content: 'This is the content of my feature',
-                        image: `${baseUrl}img/undraw_react.svg`,
-                        imageAlign: 'top',
-                        title: 'Feature One',
+                        title: 'Keep Sync',
+                        content: 'Your state will always be in sync with the component. The component is mounted, the state is synchronized, the component is updated, the state is synchronized, the component is destroyed, and the state is synchronized. Without any manual operation.',
                     },
                     {
-                        content: 'The content of my second feature',
-                        image: `${baseUrl}img/undraw_operating_system.svg`,
-                        imageAlign: 'top',
-                        title: 'Feature Two',
+                        title: 'Automatic',
+                        content: 'Form validation and interfaces calls do not require manual triggering, just give certain conditions, they will automatically work when needed',
+                    },
+                    {
+                        title: 'Organized',
+                        content: 'Your state structure will always be consistent with the component structure, and component changes will be automatically synchronized to the state.'
                     },
                 ]}
             </Block>
@@ -168,11 +168,11 @@ class Index extends React.Component {
                     <h2>Who is Using This?</h2>
                     <p>This project is used by all these people</p>
                     <div className="logos">{showcase}</div>
-                    <div className="more-users">
-                        <a className="button" href={pageUrl('users.html')}>
-                            More {siteConfig.title} Users
-                        </a>
-                    </div>
+                    {/*<div className="more-users">*/}
+                        {/*<a className="button" href={pageUrl('users.html')}>*/}
+                            {/*More {siteConfig.title} Users*/}
+                        {/*</a>*/}
+                    {/*</div>*/}
                 </div>
             );
         };
@@ -181,12 +181,11 @@ class Index extends React.Component {
             <div>
                 <HomeSplash siteConfig={siteConfig} language={language}/>
                 <div className="mainContainer">
-                    {/*<Features />*/}
-                    {/*<FeatureCallout />*/}
+                    <Features />
                     {/*<LearnHow />*/}
                     {/*<TryOut />*/}
                     {/*<Description />*/}
-                    {/*<Showcase />*/}
+                    <Showcase />
                 </div>
             </div>
         );

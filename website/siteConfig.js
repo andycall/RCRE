@@ -34,7 +34,12 @@ const siteConfig = {
         {
             doc: 'overview',
             label: 'Docs'
-        }
+        },
+        { page: 'users', label: 'Users' },
+        {
+            href: 'https://github.com/andycall/RCRE',
+            label: 'GitHub',
+        },
         // {doc: 'doc1', label: 'Docs'},
         // {doc: 'doc4', label: 'API'},
         // {page: 'help', label: 'Help'},
@@ -76,7 +81,7 @@ const siteConfig = {
         'https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js',
         '/RCRE/js/code-block-button.js',
     ],
-    stylesheets: ['/formik/css/code-block-button.css'],
+    stylesheets: ['/RCRE/css/code-block-button.css'],
 
     // Add custom scripts here that would be placed in <script> tags.
 
@@ -84,6 +89,8 @@ const siteConfig = {
     onPageNav: 'separate',
     // No .html extensions for paths.
     cleanUrl: true,
+
+    docsSideNavCollapsible: true,
 
     // Open Graph and Twitter card images.
     ogImage: 'img/undraw_online.svg',
