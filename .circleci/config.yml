@@ -6,9 +6,6 @@
 version: 2
 
 defaults: &defaults
-    branches:
-        ignore:
-            - gh-pages
     working_directory: ~/RCRE
     docker:
         - image: circleci/node:lts
@@ -101,28 +98,43 @@ workflows:
     test-deploy:
         jobs:
             - install:
+                  branches:
+                      ignore:
+                          - gh-pages
                   filters:
                       tags:
                           only: /^v.*/
             - test:
+                  branches:
+                      ignore:
+                          - gh-pages
                   requires:
                       - install
                   filters:
                       tags:
                           only: /^v.*/
             - build:
+                  branches:
+                      ignore:
+                          - gh-pages
                   requires:
                       - install
                   filters:
                       tags:
                           only: /^v.*/
             - website:
+                  branches:
+                      ignore:
+                          - gh-pages
                   requires:
                       - install
                   filters:
                       tags:
                           only: /^v.*/
             - deploy:
+                  branches:
+                      ignore:
+                          - gh-pages
                   requires:
                       - test
                       - build
