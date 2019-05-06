@@ -6,6 +6,9 @@
 version: 2
 
 defaults: &defaults
+    branches:
+        ignore:
+            - gh-pages
     working_directory: ~/RCRE
     docker:
         - image: circleci/node:lts
