@@ -98,43 +98,40 @@ workflows:
     test-deploy:
         jobs:
             - install:
-                  branches:
-                      ignore:
-                          - gh-pages
                   filters:
+                      branches:
+                          ignore:
+                              - gh-pages
                       tags:
                           only: /^v.*/
             - test:
-                  branches:
-                      ignore:
-                          - gh-pages
                   requires:
                       - install
                   filters:
+                      branches:
+                          ignore:
+                              - gh-pages
                       tags:
                           only: /^v.*/
             - build:
-                  branches:
-                      ignore:
-                          - gh-pages
                   requires:
                       - install
                   filters:
+                      branches:
+                          ignore:
+                              - gh-pages
                       tags:
                           only: /^v.*/
             - website:
-                  branches:
-                      ignore:
-                          - gh-pages
                   requires:
                       - install
                   filters:
+                      branches:
+                          ignore:
+                              - gh-pages
                       tags:
                           only: /^v.*/
             - deploy:
-                  branches:
-                      ignore:
-                          - gh-pages
                   requires:
                       - test
                       - build
@@ -143,4 +140,3 @@ workflows:
                           only: /^v.*/
                       branches:
                           ignore: /.*/
-
