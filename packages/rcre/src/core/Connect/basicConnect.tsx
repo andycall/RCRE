@@ -3,14 +3,13 @@ import {RootState} from '../../data/reducers';
 import {polyfill} from 'react-lifecycles-compat';
 import {
     BasicProps,
-    ContainerSetDataOption,
+    ContainerSetDataOption, FormItemState,
     runTimeType
 } from '../../types';
 import {TriggerEventItem} from '../Trigger/Trigger';
 import {getRuntimeContext} from '../util/util';
 import {isExpression, parseExpressionString} from '../util/vm';
 import React from 'react';
-import {SET_FORM_ITEM_PAYLOAD} from '../Form/actions';
 
 export type WrapperComponentType<T> =
     React.ComponentClass<T> |
@@ -69,7 +68,7 @@ export interface ConnectTools<Props> extends BasicProps {
         /**
          * 更新FormItem的状态
          */
-        $setFormItem: (payload: Partial<SET_FORM_ITEM_PAYLOAD>) => void;
+        $setFormItem: (payload: Partial<FormItemState>) => void;
 
         /**
          * 清空FormItem的状态
@@ -81,7 +80,7 @@ export interface ConnectTools<Props> extends BasicProps {
          * @param {string} name
          * @returns {SET_FORM_ITEM_PAYLOAD}
          */
-        $getFormItem: (name: string) => SET_FORM_ITEM_PAYLOAD;
+        $getFormItem: (name: string) => FormItemState;
 
         /**
          * 是否处于Form组件下

@@ -67,17 +67,15 @@ export class AutomaticRobot {
         this.test.wrapper.update();
         await this.test.waitForDataProviderComplete();
         let form = this.test.getRootForm();
-        let instance: any = form.instance();
-        let name = instance.props.info.name;
-        let state = this.test.getState();
-        let valid = state.form[name].valid;
+        let state = form.state();
+        let valid = state.valid;
 
         if (!valid) {
             let errorFormItems: string[][] = [];
 
-            Object.keys(state.form[name].control).forEach(key => {
-                if (!state.form[name].control[key].valid) {
-                    errorFormItems.push([key, state.form[name].control[key].errorMsg]);
+            Object.keys(state.control).forEach(key => {
+                if (!state.control[key].valid) {
+                    errorFormItems.push([key, state.control[key].errorMsg]);
                 }
             });
 
@@ -96,16 +94,14 @@ export class AutomaticRobot {
             if (typeof item === 'string' && item === 'submit') {
                 this.test.wrapper.update();
                 let form = this.test.getRootForm();
-                let instance: any = form.instance();
-                let name = instance.props.info.name;
-                let state = this.test.getState();
-                let valid = state.form[name].valid;
+                let state = form.state();
+                let valid = state.valid;
 
                 if (!valid) {
                     let errorFormItems: string[] = [];
 
-                    Object.keys(state.form[name].control).forEach(key => {
-                        if (!state.form[name].control[key].valid) {
+                    Object.keys(state.control).forEach(key => {
+                        if (!state.control[key].valid) {
                             errorFormItems.push(key);
                         }
                     });

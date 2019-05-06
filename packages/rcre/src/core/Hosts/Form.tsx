@@ -19,7 +19,7 @@ function JSONForm(props: FormProps & BasicProps) {
                     return (
                         <form
                             onSubmit={event => {
-                                context.$handleSubmit();
+                                context.$handleSubmit(event);
                             }}
                         >
                             {children}
