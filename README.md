@@ -50,50 +50,6 @@ You can play with RCRE in your web browser with these live online playgrounds.
 + [Task Group](https://codesandbox.io/s/github/andycall/RCRE/tree/master/examples/task-group)
 + [Simple Search](https://codesandbox.io/s/github/andycall/RCRE/tree/master/examples/simple-search)
 + [Combine Search](https://codesandbox.io/s/github/andycall/RCRE/tree/master/examples/combine-search)
-+ Container
-    + use init data
-    + sync value between parent and child container
-    + delete value when container destroyed 
-+ Work with Exist React application
-    + work with react-router
-    + work with redux
-    + work with any React Component libraries.
-+ Work with API
-    + Call the API
-    + update the API with component update
-    + serial API call
-    + parallel API call
-    + custom API call conditions
-+ Events
-    + Handle a click event
-    + send value to this container
-    + send value to parent container
-    + send value to target container
-    + how to bypass react events into RCRE
-+ Tasks
-    + how to define tasks
-    + how to assemble multi tasks
-    + one event to trigger multi tasks
-    + how to use pure function to write a task
-    + how to use the task map
-    + how to get value from every task
-    + how to handle error tasks
-    + how to handle async task
-+ Forms 
-    + sync validation
-    + async validation
-    + custom validation
-    + how to trigger form submission
-    + the disabled property
-    + the required property
-    + the rules property
-    + pass form state to component  
-+ Dynamic
-    + dynamic names
-    + dynamic container
-    + dynamic form validations
-    + dynamic event handler
-    
     
 ## Authors
 

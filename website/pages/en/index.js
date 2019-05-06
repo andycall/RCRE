@@ -133,12 +133,16 @@ class Index extends React.Component {
             <Block layout="fourColumn">
                 {[
                     {
-                        title: 'Keep Sync',
-                        content: 'Your state will always be in sync with the component. The component is mounted, the state is synchronized, the component is updated, the state is synchronized, the component is destroyed, and the state is synchronized. Without any manual operation.',
+                        title: 'Debuggable',
+                        content: 'RCRE use redux for state management and always keep your state immutable'
                     },
                     {
                         title: 'Automatic',
                         content: 'Form validation and interfaces calls do not require manual triggering, just give certain conditions, they will automatically work when needed',
+                    },
+                    {
+                        title: 'Synchronous',
+                        content: 'When a component is mounted, updated, destroyed, the state is synchronized without any manual action',
                     },
                     {
                         title: 'Organized',
