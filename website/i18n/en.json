@@ -23,6 +23,9 @@
       "automatic-api/condition": {
         "title": "Condition"
       },
+      "automatic-api/extend-data-provider": {
+        "title": "Extend Data Provider"
+      },
       "automatic-api/required-params": {
         "title": "Required Params"
       },

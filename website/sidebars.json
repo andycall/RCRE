@@ -25,7 +25,8 @@
             "automatic-api/condition",
             "automatic-api/response-rewrite",
             "automatic-api/serial-and-parallel-api",
-            "automatic-api/api-loading-state"
+            "automatic-api/api-loading-state",
+            "automatic-api/extend-data-provider"
         ],
         "Tasks": [
             "tasks/handle-task-error",
