@@ -1,10 +1,10 @@
-import {ES} from "rcre";
-import React from "react";
+import {ES} from 'rcre';
+import React from 'react';
 
 export class Input extends React.Component<any, any> {
     render() {
         return (
-            <ES name={this.props.name}>
+            <ES name={this.props.name} disabled={this.props.disabled}>
                 {({$data}, context) => {
                     return (
                         <input
