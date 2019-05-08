@@ -67,7 +67,10 @@ export interface RunTimeType {
     $iterator?: any;
     $parent?: any;
     $form?: any;
-    $formItem?: any;
+    $formItem?: {
+        valid: boolean;
+        errmsg: string;
+    };
     $prev?: any;
 }
 
@@ -589,7 +592,7 @@ export interface FormItemState {
 }
 
 export interface FormContextType {
-    $form: RCREFormState | null;
+    $form: RCREFormState;
     isSubmitting?: boolean;
     $setFormItem: (payload: FormItemState) => void;
     $getFormItem: (formItemName: string) => FormItemState;
@@ -607,6 +610,8 @@ export type ElementsInfo = {
 
 export interface FormItemContextType {
     $validateFormItem: (name: string, value: any) => void;
+    $deleteFormItem: (name: string) => void;
+    $setFormItem: (payload: FormItemState) => void;
     deleteControlElements: (name: string) => void;
     initControlElements: (name: string, info: ElementsInfo) => void;
     updateControlElements: (name: string, info: ElementsInfo) => void;

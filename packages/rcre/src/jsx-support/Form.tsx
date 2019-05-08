@@ -1,44 +1,40 @@
 import React from 'react';
-import {FormProps, RCREForm} from '../core/Form/Form';
+import {FormProps, RCREForm as _RCREForm} from '../core/Form/Form';
 import {withAllContext} from '../core/util/withAllContext';
-import {BasicProps} from '../types';
+import {FormContext} from '../core/context';
+import {BasicProps, FormContextType} from '../types';
 
-type FormComponentProps = {
-    onSubmit?: (event: React.FormEvent<any>) => void;
-};
+interface FormComponentProps extends FormProps {
+    onSubmit?: (event: React.FormEvent<any>) => any;
+    children: (context: FormContextType) => any;
+}
 
-class FormComponent extends React.PureComponent<FormProps & BasicProps & FormComponentProps> {
+const WrappedForm = withAllContext(_RCREForm);
+
+class FormComponent extends React.PureComponent<BasicProps & FormComponentProps> {
     render() {
-        const {
-            containerContext,
-            formContext,
-            formItemContext,
-            rcreContext,
-            triggerContext,
-            iteratorContext,
-            ...normalProps
-        } = this.props;
+        if (typeof this.props.children !== 'function') {
+            return <div>THe children property of RCREForm component should be a function</div>;
+        }
+
+        const fn = async () => {};
+        const onSubmit = this.props.onSubmit || fn;
 
         return (
-            <RCREForm
+            <WrappedForm
                 {...this.props}
             >
-                <form
-                    {...normalProps}
-                    onSubmit={event => {
-                        event.preventDefault();
-                        if (this.props.onSubmit) {
-                            this.props.onSubmit(event);
-                        }
-                    }}
-                >
-                    {this.props.children}
-                </form>
-            </RCREForm>
+                <FormContext.Consumer>
+                    {context => this.props.children({
+                        ...context,
+                        $handleSubmit: onSubmit
+                    })}
+                </FormContext.Consumer>
+            </WrappedForm>
         );
     }
 }
 
-class DommyForm extends React.PureComponent<FormProps & FormComponentProps> {}
+class DommyForm extends React.PureComponent<FormComponentProps> {}
 
-export const Form = withAllContext(FormComponent) as typeof DommyForm;
+export const RCREForm = FormComponent as typeof DommyForm;

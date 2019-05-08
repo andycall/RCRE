@@ -49,7 +49,7 @@ export interface CustomerParams {
     };
     rcreContext: RCREContextType;
     containerContext: ContainerContextType;
-    iteratorContext: IteratorContextType;
+    iteratorContext?: IteratorContextType;
     options: TRIGGER_SET_DATA_OPTIONS | undefined;
 }
 

@@ -6,7 +6,7 @@ import {
     FormItemContextType, FormItemState,
     RunTimeType
 } from '../../types';
-import {FormItemContext, ContainerContext} from '../context';
+import {FormItemContext, ContainerContext, FormContext} from '../context';
 import {request} from '../Service/api';
 import {getRuntimeContext, isPromise, recycleRunTime} from '../util/util';
 import {applyRule} from './validate';
@@ -26,20 +26,16 @@ export interface FormItemProps {
     isTextFormItem?: boolean;
     filterErrMsg?: any;
     control?: any;
-    children?: any;
 }
 
-export type RCREFormItemProps = FormItemProps & BasicProps & {
-    /**
-     * 来自Form组件的context
-     */
-    formContext: FormContextType;
-};
+export type RCREFormItemProps = FormItemProps & BasicProps;
 
-export class RCREFormItem extends React.Component<RCREFormItemProps, {}> {
+export class RCREFormItem extends React.PureComponent<RCREFormItemProps, {}> {
+    static contextType = FormContext as any;
+    context: FormContextType;
     private isApiValidate: boolean;
     private isUnMounted?: boolean;
-    private controlElements: {
+    private readonly controlElements: {
         [name: string]: ElementsInfo;
     };
 
@@ -55,6 +51,10 @@ export class RCREFormItem extends React.Component<RCREFormItemProps, {}> {
         this.isApiValidate = false;
         this.isUnMounted = false;
         this.controlElements = {};
+    }
+
+    componentWillUnmount(): void {
+        this.isUnMounted = true;
     }
 
     private initControlElements = (name: string, info: ElementsInfo) => {
@@ -109,7 +109,7 @@ export class RCREFormItem extends React.Component<RCREFormItemProps, {}> {
             let element = this.controlElements[name];
 
             if (element.disabled) {
-                this.props.formContext.$setFormItem({
+                this.context.$setFormItem({
                     formItemName: name,
                     rules: this.props.rules,
                     status: 'success',
@@ -132,7 +132,7 @@ export class RCREFormItem extends React.Component<RCREFormItemProps, {}> {
             if (!formDataEmpty || isExpression(this.props.filterRule)) {
                 this.validateFormItem(name, formValue);
             } else {
-                this.props.formContext.$setFormItem({
+                this.context.$setFormItem({
                     formItemName: name,
                     rules: this.props.rules,
                     status: valid ? 'success' : 'error',
@@ -296,7 +296,7 @@ export class RCREFormItem extends React.Component<RCREFormItemProps, {}> {
         this.props.rcreContext.dataProviderEvent.setToDone(apiRule.url);
 
         if (isValid) {
-            this.props.formContext.$setFormItem({
+            this.context.$setFormItem({
                 formItemName: formItemName,
                 valid: true,
                 errorMsg: '',
@@ -312,7 +312,7 @@ export class RCREFormItem extends React.Component<RCREFormItemProps, {}> {
                 });
             }
 
-            this.props.formContext.$setFormItem({
+            this.context.$setFormItem({
                 formItemName: formItemName,
                 valid: false,
                 rules: this.props.rules,
@@ -376,7 +376,7 @@ export class RCREFormItem extends React.Component<RCREFormItemProps, {}> {
         }
 
         if (this.props.isTextFormItem) {
-            this.props.formContext.$setFormItem({
+            this.context.$setFormItem({
                 formItemName: formItemName,
                 valid: true,
                 status: 'success',
@@ -443,7 +443,7 @@ export class RCREFormItem extends React.Component<RCREFormItemProps, {}> {
                         });
                     }
 
-                    this.props.formContext.$setFormItem({
+                    this.context.$setFormItem({
                         formItemName: formItemName,
                         valid: false,
                         rules: this.props.rules,
@@ -454,7 +454,7 @@ export class RCREFormItem extends React.Component<RCREFormItemProps, {}> {
                 });
 
                 this.isApiValidate = true;
-                this.props.formContext.$setFormItem({
+                this.context.$setFormItem({
                     formItemName: formItemName,
                     valid: true,
                     errorMsg: '',
@@ -468,7 +468,7 @@ export class RCREFormItem extends React.Component<RCREFormItemProps, {}> {
         }
 
         if (isValid) {
-            this.props.formContext.$setFormItem({
+            this.context.$setFormItem({
                 formItemName: formItemName,
                 valid: true,
                 status: 'success',
@@ -477,7 +477,7 @@ export class RCREFormItem extends React.Component<RCREFormItemProps, {}> {
                 required: this.props.required || false
             });
         } else {
-            this.props.formContext.$setFormItem({
+            this.context.$setFormItem({
                 formItemName: formItemName,
                 valid: false,
                 status: 'error',
@@ -499,16 +499,16 @@ export class RCREFormItem extends React.Component<RCREFormItemProps, {}> {
 
     private handleDelete = (name: string) => {
         this.deleteControlElements(name);
-        this.props.formContext.$deleteFormItem(name);
+        this.context.$deleteFormItem(name);
         this.props.containerContext.$deleteData(name);
     }
 
     private getFormItemControl = (formItemName: string): FormItemState => {
-        if (!this.props.formContext.$form) {
+        if (!this.context.$form) {
             return { valid: false, formItemName: '-' };
         }
 
-        return this.props.formContext.$form.control[formItemName];
+        return this.context.$form.control[formItemName];
     }
 
     private handleBlur = () => {
@@ -555,6 +555,8 @@ export class RCREFormItem extends React.Component<RCREFormItemProps, {}> {
             $validateFormItem: this.validateFormItem,
             initControlElements: this.initControlElements,
             updateControlElements: this.updateControlElements,
+            $deleteFormItem: this.context.$deleteFormItem,
+            $setFormItem: this.context.$setFormItem,
             deleteControlElements: this.deleteControlElements,
             $formItem: {
                 valid: formItemStatus.valid,

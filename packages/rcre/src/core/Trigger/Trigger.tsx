@@ -79,7 +79,7 @@ export interface TriggerProps {
     /**
      * 来自Foreach组件的context对象
      */
-    iteratorContext: IteratorContextType;
+    iteratorContext?: IteratorContextType;
 
     /**
      * 来自父级Container的context对象

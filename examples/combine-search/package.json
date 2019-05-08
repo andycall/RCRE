@@ -5,7 +5,7 @@
   "keywords": [],
   "main": "src/index.js",
   "dependencies": {
-    "rcre": "latest",
+    "rcre": "0.20.x",
     "react": "16.8.6",
     "react-dom": "16.8.6",
     "antd": "^3.16.6",

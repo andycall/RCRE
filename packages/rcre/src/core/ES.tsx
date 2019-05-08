@@ -7,7 +7,7 @@ import {RootState} from '../data/reducers';
 import {
     BasicProps,
     ContainerContextType, ContainerSetDataOption, ExecTaskOptions,
-    FormContextType,
+    FormItemContextType,
     IteratorContextType,
     RCREContextType,
     runTimeType,
@@ -18,7 +18,7 @@ import {withAllContext} from './util/withAllContext';
 type ESChild = (runTime: runTimeType, context: {
     container: ContainerContextType;
     trigger: TriggerContextType,
-    form?: FormContextType,
+    formItem?: FormItemContextType,
     rcre: RCREContextType
     iterator: IteratorContextType
 }) => any;
@@ -103,11 +103,16 @@ class ESComponent extends React.PureComponent<ESProps & ESComponentInternalProps
 
     componentWillUnmount() {
         if (this.props.name) {
-            if (this.props.formContext && this.props.formContext.$form && this.props.clearFormStatusOnlyWhenDestroy) {
-                this.props.formContext.$deleteFormItem(this.props.name);
-            } else if (this.props.formContext && this.props.formContext.$form && !this.props.disableClearWhenDestroy) {
-                this.props.containerContext.$deleteData(this.props.name);
-            } else if (this.props.clearWhenDestory || this.props.clearWhenDestroy) {
+            let clearWhenDestroy = this.props.clearWhenDestory || this.props.clearWhenDestroy;
+
+            // 表单模式下，自动开启数据清除功能
+            if (this.props.formItemContext && this.props.clearFormStatusOnlyWhenDestroy) {
+                this.props.formItemContext.$deleteFormItem(this.props.name);
+            } else if (this.props.formItemContext && this.props.disableClearWhenDestroy === false) {
+                clearWhenDestroy = true;
+            }
+
+            if (clearWhenDestroy) {
                 this.props.containerContext.$deleteData(this.props.name);
             }
 
@@ -186,7 +191,7 @@ class ESComponent extends React.PureComponent<ESProps & ESComponentInternalProps
     }
 
     private shouldDisabledTriggerValidate(nextProps: ESProps & BasicProps): ValidateDecision {
-        if (!this.props.formContext || !nextProps.formContext) {
+        if (!this.props.formItemContext || !nextProps.formItemContext) {
             return ValidateDecision.SKIP;
         }
 
@@ -201,7 +206,7 @@ class ESComponent extends React.PureComponent<ESProps & ESComponentInternalProps
 
         // 之前是false，现在改成true，需要强制设置formItem为验证成功
         if (!this.props.disabled && nextProps.disabled && nextProps.name) {
-            nextProps.formContext.$setFormItem({
+            nextProps.formItemContext.$setFormItem({
                 formItemName: nextProps.name,
                 valid: true,
                 status: 'success',
@@ -216,7 +221,7 @@ class ESComponent extends React.PureComponent<ESProps & ESComponentInternalProps
     }
 
     private shouldValueTriggerValidate(nextProps: ESProps & BasicProps): ValidateDecision {
-        if (!this.props.formContext || !nextProps.formContext) {
+        if (!this.props.formItemContext || !nextProps.formItemContext) {
             return ValidateDecision.SKIP;
         }
 
@@ -235,10 +240,6 @@ class ESComponent extends React.PureComponent<ESProps & ESComponentInternalProps
      * @param nextProps
      */
     private shouldValidateFormItem(nextProps: ESProps & BasicProps) {
-        if (!this.props.formContext || !nextProps.formContext) {
-            return;
-        }
-
         if (!nextProps.formItemContext || !this.props.formItemContext) {
             return;
         }
@@ -307,7 +308,7 @@ class ESComponent extends React.PureComponent<ESProps & ESComponentInternalProps
                 $setData: this.updateNameValue
             },
             rcre: this.props.rcreContext,
-            form: this.props.formContext,
+            formItem: this.props.formItemContext,
             trigger: this.props.triggerContext,
             iterator: this.props.iteratorContext
         };
@@ -315,7 +316,7 @@ class ESComponent extends React.PureComponent<ESProps & ESComponentInternalProps
         let name = this.props.name;
         let runTime = getRuntimeContext(this.props.containerContext, this.props.rcreContext, {
             iteratorContext: this.props.iteratorContext,
-            formContext: this.props.formContext,
+            formItemContext: this.props.formItemContext,
             triggerContext: this.props.triggerContext
         });
 

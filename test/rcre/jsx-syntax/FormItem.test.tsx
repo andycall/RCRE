@@ -1,4 +1,4 @@
-import {Container, createReduxStore, RCREProvider, Form, FormItem, ES} from 'rcre';
+import {Container, createReduxStore, RCREProvider, RCREForm, RCREFormItem, ES} from 'rcre';
 import {RCRETestUtil} from 'rcre-test-tools';
 import React from 'react';
 import {Input} from './components/Input';
@@ -10,17 +10,16 @@ describe('FormItem', () => {
         let component = (
             <RCREProvider store={store}>
                 <Container model={'demo'}>
-                    <Form name={'test'}>
-                        <div>helloworld</div>
-                        <FormItem required={true}>
-                            <Input name={'username'} />
-                        </FormItem>
-                        <ES type={'button'}>
-                            {({$form}, context) => {
-                                return <button disabled={!$form.valid}>Submit</button>;
-                            }}
-                        </ES>
-                    </Form>
+                    <RCREForm name={'test'}>{({$form, $handleSubmit}) => (
+                        <form onSubmit={$handleSubmit}>
+                            <div>helloworld</div>
+                            <RCREFormItem required={true}>
+                                <Input name={'username'}/>
+                            </RCREFormItem>
+                            <button disabled={!$form.valid}>Submit</button>
+                            ;
+                        </form>
+                    )}</RCREForm>
                 </Container>
             </RCREProvider>
         );
@@ -46,14 +45,16 @@ describe('FormItem', () => {
         let component = (
             <RCREProvider store={store}>
                 <Container model={'demo'} data={{required: true}}>
-                    <Form name={'test'}>
-                        <ES>{({$data}) => (
-                            <FormItem required={$data.required}>
-                                <Input name={'username'} />
-                            </FormItem>
-                        )}</ES>
-                        <Checkbox name={'required'}/>
-                    </Form>
+                    <RCREForm name={'test'}>{() => (
+                        <div>
+                            <ES>{({$data}) => (
+                                <RCREFormItem required={$data.required}>
+                                    <Input name={'username'} />
+                                </RCREFormItem>
+                            )}</ES>
+                            <Checkbox name={'required'}/>
+                        </div>
+                    )}</RCREForm>
                 </Container>
             </RCREProvider>
         );
@@ -83,14 +84,16 @@ describe('FormItem', () => {
         let component = (
             <RCREProvider store={store}>
                 <Container model={'demo'} data={{disabled: false}}>
-                    <Form name={'test'}>
-                        <ES>{({$data}) => (
-                            <FormItem required={true} rules={[{maxLength: 1}]}>
-                                <Input disabled={$data.disabled} name={'username'} />
-                            </FormItem>
-                        )}</ES>
-                        <Checkbox name={'disabled'}/>
-                    </Form>
+                    <RCREForm name={'test'}>{() => (
+                        <div>
+                            <ES>{({$data}) => (
+                                <RCREFormItem required={true} rules={[{maxLength: 1}]}>
+                                    <Input disabled={$data.disabled} name={'username'} />
+                                </RCREFormItem>
+                            )}</ES>
+                            <Checkbox name={'disabled'}/>
+                        </div>
+                    )}</RCREForm>
                 </Container>
             </RCREProvider>
         );

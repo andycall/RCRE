@@ -55,9 +55,11 @@ export const TriggerContext = createReactContext<TriggerContextType>({
     },
     $trigger: null
 });
+// @ts-ignore
+TriggerContext.displayName = 'TriggerContext';
 
 export const FormContext = createReactContext<FormContextType>({
-    $form: null,
+    $form: null as any,
     $setFormItem: payload => {},
     $getFormItem: formItemName => ({
         formItemName: '',
@@ -72,10 +74,14 @@ export const FormContext = createReactContext<FormContextType>({
     $handleSubmit: async (e: React.FormEvent<HTMLFormElement> | undefined) => {},
     $resetForm: () => {}
 });
+// @ts-ignore
+FormContext.displayName = 'FormContext';
 
 export const FormItemContext = createReactContext<FormItemContextType>({
     $validateFormItem: (name: string, value: any) => {},
     $handleBlur: () => {},
+    $deleteFormItem: () => {},
+    $setFormItem: payload => {},
     updateControlElements: () => {},
     deleteControlElements: () => {},
     initControlElements: () => {},
@@ -84,6 +90,8 @@ export const FormItemContext = createReactContext<FormItemContextType>({
         errmsg: ''
     }
 });
+// @ts-ignore
+FormItemContext.displayName = 'FormItemContext';
 
 export const withRCREContext: any = (Component: any) => {
     return (props: any) => (
@@ -130,9 +138,12 @@ export const IteratorContext = createReactContext<IteratorContextType>({
     $index: -1
 });
 
+// @ts-ignore
+IteratorContext.displayName = 'IteratorContext';
+
 export type RunTimeContextCollection = {
     container: ContainerContextType;
     rcre: RCREContextType;
-    iterator: IteratorContextType;
+    iterator?: IteratorContextType;
     form?: FormContextType;
 };

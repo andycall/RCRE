@@ -1,9 +1,12 @@
 import React from "react";
 import ReactDOM from "react-dom";
-import {RCREProvider, Container, Form, FormItem, ES} from 'rcre';
+import {Form} from 'antd';
+import {RCREProvider, Container, RCREForm, RCREFormItem, ES} from 'rcre';
 import {ESInput} from './components/Input';
-
 import "./styles.css";
+import "antd/dist/antd.css";
+
+const FormItem = Form.Item;
 
 function App() {
   return (
@@ -29,19 +32,30 @@ function App() {
           }}
         >
           <ES>{({$data}, context) => (
-            <Form
+            <RCREForm
               name={'demo'}
               onSubmit={event => {
                 context.trigger.execTask('submitForm', {});
               }}
-            >
-              <h3>Example Form</h3>
-              <FormItem required={true}>
-                <span>UserName: </span>
-                <ESInput name={'username'}/>
-              </FormItem>
-              <button type={'submit'}>Submit</button>
-            </Form>
+            >{({$form, $handleSubmit}) => (
+              <Form onSubmit={$handleSubmit}>
+                <h3>Example Form</h3>
+                <RCREFormItem required={true}>{({valid, errmsg}) => {
+                  console.log(valid, errmsg);
+                  return (
+                    <FormItem
+                      required={true}
+                      help={errmsg}
+                      validateStatus={valid ? 'success' : 'error'}
+                      label={'UserName'}
+                    >
+                      <ESInput name={'username'}/>
+                    </FormItem>
+                  )
+                }}</RCREFormItem>
+                <button type={'submit'}>Submit</button>
+              </Form>
+            )}</RCREForm>
           )}</ES>
         </Container>
       </RCREProvider>
