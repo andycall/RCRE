@@ -5,23 +5,21 @@ import {FormContext} from '../core/context';
 import {BasicProps, FormContextType} from '../types';
 
 interface FormComponentProps extends FormProps {
-    onSubmit?: (event: React.FormEvent<any>) => any;
+    onSubmit?: (event: React.FormEvent<any>, data: object) => any;
     children: (context: FormContextType) => any;
 }
-
-const WrappedForm = withAllContext(_RCREForm);
 
 class FormComponent extends React.PureComponent<BasicProps & FormComponentProps> {
     render() {
         if (typeof this.props.children !== 'function') {
-            return <div>THe children property of RCREForm component should be a function</div>;
+            return <div>The children property of RCREForm component should be a function</div>;
         }
 
         const fn = async () => {};
         const onSubmit = this.props.onSubmit || fn;
 
         return (
-            <WrappedForm
+            <_RCREForm
                 {...this.props}
             >
                 <FormContext.Consumer>
@@ -36,16 +34,24 @@ class FormComponent extends React.PureComponent<BasicProps & FormComponentProps>
                             let valid = await context.$runValidations();
 
                             if (valid) {
-                                onSubmit(event);
+                                let submitData = {};
+                                let names = Object.keys(context.$form.control);
+                                for (let itemName of names) {
+                                    if (context.$form.control.hasOwnProperty(itemName)) {
+                                        submitData[itemName] = this.props.containerContext.$getData(itemName);
+                                    }
+                                }
+
+                                onSubmit(event, submitData);
                             }
                         }
                     })}
                 </FormContext.Consumer>
-            </WrappedForm>
+            </_RCREForm>
         );
     }
 }
 
 class DommyForm extends React.PureComponent<FormComponentProps> {}
 
-export const RCREForm = FormComponent as typeof DommyForm;
+export const RCREForm = withAllContext(FormComponent) as typeof DommyForm;

@@ -34,9 +34,10 @@ function App() {
           <ES>{({$data}, context) => (
             <RCREForm
               name={'demo'}
-              onSubmit={event => {
+              onSubmit={(event, data) => {
+                console.log(data);
                 event.preventDefault();
-                context.trigger.execTask('submitForm', {});
+                context.trigger.execTask('submitForm', data);
               }}
             >{({$form, $handleSubmit}) => (
               <Form onSubmit={$handleSubmit}>
