@@ -63,10 +63,6 @@ export class RCREForm extends React.Component<FormProps & BasicProps, RCREFormSt
         this.didMount = false;
         let name = props.name;
 
-        if (!name) {
-            return;
-        }
-
         this.formItems = {};
 
         this.state = {
@@ -175,7 +171,6 @@ export class RCREForm extends React.Component<FormProps & BasicProps, RCREFormSt
     public submitForm = async () => {
         let control = this.state.control;
 
-        debugger;
         await this.runValidations();
 
         let submitData = {};
@@ -212,10 +207,6 @@ export class RCREForm extends React.Component<FormProps & BasicProps, RCREFormSt
     }
 
     public handleSubmit = async (e: React.FormEvent<HTMLFormElement> | undefined, preventSubmit: boolean = false) => {
-        if (!this.props.name) {
-            return;
-        }
-
         if (e && e.preventDefault) {
             e.preventDefault();
         }
