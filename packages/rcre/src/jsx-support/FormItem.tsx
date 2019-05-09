@@ -6,6 +6,7 @@ import {withAllContext} from '../core/util/withAllContext';
 type FormItemParams = {
     valid: boolean;
     errmsg: string;
+    validating: boolean;
 };
 type FormItemChildFunc = (params: FormItemParams) => any;
 
