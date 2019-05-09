@@ -5,7 +5,7 @@ import {Input} from './components/Input';
 import {Checkbox} from './components/Checkbox';
 
 describe('FormItem', () => {
-    it('basic Form', () => {
+    it('basic Form', async () => {
         let store = createReduxStore();
         let component = (
             <RCREProvider store={store}>
@@ -27,6 +27,7 @@ describe('FormItem', () => {
         let test = new RCRETestUtil(component);
 
         test.setContainer('demo');
+        await test.triggerFormValidate('test');
 
         let formState = test.getFormState('test');
         expect(formState.valid).toBe(false);
@@ -40,7 +41,7 @@ describe('FormItem', () => {
         expect(button.prop('disabled')).toBe(false);
     });
 
-    it('required change', () => {
+    it('required change', async () => {
         let store = createReduxStore();
         let component = (
             <RCREProvider store={store}>
@@ -61,6 +62,7 @@ describe('FormItem', () => {
 
         let test = new RCRETestUtil(component);
         test.setContainer('demo');
+        await test.triggerFormValidate('test');
 
         let formState = test.getFormState('test');
         expect(formState.valid).toBe(false);
@@ -79,7 +81,7 @@ describe('FormItem', () => {
         expect(formState.valid).toBe(true);
     });
 
-    it('disabled change', () => {
+    it('disabled change', async () => {
         let store = createReduxStore();
         let component = (
             <RCREProvider store={store}>
@@ -101,6 +103,7 @@ describe('FormItem', () => {
         let test = new RCRETestUtil(component);
         test.setContainer('demo');
 
+        await test.triggerFormValidate('test');
         let formState = test.getFormState('test');
         expect(formState.valid).toBe(false);
 

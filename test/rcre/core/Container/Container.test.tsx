@@ -405,7 +405,7 @@ describe('Container Component', () => {
         test.unmount();
     });
 
-    it('[bind]: setMultiDataBind', () => {
+    it('[bind]: setMultiDataBind', async () => {
         let info = {
             body: [
                 {
@@ -466,13 +466,11 @@ describe('Container Component', () => {
             ]
         };
         let test = new RCRETestUtil(info);
-        let wrapper = test.wrapper;
-        console.log(wrapper.debug());
+        let form = test.getRootForm();
 
-        const innerElement = wrapper.find('form').at(0);
-        innerElement.simulate('submit', {});
+        await test.triggerFormSubmit(form);
+
         let state = test.getState();
-        console.log(state);
         let container = state.container;
 
         expect(container['outer'].username).toBe(undefined);

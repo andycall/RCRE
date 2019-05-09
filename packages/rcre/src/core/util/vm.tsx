@@ -128,6 +128,10 @@ export function compileExpressionString<T>(data: T,
                                            blackList: string[] = [],
                                            isDeep: boolean = false,
                                            whiteList?: string[]): T {
+    if (_.isNil(data)) {
+        return data;
+    }
+
     // 将blackList中的数据标准化成点运算符连接的形式
     let normalizedBlackList = blackList.map(item => normalizedPathString(item));
 

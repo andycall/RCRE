@@ -218,7 +218,7 @@ describe('FormItem', () => {
     });
 
     describe('unexpected form config', () => {
-        it('formItem required in outside', () => {
+        it('formItem required in outside', async () => {
             let config = {
                 body: [{
                     type: 'container',
@@ -242,6 +242,7 @@ describe('FormItem', () => {
 
             let test = new RCRETestUtil(config);
             let wrapper = test.wrapper;
+            await test.triggerFormValidate('testForm');
             let formState = test.getFormState('testForm');
             expect(formState.valid).toBe(false);
             expect(formState.control.username.valid).toBe(false);
@@ -249,7 +250,7 @@ describe('FormItem', () => {
             wrapper.unmount();
         });
 
-        it('formItem required in rules', () => {
+        it('formItem required in rules', async () => {
             let config = {
                 body: [{
                     type: 'container',
@@ -276,6 +277,7 @@ describe('FormItem', () => {
 
             let test = new RCRETestUtil(config);
             let wrapper = test.wrapper;
+            await test.triggerFormValidate('nestTestForm');
             let formState = test.getFormState('nestTestForm');
             expect(formState.valid).toBe(false);
             expect(formState.control.username.valid).toBe(false);
@@ -347,8 +349,8 @@ describe('FormItem', () => {
         expect(formState.control.username.valid).toBe(true);
     });
 
-    it('sync FormItem Value in parent Container using dataProvider', () => {
-        return new Promise((resolve, reject) => {
+    it('sync FormItem Value in parent Container using dataProvider', async () => {
+        return new Promise(async (resolve, reject) => {
             const FORM_NAME = 'testForm';
             let config = {
                 body: [{
@@ -400,6 +402,8 @@ describe('FormItem', () => {
             };
 
             let test = new RCRETestUtil(config);
+
+            await test.triggerFormValidate(FORM_NAME);
 
             let formState = test.getFormState(FORM_NAME);
             expect(formState.valid).toBe(false);
@@ -511,7 +515,7 @@ describe('FormItem', () => {
         expect(formState.control.username.valid).toBe(false);
     });
 
-    it('formItem with hidden or show should not be mounted', () => {
+    it('formItem with hidden or show should not be mounted', async () => {
         let config = {
             body: [{
                 type: 'container',
@@ -549,13 +553,14 @@ describe('FormItem', () => {
 
         let test = new RCRETestUtil(config);
         let state = test.getState();
+        await test.triggerFormValidate('hiddenTestForm');
         let formState = test.getFormState('hiddenTestForm');
         expect(state.container.showHiddenTest.hideInput).toBe(true);
         expect(formState.control.username).toBe(undefined);
         expect(formState.control.password.valid).toBe(false);
     });
 
-    it('change formItem required will trigger validate', () => {
+    it('change formItem required will trigger validate', async () => {
         let config = {
             body: [{
                 type: 'container',
@@ -593,6 +598,7 @@ describe('FormItem', () => {
         let userName = wrapper.find('input').at(0);
         let password = wrapper.find('input').at(1);
 
+        await test.triggerFormValidate('requiredForm');
         let formState = test.getFormState('requiredForm');
         expect(formState.control.username.valid).toBe(false);
         expect(formState.control.username.required).toBe(true);
@@ -638,7 +644,7 @@ describe('FormItem', () => {
         expect(formState.valid).toBe(true);
     });
 
-    it('formItem init value validate', () => {
+    it('formItem init value validate', async () => {
         let config = {
             body: [{
                 type: 'container',
@@ -713,6 +719,7 @@ describe('FormItem', () => {
         let test = new RCRETestUtil(config);
         let wrapper = test.wrapper;
 
+        await test.triggerFormValidate('initFormValidate');
         let userName = wrapper.find('input').at(0);
         let age = wrapper.find('input').at(1);
 
@@ -1235,7 +1242,7 @@ describe('FormItem', () => {
         expect(formStatus.valid).toBe(false);
     });
 
-    it('FormItem contains filterRule to be verified at initialization time', () => {
+    it('FormItem contains filterRule to be verified at initialization time', async () => {
         let config = {
             body: [{
                 type: 'container',
@@ -1258,12 +1265,13 @@ describe('FormItem', () => {
 
         let test = new RCRETestUtil(config);
         test.setContainer('demo');
+        await test.triggerFormValidate('form');
         let formStatus = test.getFormItemState('form', 'username');
         expect(formStatus.valid).toBe(false);
         expect(formStatus).toMatchSnapshot();
     });
 
-    it('Container component updates will also trigger FormItem revalidation', () => {
+    it('Container component updates will also trigger FormItem revalidation', async () => {
         filter.setFilter('isUserValid', (username: any) => {
             if (!username) {
                 return false;
@@ -1303,6 +1311,7 @@ describe('FormItem', () => {
 
         let test = new RCRETestUtil(config);
         test.setContainer('demo');
+        await test.triggerFormValidate('form2');
         let formState = test.getFormState('form2');
         expect(formState.valid).toBe(false);
         expect(formState.control).toMatchSnapshot();
@@ -1415,7 +1424,7 @@ describe('FormItem', () => {
         expect(state.C).toBe('CCC');
     });
 
-    it('FormItem control multi elements', () => {
+    it('FormItem control multi elements', async () => {
         let config = {
             body: [{
                 type: 'container',
@@ -1449,6 +1458,7 @@ describe('FormItem', () => {
 
         let test = new RCRETestUtil(config);
         test.setContainer('demo');
+        await test.triggerFormValidate('demo');
         let input = test.getComponentByName('username');
         test.setData(input, 'helloworld');
 

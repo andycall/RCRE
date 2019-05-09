@@ -24,7 +24,7 @@ class FormItemComponents extends React.PureComponent<RCREFormItemProps, {}> {
                     let $formItem = formItemContext.$formItem;
 
                     if (typeof this.props.children === 'function') {
-                        children = this.props.children($formItem);
+                        children = this.props.children($formItem, formItemContext);
                     } else {
                         children = this.props.children;
                     }

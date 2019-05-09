@@ -72,6 +72,8 @@ export const FormContext = createReactContext<FormContextType>({
     $setFormItems: payload => {},
     $deleteFormItem: itemName => {},
     $handleSubmit: async (e: React.FormEvent<HTMLFormElement> | undefined) => {},
+    $runValidations: async () => false,
+    $registerFormItem: () => {},
     $resetForm: () => {}
 });
 // @ts-ignore
@@ -87,7 +89,8 @@ export const FormItemContext = createReactContext<FormItemContextType>({
     initControlElements: () => {},
     $formItem: {
         valid: false,
-        errmsg: ''
+        errmsg: '',
+        validating: false
     }
 });
 // @ts-ignore

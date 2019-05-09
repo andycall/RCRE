@@ -35,25 +35,46 @@ function App() {
             <RCREForm
               name={'demo'}
               onSubmit={event => {
+                event.preventDefault();
                 context.trigger.execTask('submitForm', {});
               }}
             >{({$form, $handleSubmit}) => (
               <Form onSubmit={$handleSubmit}>
                 <h3>Example Form</h3>
-                <RCREFormItem required={true}>{({valid, errmsg}) => {
-                  console.log(valid, errmsg);
+                <RCREFormItem
+                  required={true}
+                  apiRule={{
+                    url: ({$args}) => 'https://api.github.com/users/' + $args.value,
+                    method: 'GET',
+                    validate: ({$output}) => $output
+                  }}
+                >{({valid, errmsg, validating}, {$handleBlur}) => {
+                  console.log(`valid: ${valid}, errmsg: ${errmsg}, validating: ${validating}`);
+                  return (
+                    <FormItem
+                      required={true}
+                      help={errmsg}
+                      hasFeedback={true}
+                      validateStatus={validating ? 'validating' : (valid ? 'success' : 'error')}
+                      label={'UserName'}
+                    >
+                      <ESInput name={'username'} onBlur={$handleBlur} />
+                    </FormItem>
+                  )
+                }}</RCREFormItem>
+                <RCREFormItem required={true}>{({valid, errmsg}, {$handleBlur}) => {
                   return (
                     <FormItem
                       required={true}
                       help={errmsg}
                       validateStatus={valid ? 'success' : 'error'}
-                      label={'UserName'}
+                      label={'PassWord'}
                     >
-                      <ESInput name={'username'}/>
+                      <ESInput name={'password'} disabled={true} onBlur={$handleBlur} />
                     </FormItem>
                   )
                 }}</RCREFormItem>
-                <button type={'submit'}>Submit</button>
+                <button type={'submit'} disabled={!$form.valid}>Submit</button>
               </Form>
             )}</RCREForm>
           )}</ES>

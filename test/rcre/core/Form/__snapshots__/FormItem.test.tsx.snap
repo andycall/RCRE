@@ -5,7 +5,7 @@ Object {
   "username.0": Object {
     "errorMsg": "got something wrong",
     "formItemName": "username.0",
-    "required": false,
+    "required": undefined,
     "rules": undefined,
     "status": "error",
     "valid": false,
@@ -13,7 +13,7 @@ Object {
   "username.1": Object {
     "errorMsg": "got something wrong",
     "formItemName": "username.1",
-    "required": false,
+    "required": undefined,
     "rules": undefined,
     "status": "error",
     "valid": false,
@@ -21,7 +21,7 @@ Object {
   "username.2": Object {
     "errorMsg": "got something wrong",
     "formItemName": "username.2",
-    "required": false,
+    "required": undefined,
     "rules": undefined,
     "status": "error",
     "valid": false,
@@ -29,7 +29,7 @@ Object {
   "username.3": Object {
     "errorMsg": "got something wrong",
     "formItemName": "username.3",
-    "required": false,
+    "required": undefined,
     "rules": undefined,
     "status": "error",
     "valid": false,
@@ -37,7 +37,7 @@ Object {
   "username.4": Object {
     "errorMsg": "got something wrong",
     "formItemName": "username.4",
-    "required": false,
+    "required": undefined,
     "rules": undefined,
     "status": "error",
     "valid": false,
@@ -50,7 +50,7 @@ Object {
   "username.0": Object {
     "errorMsg": "",
     "formItemName": "username.0",
-    "required": false,
+    "required": undefined,
     "rules": undefined,
     "status": "success",
     "valid": true,
@@ -58,7 +58,7 @@ Object {
   "username.1": Object {
     "errorMsg": "",
     "formItemName": "username.1",
-    "required": false,
+    "required": undefined,
     "rules": undefined,
     "status": "success",
     "valid": true,
@@ -66,7 +66,7 @@ Object {
   "username.2": Object {
     "errorMsg": "",
     "formItemName": "username.2",
-    "required": false,
+    "required": undefined,
     "rules": undefined,
     "status": "success",
     "valid": true,
@@ -74,7 +74,7 @@ Object {
   "username.3": Object {
     "errorMsg": "",
     "formItemName": "username.3",
-    "required": false,
+    "required": undefined,
     "rules": undefined,
     "status": "success",
     "valid": true,
@@ -82,7 +82,7 @@ Object {
   "username.4": Object {
     "errorMsg": "",
     "formItemName": "username.4",
-    "required": false,
+    "required": undefined,
     "rules": undefined,
     "status": "success",
     "valid": true,
@@ -94,7 +94,7 @@ exports[`FormItem FormItem contains filterRule to be verified at initialization 
 Object {
   "errorMsg": "got something wrong",
   "formItemName": "username",
-  "required": false,
+  "required": undefined,
   "rules": undefined,
   "status": "error",
   "valid": false,

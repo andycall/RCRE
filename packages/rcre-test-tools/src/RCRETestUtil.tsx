@@ -128,7 +128,7 @@ export class RCRETestUtil {
             throw new Error('component should be form');
         }
 
-        return await instance.handleSubmit(preventSubmit);
+        return await instance.handleSubmit({} as any, preventSubmit);
     }
 
     /**
@@ -369,6 +369,10 @@ export class RCRETestUtil {
         return state.$rcre.container[container];
     }
 
+    public getForm(form: string) {
+        return  this.wrapper.find('RCREForm[name="' + form + '"]');
+    }
+
     /**
      * 读取表单的状态
      * @param {string} form form组件的name
@@ -381,6 +385,16 @@ export class RCRETestUtil {
         let element = this.wrapper.find('RCREForm[name="' + form + '"]');
 
         return element.state();
+    }
+
+    /**
+     * 触发表单的验证
+     * @param formComponent
+     */
+    public async triggerFormValidate(form: string) {
+        let element = this.getForm(form);
+        let instance: any = element.instance();
+        return await instance.runValidations();
     }
 
     /**

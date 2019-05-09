@@ -27,7 +27,18 @@ class FormComponent extends React.PureComponent<BasicProps & FormComponentProps>
                 <FormContext.Consumer>
                     {context => this.props.children({
                         ...context,
-                        $handleSubmit: onSubmit
+                        $handleSubmit: async (event: any) => {
+                            if (event && event.preventDefault) {
+                                event.preventDefault();
+                            }
+                            event.persist();
+
+                            let valid = await context.$runValidations();
+
+                            if (valid) {
+                                onSubmit(event);
+                            }
+                        }
                     })}
                 </FormContext.Consumer>
             </WrappedForm>

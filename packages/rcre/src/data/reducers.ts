@@ -25,8 +25,7 @@ export const rcreReducer: Reducer<any> = (state, action) => {
             container: {
                 [TMP_MODEL]: {}
             },
-            trigger: {},
-            form: {}
+            trigger: {}
         };
     }
 

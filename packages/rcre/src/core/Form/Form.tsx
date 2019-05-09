@@ -5,6 +5,7 @@ import {
 import {FormContext} from '../context';
 import {getActiveElement} from '../util/util';
 import warning from 'warning';
+import {RCREFormItem} from './FormItem';
 
 export interface FormProps {
     /**
@@ -52,6 +53,9 @@ export interface RCREFormState {
 
 export class RCREForm extends React.Component<FormProps & BasicProps, RCREFormState> {
     private didMount: boolean;
+    private formItems: {
+        [name: string]: RCREFormItem;
+    };
 
     constructor(props: FormProps & BasicProps) {
         super(props);
@@ -62,6 +66,8 @@ export class RCREForm extends React.Component<FormProps & BasicProps, RCREFormSt
         if (!name) {
             return;
         }
+
+        this.formItems = {};
 
         this.state = {
             name: name,
@@ -87,7 +93,10 @@ export class RCREForm extends React.Component<FormProps & BasicProps, RCREFormSt
     private $setFormItem = (payload: FormItemState) => {
         let name = payload.formItemName;
         let control = this.state.control;
-        control[name] = payload;
+        control[name] = {
+            ...control[name],
+            ...payload
+        };
 
         this.setState({
             control: control,
@@ -136,11 +145,40 @@ export class RCREForm extends React.Component<FormProps & BasicProps, RCREFormSt
         this.props.containerContext.$setMultiData(values);
     }
 
+    private registerFormItem = (name: string, component: RCREFormItem) => {
+        this.formItems[name] = component;
+    }
+
+    public runValidations = async () => {
+        let names = Object.keys(this.formItems);
+        let valid = true;
+        for (let name of names) {
+            let formItem = this.formItems[name];
+
+            if (formItem.controlElements[name].disabled) {
+                continue;
+            }
+
+            let data = this.props.containerContext.$getData(name);
+            let v = await formItem.validateFormItem(name, data, {
+                apiRule: false
+            });
+
+            if (!v) {
+                valid = false;
+            }
+        }
+
+        return valid;
+    }
+
     public submitForm = async () => {
         let control = this.state.control;
 
-        let submitData = {};
+        debugger;
+        await this.runValidations();
 
+        let submitData = {};
         for (let itemName in control) {
             if (control.hasOwnProperty(itemName)) {
                 let data = this.props.containerContext.$getData(itemName);
@@ -173,7 +211,7 @@ export class RCREForm extends React.Component<FormProps & BasicProps, RCREFormSt
         return ret;
     }
 
-    public handleSubmit = async (e: React.FormEvent<HTMLFormElement> | undefined) => {
+    public handleSubmit = async (e: React.FormEvent<HTMLFormElement> | undefined, preventSubmit: boolean = false) => {
         if (!this.props.name) {
             return;
         }
@@ -222,7 +260,9 @@ export class RCREForm extends React.Component<FormProps & BasicProps, RCREFormSt
                     $deleteFormItem: this.$deleteFormItem,
                     $getFormItem: this.$getFormItem,
                     $resetForm: this.resetForm,
-                    $handleSubmit: this.handleSubmit
+                    $handleSubmit: this.handleSubmit,
+                    $registerFormItem: this.registerFormItem,
+                    $runValidations: this.runValidations
                 }}
             >
                 {this.props.children}

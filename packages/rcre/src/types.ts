@@ -8,6 +8,7 @@ import {DataProviderEvent} from './core/Events/dataProviderEvent';
 import {Events} from './core/Events/index';
 import moment from 'moment';
 import {RCREFormState} from './core/Form/Form';
+import {RCREFormItem} from './core/Form/FormItem';
 import {gridPositionItems} from './core/Layout/Row/Row';
 import {ContainerNode} from './core/Service/ContainerDepGraph';
 import {TriggerEventItem} from './core/Trigger/Trigger';
@@ -588,6 +589,7 @@ export interface FormItemState {
     status?: string;
     errorMsg?: string;
     $validate?: boolean;
+    validating?: boolean;
     required?: boolean;
 }
 
@@ -598,6 +600,8 @@ export interface FormContextType {
     $getFormItem: (formItemName: string) => FormItemState;
     $setFormItems: (payload: FormItemState[]) => void;
     $deleteFormItem: (itemName: string) => void;
+    $registerFormItem: (name: string, component: RCREFormItem) => void;
+    $runValidations: () => Promise<boolean>;
     $resetForm: () => void;
     $handleSubmit: (e: React.FormEvent<HTMLFormElement> | undefined) => Promise<void>;
 }
@@ -619,6 +623,7 @@ export interface FormItemContextType {
     $formItem: {
         valid: boolean;
         errmsg: string;
+        validating: boolean;
     };
 }
 

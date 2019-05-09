@@ -10,7 +10,7 @@ import {FormItemContext, ContainerContext, FormContext} from '../context';
 import {request} from '../Service/api';
 import {getRuntimeContext, isPromise, recycleRunTime} from '../util/util';
 import {applyRule} from './validate';
-import {isPlainObject, isNil, isEmpty, isEqual} from 'lodash';
+import {isPlainObject, isNil, isEqual} from 'lodash';
 import {ApiRule, ValidateRules} from './types';
 import {compileExpressionString, isExpression, parseExpressionString} from '../util/vm';
 
@@ -35,7 +35,7 @@ export class RCREFormItem extends React.PureComponent<RCREFormItemProps, {}> {
     context: FormContextType;
     private isApiValidate: boolean;
     private isUnMounted?: boolean;
-    private readonly controlElements: {
+    public readonly controlElements: {
         [name: string]: ElementsInfo;
     };
 
@@ -80,67 +80,28 @@ export class RCREFormItem extends React.PureComponent<RCREFormItemProps, {}> {
     }
 
     private initFormItem = () => {
-        let valid = true;
         let required = this.props.required;
-        let errmsg = '不能为空';
 
         if (this.props.rules && !this.props.required) {
             required = this.props.rules.some(rule => {
                 let v = !!rule.required;
-                if (v && rule.message) {
-                    errmsg = rule.message;
-                }
-
                 return v;
             });
-        }
-
-        if (required) {
-            valid = !required;
-        }
-
-        if (this.props.isTextFormItem) {
-            valid = true;
         }
 
         let names = Object.keys(this.controlElements);
 
         for (let name of names) {
-            let element = this.controlElements[name];
+            this.context.$registerFormItem(name, this);
 
-            if (element.disabled) {
-                this.context.$setFormItem({
-                    formItemName: name,
-                    rules: this.props.rules,
-                    status: 'success',
-                    errorMsg: '',
-                    required: required,
-                    valid: true
-                });
-                return;
-            }
-
-            let formValue = this.props.containerContext.$getData(name);
-
-            let formDataEmpty = false;
-            if (typeof formValue === 'object') {
-                formDataEmpty = isEmpty(formValue);
-            } else {
-                formDataEmpty = isNil(formValue);
-            }
-
-            if (!formDataEmpty || isExpression(this.props.filterRule)) {
-                this.validateFormItem(name, formValue);
-            } else {
-                this.context.$setFormItem({
-                    formItemName: name,
-                    rules: this.props.rules,
-                    status: valid ? 'success' : 'error',
-                    errorMsg: valid ? '' : errmsg,
-                    required: required,
-                    valid: valid
-                });
-            }
+            this.context.$setFormItem({
+                formItemName: name,
+                rules: this.props.rules,
+                status: 'success',
+                errorMsg: '',
+                required: required || false,
+                valid: true
+            });
         }
     }
 
@@ -223,21 +184,15 @@ export class RCREFormItem extends React.PureComponent<RCREFormItemProps, {}> {
         return;
     }
 
-    private apiValidate = async (apiRule: ApiRule, formItemName: string, value: any) => {
+    private apiValidate = async (apiRule: ApiRule, formItemName: string, value: any): Promise<boolean> => {
+        if (this.isApiValidate) {
+            return true;
+        }
+
         let runTime = getRuntimeContext(this.props.containerContext, this.props.rcreContext, {
             formContext: this.props.formContext,
             iteratorContext: this.props.iteratorContext
         });
-
-        if (!apiRule.url) {
-            console.error('至少提供一个请求的地址');
-            return;
-        }
-
-        if (!apiRule.validate || !isExpression(apiRule.validate)) {
-            console.error('请提供验证所需的ExpressionString');
-            return;
-        }
 
         let data;
         let execRunTime = {
@@ -248,25 +203,44 @@ export class RCREFormItem extends React.PureComponent<RCREFormItemProps, {}> {
             }
         };
 
+        let url = apiRule.url;
+        if (isExpression(apiRule.url)) {
+            url = parseExpressionString(url, execRunTime);
+        }
+
+        if (!url) {
+            console.error('至少提供一个请求的地址');
+            return false;
+        }
+
+        if (!apiRule.validate || !isExpression(apiRule.validate)) {
+            console.error('请提供验证所需的ExpressionString');
+            return false;
+        }
+
         if (isExpression(apiRule.data)) {
             data = parseExpressionString(apiRule.data, execRunTime);
         } else {
             data = compileExpressionString(apiRule.data, execRunTime);
         }
 
-        this.props.rcreContext.dataProviderEvent.addToList(apiRule.url);
+        this.props.rcreContext.dataProviderEvent.addToList(url);
 
-        let ret = await request(apiRule.url, {
-            url: apiRule.url,
+        this.isApiValidate = true;
+
+        let ret = await request(url, {
+            url: url,
             method: apiRule.method,
             data: data,
             formSubmit: apiRule.formSubmit
         }, runTime.$global.proxy);
 
+        this.isApiValidate = false;
+
         // 如果这个时候直接unmount，会有异常
         if (this.isUnMounted) {
             this.props.rcreContext.dataProviderEvent.clear();
-            return;
+            return false;
         }
 
         if (this.props.containerContext.model) {
@@ -293,7 +267,7 @@ export class RCREFormItem extends React.PureComponent<RCREFormItemProps, {}> {
             });
         }
 
-        this.props.rcreContext.dataProviderEvent.setToDone(apiRule.url);
+        this.props.rcreContext.dataProviderEvent.setToDone(url);
 
         if (isValid) {
             this.context.$setFormItem({
@@ -319,15 +293,13 @@ export class RCREFormItem extends React.PureComponent<RCREFormItemProps, {}> {
                 errorMsg: errmsg || '',
                 status: 'error'
             });
+            return false;
         }
-
-        if (!this.isUnMounted) {
-            this.forceUpdate();
-        }
-        this.isApiValidate = false;
 
         recycleRunTime(execRunTime);
         recycleRunTime(runTime);
+
+        return true;
     }
 
     private validFilterRule = (filterRule: string, data: any, runTime: RunTimeType, filterErrMsg: string = '') => {
@@ -351,10 +323,11 @@ export class RCREFormItem extends React.PureComponent<RCREFormItemProps, {}> {
         };
     }
 
-    private validateFormItem = (
+    public validateFormItem = async (
         formItemName: string,
-        data: any
-    ) => {
+        data: any,
+        options: {apiRule: boolean} = {apiRule: true}
+    ): Promise<boolean> => {
         let rules = this.props.rules || [];
         let required = this.props.required;
         let filterRule = this.props.filterRule;
@@ -381,10 +354,9 @@ export class RCREFormItem extends React.PureComponent<RCREFormItemProps, {}> {
                 valid: true,
                 status: 'success',
                 errorMsg: '',
-                rules: this.props.rules,
-                required: required || false
+                rules: this.props.rules
             });
-            return;
+            return true;
         }
 
         if (rules.length > 0) {
@@ -431,10 +403,12 @@ export class RCREFormItem extends React.PureComponent<RCREFormItemProps, {}> {
                 });
             }
 
-            if (!this.isApiValidate && condition) {
-                this.apiValidate(apiRule, formItemName, data).catch(err => {
+            if (condition && options.apiRule) {
+                try {
+                    return await this.apiValidate(apiRule, formItemName, data);
+                } catch (err) {
                     this.isApiValidate = false;
-                    let apiFailedMsg = apiRule!.errmsg;
+                    let apiFailedMsg = apiRule!.errmsg || err.message;
 
                     if (isExpression(apiFailedMsg)) {
                         apiFailedMsg = parseExpressionString(apiFailedMsg, {
@@ -448,53 +422,33 @@ export class RCREFormItem extends React.PureComponent<RCREFormItemProps, {}> {
                         valid: false,
                         rules: this.props.rules,
                         status: 'error',
-                        required: required || false,
+                        required: required,
                         errorMsg: apiFailedMsg || '验证接口调用失败'
                     });
-                });
-
-                this.isApiValidate = true;
-                this.context.$setFormItem({
-                    formItemName: formItemName,
-                    valid: true,
-                    errorMsg: '',
-                    rules: this.props.rules,
-                    required: required || false,
-                    status: 'validating'
-                });
-
-                return;
+                    return false;
+                }
             }
         }
 
-        if (isValid) {
-            this.context.$setFormItem({
-                formItemName: formItemName,
-                valid: true,
-                status: 'success',
-                errorMsg: '',
-                rules: this.props.rules,
-                required: this.props.required || false
-            });
-        } else {
-            this.context.$setFormItem({
-                formItemName: formItemName,
-                valid: false,
-                status: 'error',
-                errorMsg: errmsg,
-                rules: this.props.rules,
-                required: this.props.required || false
-            });
-        }
+        this.context.$setFormItem({
+            formItemName: formItemName,
+            valid: isValid,
+            status: isValid ? 'success' : 'error',
+            errorMsg: isValid ? '' : errmsg,
+            required: required,
+            rules: this.props.rules,
+        });
 
         recycleRunTime(runTime);
+
+        return isValid;
     }
 
     private handleChange = (name: string, data: any) => {
         // 输入值改变，需要重置API请求锁
         this.isApiValidate = false;
-        this.validateFormItem(name, data);
         this.props.containerContext.$setData(name, data);
+        this.validateFormItem(name, data);
     }
 
     private handleDelete = (name: string) => {
@@ -524,6 +478,7 @@ export class RCREFormItem extends React.PureComponent<RCREFormItemProps, {}> {
 
             this.validateFormItem(name, this.props.containerContext.$getData(name));
         }
+        this.forceUpdate();
     }
 
     private getFormItemValidInfo = (): { valid: boolean, errmsg: string } => {
@@ -560,7 +515,8 @@ export class RCREFormItem extends React.PureComponent<RCREFormItemProps, {}> {
             deleteControlElements: this.deleteControlElements,
             $formItem: {
                 valid: formItemStatus.valid,
-                errmsg: formItemStatus.errmsg
+                errmsg: formItemStatus.errmsg,
+                validating: this.isApiValidate
             }
         };
 
