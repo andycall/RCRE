@@ -6,12 +6,12 @@
         ],
         "Basic Tutorial": [
             "basic-tutorial/basic-tutorial-info",
-            "basic-tutorial/state-management",
+            "basic-tutorial/automatic-state",
             "basic-tutorial/automatic-api",
             "basic-tutorial/tasks",
-            "basic-tutorial/form-validation"
+            "basic-tutorial/automatic-form"
         ],
-        "State Management": [
+        "Automatic State": [
             "state-management/container-init-value",
             "state-management/state-auto-recycle",
             "state-management/use-lodash-path",
@@ -33,7 +33,7 @@
             "tasks/task-group",
             "tasks/custom-tasks"
         ],
-        "Form Validation": [
+        "Automatic Form": [
             "form/dynamic-rules",
             "form/custom-validation",
             "form/read-form-state",

@@ -1,6 +1,6 @@
 ---
-id: state-management
-title: State Management
+id: automatic-state
+title: Automatic State
 ---
 
 We use components to build our applications. If the application needs some user interactions, we put data into the store and use actions and props to communicate between components and store.
