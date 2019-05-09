@@ -2,7 +2,7 @@
     "packages": [
         "packages/*"
     ],
-    "version": "0.20.10",
+    "version": "0.20.11",
     "npmClient": "yarn",
     "public": {
         "skipGit": true,
