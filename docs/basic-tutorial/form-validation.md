@@ -25,3 +25,30 @@ Inside the FormItem component, all components with the name attribute will be au
 
 Let's see the example below:
 
+<iframe src="https://codesandbox.io/embed/kxx03z8yzr?fontsize=14&view=preview" title="kxx03z8yzr" style="width:100%; height:500px; border:0; border-radius: 4px; overflow:hidden;" sandbox="allow-modals allow-forms allow-popups allow-scripts allow-same-origin"></iframe>
+
+In this example, we use the Form component of antd to perform some UI presentations.
+
+The children property of the Form and FormItem components is a function, through which you can get information related to form validation.
+
+```jsx
+<RCREForm
+    onSubmit={(event, data) => {
+      alert(`Submit data\n ${JSON.stringify(data, null, 2)}`);
+    }}
+>
+    {({ $form, $handleSubmit }) => (
+      <Form onSubmit={$handleSubmit}>
+        
+      </Form>
+    )}
+</RCREForm>
+```
+
+The `$form` variable provided by the Form component is the state of the entire form. You can use `$form.valid` to determine whether the current form is fully verified.
+
+The Form component also provides `handleSubmit` function, when the form submission is triggered, you can use `$handleSubmit` as the onSubmit callback function of the Form component you are using.
+
+## The &lt;FormItem /&gt; Component
+
+// TODO

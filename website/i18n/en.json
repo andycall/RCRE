@@ -134,6 +134,9 @@
       "state-management/state-auto-recycle": {
         "title": "State Auto Recycle"
       },
+      "state-management/sync-data-between-multi-container": {
+        "title": "state-management/sync-data-between-multi-container"
+      },
       "state-management/use-lodash-path": {
         "title": "Use Lodash Path"
       },

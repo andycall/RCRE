@@ -2,13 +2,14 @@ import React from 'react';
 import {FormItemContext} from '../core/context';
 import {FormItemProps, RCREFormItem as _RCREFormItem, RCREFormItemProps} from '../core/Form/FormItem';
 import {withAllContext} from '../core/util/withAllContext';
+import {FormItemContextType} from '../types';
 
 type FormItemParams = {
     valid: boolean;
     errmsg: string;
     validating: boolean;
 };
-type FormItemChildFunc = (params: FormItemParams) => any;
+type FormItemChildFunc = (params: FormItemParams, context: FormItemContextType) => any;
 
 interface FormItemComponentProps extends FormItemProps {
     children: React.ReactElement | FormItemChildFunc;

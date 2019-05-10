@@ -15,10 +15,12 @@
             "state-management/container-init-value",
             "state-management/state-auto-recycle",
             "state-management/use-lodash-path",
+            "state-management/debounce",
             "state-management/cross-container-assignment",
             "state-management/dynamic-components",
             "state-management/dynamic-container",
-            "state-management/multi-container"
+            "state-management/multi-container",
+            "state-management/sync-data-between-multi-container"
         ],
         "Automatic API": [
             "automatic-api/required-params",
