@@ -3,7 +3,7 @@ id: overview
 title: Overview
 ---
 
-Everyone loves to use React to build apps, it's elegant and wonderful. But React does't tell you how to build a complex web application.
+Everyone loves to use React to build apps, it's elegant and wonderful. But React doesn't tell you how to build a complex web application.
 
 When an application becomes very complex, various issues arise, such as the state of the component, the relationship between the components, how to organize the API request, and how to handle form validation and submission. If you don't have a lot of experience to deal with these issues, your code will get worse and the bug will always be with you.
 
