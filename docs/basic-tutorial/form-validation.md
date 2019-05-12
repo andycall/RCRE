@@ -51,4 +51,26 @@ The Form component also provides `handleSubmit` function, when the form submissi
 
 ## The &lt;FormItem /&gt; Component
 
-// TODO
+The FormItem component is a component that controls a single validation area.
+ 
+It detects all internal ES components with a name attribute and automatically triggers validation when the ES component is updated.
+
+The child of FormItem is a function through which the current validation state can be obtained, as well as the onBlur callback.
+
+If there are multiple components inside the FormItem with the name attribute, the update of any one component will trigger the verification. In fact, they share the same verification rule.
+
+```jsx harmony
+<RCREFormItem
+  required={true}
+  rules={[
+    {
+      maxLength: 10,
+      message: "最大不超过10个字"
+    }
+  ]}
+>
+  {({ valid, errmsg, validating }, {$handleBlur}) => {
+      
+  }}
+</RCREFormItem>
+```
