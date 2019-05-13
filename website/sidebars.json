@@ -17,9 +17,9 @@
             "state-management/use-lodash-path",
             "state-management/debounce",
             "state-management/cross-container-assignment",
-            "state-management/dynamic-components",
-            "state-management/dynamic-container",
+            "state-management/dynamic-component",
             "state-management/multi-container",
+            "state-management/dynamic-container",
             "state-management/sync-data-between-multi-container"
         ],
         "Automatic API": [
