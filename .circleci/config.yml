@@ -8,7 +8,7 @@ version: 2
 defaults: &defaults
     working_directory: ~/RCRE
     docker:
-        - image: circleci/node:8.11.1
+        - image: circleci/node:lts
 
 jobs:
     install:
@@ -80,14 +80,14 @@ jobs:
                       git config --global user.name "andycall"
                       echo "machine github.com login andycall password $GITHUB_TOKEN" > ~/.netrc
                       # install Docusaurus and generate file of English strings
-                      - cd website && yarn install && yarn run write-translations && cd ..
+                      cd website && yarn install && yarn run write-translations && cd ..
                       # crowdin install
-                      - sudo apt-get install default-jre
-                      - wget https://artifacts.crowdin.com/repo/deb/crowdin.deb -O crowdin.deb
-                      - sudo dpkg -i crowdin.deb
+                      sudo apt-get install default-jre
+                      wget https://artifacts.crowdin.com/repo/deb/crowdin.deb -O crowdin.deb
+                      sudo dpkg -i crowdin.deb
                       # translations upload/download
-                      - crowdin --config crowdin.yaml upload sources --auto-update -b master
-                      - crowdin --config crowdin.yaml download -b master
+                      crowdin --config crowdin.yaml upload sources --auto-update -b master
+                      crowdin --config crowdin.yaml download -b master
                       # build and publish website
                       cd website && GIT_USER=andycall yarn run publish-gh-pages
 
@@ -103,50 +103,50 @@ jobs:
                   name: Publish package
                   command: ./node_modules/.bin/lerna publish --conventional-commits --yes
 
-workflows:
-    version: 2
-    test-deploy:
-        jobs:
-            - install:
-                  filters:
-                      branches:
-                          ignore:
-                              - gh-pages
-                      tags:
-                          only: /^v.*/
-            - test:
-                  requires:
-                      - install
-                  filters:
-                      branches:
-                          ignore:
-                              - gh-pages
-                      tags:
-                          only: /^v.*/
-            - build:
-                  requires:
-                      - install
-                  filters:
-                      branches:
-                          ignore:
-                              - gh-pages
-                      tags:
-                          only: /^v.*/
-            - website:
-                  requires:
-                      - install
-                  filters:
-                      branches:
-                          ignore:
-                              - gh-pages
-                      tags:
-                          only: /^v.*/
-            - deploy:
-                  requires:
-                      - test
-                      - build
-                  filters:
-                      tags:
-                          only: /^v.*/
-                      branches:
-                          ignore: /.*/
+#workflows:
+#    version: 2
+#    test-deploy:
+#        jobs:
+#            - install:
+#                  filters:
+#                      branches:
+#                          ignore:
+#                              - gh-pages
+#                      tags:
+#                          only: /^v.*/
+#            - test:
+#                  requires:
+#                      - install
+#                  filters:
+#                      branches:
+#                          ignore:
+#                              - gh-pages
+#                      tags:
+#                          only: /^v.*/
+#            - build:
+#                  requires:
+#                      - install
+#                  filters:
+#                      branches:
+#                          ignore:
+#                              - gh-pages
+#                      tags:
+#                          only: /^v.*/
+#            - website:
+#                  requires:
+#                      - install
+#                  filters:
+#                      branches:
+#                          ignore:
+#                              - gh-pages
+#                      tags:
+#                          only: /^v.*/
+#            - deploy:
+#                  requires:
+#                      - test
+#                      - build
+#                  filters:
+#                      tags:
+#                          only: /^v.*/
+#                      branches:
+#                          ignore: /.*/
