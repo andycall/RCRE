@@ -30,7 +30,6 @@ export * from './core/context';
 export * from './core/Trigger';
 export * from './core/ErrorBoundary';
 export * from './jsx-support';
-
 export * from './data/reducers';
 export * from './data/store';
 
