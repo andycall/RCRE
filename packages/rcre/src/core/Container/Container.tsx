@@ -161,7 +161,7 @@ class Container extends React.PureComponent<ConnectContainerProps, {}> {
         let data = this.props.data || {};
         let defaultValue = {};
         let runTime = getRuntimeContext({
-            $data: this.props.$data,
+            $data: data,
         } as ContainerContextType, this.props.rcreContext, {
             iteratorContext: this.props.iteratorContext
         });

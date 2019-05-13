@@ -2604,4 +2604,25 @@ describe('Container Component', () => {
         expect(state.username).toBe(undefined);
         expect(test.hasComponentByName('username')).toBe(false);
     });
+
+    it('dynamic container data', () => {
+        let config = {
+            body: [{
+                type: 'container',
+                model: 'demo',
+                data: {
+                    other: '12345',
+                    username: ({$data}: any) => $data.other + 'test'
+                },
+                children: []
+            }]
+        };
+
+        let test = new RCRETestUtil(config);
+        test.setContainer('demo');
+        expect(test.getContainerState()).toEqual({
+            other: '12345',
+            username: '12345test'
+        });
+    });
 });
