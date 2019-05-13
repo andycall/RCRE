@@ -8,7 +8,7 @@ version: 2
 defaults: &defaults
     working_directory: ~/RCRE
     docker:
-        - image: circleci/node:lts
+        - image: circleci/node:8.11.1
 
 jobs:
     install:
