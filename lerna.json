@@ -2,7 +2,6 @@
     "packages": [
         "packages/*"
     ],
-    "version": "0.21.0",
     "npmClient": "yarn",
     "public": {
         "skipGit": true,
@@ -10,6 +9,14 @@
         "ignoreChanges": [
             "*.md"
         ]
+    },
+    "publish": {
+        "conventionalCommits": true,
+        "message": "chore(release): release"
+    },
+    "version": {
+        "push": false,
+        "conventionalCommits": true
     },
     "useWorkspaces": true
 }
