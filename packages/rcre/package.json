@@ -1,5 +1,6 @@
 {
     "name": "rcre",
+    "description": "Build complex applications without tears",
     "version": "0.21.0",
     "main": "./dist/index.js",
     "typings": "./dist/src/index.d.ts",
