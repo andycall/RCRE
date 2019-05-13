@@ -1,5 +1,5 @@
 ---
-id: installation
+id: 安装
 title: Installation
 ---
 
