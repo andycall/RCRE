@@ -1,7 +1,7 @@
 import {RCRETestUtil} from 'rcre-test-tools';
 import React from 'react';
 import {createReduxStore, RCREProvider, Container, ES, RCREForm, RCREFormItem} from 'rcre';
-import {Input} from "./components/Input";
+import {Input} from './components/Input';
 
 describe('jsx syntax', function () {
     it('div', () => {
@@ -173,7 +173,7 @@ describe('jsx syntax', function () {
                         }}
                     </ES>
                 </Container>
-                <Container model={'other'} />
+                <Container model={'other'}/>
             </RCREProvider>
         );
 
@@ -204,8 +204,8 @@ describe('jsx syntax', function () {
                             name: ({$data}) => $data.subName + $data.anoSubName
                         }}
                     >
-                        <Input name={'subName'} />
-                        <Input name={'anoSubName'} />
+                        <Input name={'subName'}/>
+                        <Input name={'anoSubName'}/>
                     </Container>
                 </Container>
             </RCREProvider>
@@ -245,7 +245,7 @@ describe('jsx syntax', function () {
                             <RCREFormItem>
                                 {() => (
                                     <ES>{({$data}) => (
-                                        $data.show ? <Input name={'username'} /> : ''
+                                        $data.show ? <Input name={'username'}/> : ''
                                     )}</ES>
                                 )}
                             </RCREFormItem>
@@ -286,7 +286,7 @@ describe('jsx syntax', function () {
             <RCREProvider>
                 <Container model={'demo'} data={{show: true}}>
                     <ES>{({$data}) => (
-                        $data.show ? <Input name={'username'} /> : ''
+                        $data.show ? <Input name={'username'}/> : ''
                     )}</ES>
                     <ES type={'button'}>{({$data}, {trigger}) => (
                         <button
@@ -323,7 +323,7 @@ describe('jsx syntax', function () {
             <RCREProvider>
                 <Container model={'demo'} data={{show: true}}>
                     <ES>{({$data}) => (
-                        $data.show ? <Input name={'username'} clearWhenDestroy={true} /> : ''
+                        $data.show ? <Input name={'username'} clearWhenDestroy={true}/> : ''
                     )}</ES>
                     <ES type={'button'}>{({$data}, {trigger}) => (
                         <button

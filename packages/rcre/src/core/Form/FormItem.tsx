@@ -486,6 +486,10 @@ export class RCREFormItem extends React.PureComponent<RCREFormItemProps, {}> {
         let errmsg = '';
         let isValid = names.every(name => {
             let formItemInfo = this.getFormItemControl(name);
+            if (!formItemInfo) {
+                return false;
+            }
+
             let valid = formItemInfo.valid;
 
             if (!valid) {
