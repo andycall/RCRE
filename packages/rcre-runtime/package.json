@@ -1,6 +1,6 @@
 {
     "name": "rcre-runtime",
-    "version": "0.20.1",
+    "version": "0.21.0",
     "description": "rcre expression runTime",
     "main": "dist/index.js",
     "typings": "dist/index.d.ts",
