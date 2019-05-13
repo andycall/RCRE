@@ -625,6 +625,7 @@ export interface FormItemContextType {
         errmsg: string;
         validating: boolean;
     };
+    isUnderFormItem: boolean;
 }
 
 export interface PageConfig<T extends BasicConfig> {

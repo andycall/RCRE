@@ -1,6 +1,6 @@
 import {RCRETestUtil} from 'rcre-test-tools';
 import React from 'react';
-import {createReduxStore, RCREProvider, Container, ES} from 'rcre';
+import {createReduxStore, RCREProvider, Container, ES, RCREForm, RCREFormItem} from 'rcre';
 import {Input} from "./components/Input";
 
 describe('jsx syntax', function () {
@@ -234,5 +234,124 @@ describe('jsx syntax', function () {
         expect(container.exportModel.name).toBe('12');
         expect(container.innerModel.subName).toBe('1');
         expect(container.innerModel.anoSubName).toBe('2');
+    });
+
+    it('autoClear under formItem', async () => {
+        let component = (
+            <RCREProvider>
+                <Container model={'demo'} data={{show: true}}>
+                    <RCREForm name={'demo'}>
+                        {({$form, $handleSubmit}) => (
+                            <RCREFormItem>
+                                {() => (
+                                    <ES>{({$data}) => (
+                                        $data.show ? <Input name={'username'} /> : ''
+                                    )}</ES>
+                                )}
+                            </RCREFormItem>
+                        )}
+                    </RCREForm>
+                    <ES type={'button'}>{({$data}, {trigger}) => (
+                        <button
+                            onClick={event => trigger.execTask('$this', {
+                                show: !$data.show
+                            })}
+                        >
+                            switch
+                        </button>
+                    )}</ES>
+                </Container>
+            </RCREProvider>
+        );
+
+        let test = new RCRETestUtil(component);
+        test.setContainer('demo');
+
+        let username = test.getComponentByName('username');
+        test.setData(username, 'helloworld');
+        let state = test.getContainerState();
+        expect(state.username).toBe('helloworld');
+
+        let button = test.getComponentByType('button');
+        await test.execTask(button, '$this', {
+            show: false
+        });
+
+        state = test.getContainerState();
+        expect(state.username).toBe(undefined);
+    });
+
+    it('do not autoClear when normal', async () => {
+        let component = (
+            <RCREProvider>
+                <Container model={'demo'} data={{show: true}}>
+                    <ES>{({$data}) => (
+                        $data.show ? <Input name={'username'} /> : ''
+                    )}</ES>
+                    <ES type={'button'}>{({$data}, {trigger}) => (
+                        <button
+                            onClick={event => trigger.execTask('$this', {
+                                show: !$data.show
+                            })}
+                        >
+                            switch
+                        </button>
+                    )}</ES>
+                </Container>
+            </RCREProvider>
+        );
+
+        let test = new RCRETestUtil(component);
+        test.setContainer('demo');
+
+        let username = test.getComponentByName('username');
+        test.setData(username, 'helloworld');
+        let state = test.getContainerState();
+        expect(state.username).toBe('helloworld');
+
+        let button = test.getComponentByType('button');
+        await test.execTask(button, '$this', {
+            show: false
+        });
+
+        state = test.getContainerState();
+        expect(state.username).toBe('helloworld');
+    });
+
+    it('autoClear when set clearWhenDestroy', async () => {
+        let component = (
+            <RCREProvider>
+                <Container model={'demo'} data={{show: true}}>
+                    <ES>{({$data}) => (
+                        $data.show ? <Input name={'username'} clearWhenDestroy={true} /> : ''
+                    )}</ES>
+                    <ES type={'button'}>{({$data}, {trigger}) => (
+                        <button
+                            onClick={event => trigger.execTask('$this', {
+                                show: !$data.show
+                            })}
+                        >
+                            switch
+                        </button>
+                    )}</ES>
+                </Container>
+            </RCREProvider>
+        );
+
+        let test = new RCRETestUtil(component);
+        test.setContainer('demo');
+
+        let username = test.getComponentByName('username');
+        test.setData(username, 'helloworld');
+        let state = test.getContainerState();
+        expect(state.username).toBe('helloworld');
+
+        let button = test.getComponentByType('button');
+        await test.execTask(button, '$this', {
+            show: false
+        });
+
+        state = test.getContainerState();
+        expect(state.username).toBe(undefined);
     });
 });

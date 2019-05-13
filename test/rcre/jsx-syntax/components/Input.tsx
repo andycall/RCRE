@@ -4,7 +4,7 @@ import React from 'react';
 export class Input extends React.Component<any, any> {
     render() {
         return (
-            <ES name={this.props.name} disabled={this.props.disabled}>
+            <ES name={this.props.name} disabled={this.props.disabled} clearWhenDestroy={this.props.clearWhenDestroy}>
                 {({$data}, context) => {
                     return (
                         <input

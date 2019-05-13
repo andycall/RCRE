@@ -91,7 +91,8 @@ export const FormItemContext = createReactContext<FormItemContextType>({
         valid: false,
         errmsg: '',
         validating: false
-    }
+    },
+    isUnderFormItem: false
 });
 // @ts-ignore
 FormItemContext.displayName = 'FormItemContext';

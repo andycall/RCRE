@@ -517,7 +517,8 @@ export class RCREFormItem extends React.PureComponent<RCREFormItemProps, {}> {
                 valid: formItemStatus.valid,
                 errmsg: formItemStatus.errmsg,
                 validating: this.isApiValidate
-            }
+            },
+            isUnderFormItem: true
         };
 
         let containerContext = {

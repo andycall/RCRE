@@ -106,10 +106,15 @@ class ESComponent extends React.PureComponent<ESProps & ESComponentInternalProps
             let clearWhenDestroy = this.props.clearWhenDestory || this.props.clearWhenDestroy;
 
             // 表单模式下，自动开启数据清除功能
-            if (this.props.formItemContext && this.props.clearFormStatusOnlyWhenDestroy) {
-                this.props.formItemContext.$deleteFormItem(this.props.name);
-            } else if (this.props.formItemContext && this.props.disableClearWhenDestroy === false) {
-                clearWhenDestroy = true;
+            if (this.props.formItemContext && this.props.formItemContext.isUnderFormItem) {
+                if (this.props.clearFormStatusOnlyWhenDestroy) {
+                    this.props.formItemContext.$deleteFormItem(this.props.name);
+                    clearWhenDestroy = false;
+                } else if (this.props.disableClearWhenDestroy === false) {
+                    clearWhenDestroy = false;
+                } else {
+                    clearWhenDestroy = true;
+                }
             }
 
             if (clearWhenDestroy) {
