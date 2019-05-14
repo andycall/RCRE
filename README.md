@@ -5,6 +5,7 @@
 [![gzip size](http://img.badgesize.io/https://unpkg.com/rcre@latest/dist/index.js?compression=gzip)](https://unpkg.com/rcre@latest/dist/index.js)
 [![license](https://badgen.now.sh/badge/license/MIT)](./LICENSE)
 [![coverage](https://img.shields.io/codecov/c/github/andycall/RCRE/master.svg)](https://codecov.io/gh/andycall/RCRE)
+[![Crowdin](https://d322cqt584bo4o.cloudfront.net/rcre/localized.svg)](https://crowdin.com/project/rcre)
 
 ## What is RCRE?
 
@@ -24,13 +25,9 @@ RCRE provide 5 powerful features that help you build your application right.
 5. A task controller can help you separate complex user interactions into pure small tasks and assemble them with a simple config.
 
 
-## Docs (working in progress)
+## Getting Started
 
-+ Getting Started
-+ API Reference
-+ Article / Tutorials
-+ Sliders
-+ Get Help
+https://andycall.github.io/RCRE/docs/en/overview
 
 ## In-browser Playgrounds
 
