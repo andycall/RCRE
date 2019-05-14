@@ -107,6 +107,14 @@ const siteConfig = {
         zIndex: 100,
     },
 
+    algolia: {
+        apiKey: '4c41d5167d16570b349684f7a8688269',
+        indexName: 'andycall-rcre',
+        algoliaOptions: {
+            facetFilters: [ "language:LANGUAGE", "version:VERSION" ]
+        } // Optional, if provided by Algolia
+    },
+
     usePrism: ['jsx', 'typescript'],
 
     gaTrackingId: 'UA-139149146-1',

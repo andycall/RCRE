@@ -5,4 +5,19 @@ title: Use Lodash Path
 
 The component's name attribute can be a string of lodash path type, so that you can control objects or arrays with these strings.
 
+```jsx harmony
+// scope: {
+//   name: ""
+// }
+<ES name="scope.name">
+</ES>
+
+// list: [{
+//   name: ""
+// }]
+<ES name="list[0].name">
+</ES>
+```
+
+
 <iframe src="https://codesandbox.io/embed/zr3l6x4qqm?fontsize=14&view=preview" title="zr3l6x4qqm" style="width:100%; height:500px; border:0; border-radius: 4px; overflow:hidden;" sandbox="allow-modals allow-forms allow-popups allow-scripts allow-same-origin"></iframe>
