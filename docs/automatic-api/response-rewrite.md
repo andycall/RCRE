@@ -30,3 +30,5 @@ You can use the `$output` variable to read the value of the interface.
     ]}
 />
 ```
+
+<iframe src="https://codesandbox.io/embed/2yo0o4qj?fontsize=14&view=editor" title="2yo0o4qj" style="width:100%; height:500px; border:0; border-radius: 4px; overflow:hidden;" sandbox="allow-modals allow-forms allow-popups allow-scripts allow-same-origin"></iframe>
