@@ -111,7 +111,7 @@ const siteConfig = {
         apiKey: '4c41d5167d16570b349684f7a8688269',
         indexName: 'andycall-rcre',
         algoliaOptions: {
-            facetFilters: [ "language:LANGUAGE", "version:VERSION" ]
+            // facetFilters: [ "language:LANGUAGE", "version:VERSION" ]
         } // Optional, if provided by Algolia
     },
 
