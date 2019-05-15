@@ -4,6 +4,7 @@ import {PageConfig, JSONRender} from 'rcre';
 import {mount} from 'enzyme';
 import moxios from 'moxios';
 import {RCRETestUtil, setData} from 'rcre-test-tools';
+import {DataProvider} from '../../../packages/rcre/src/core/DataProvider/Controller';
 import {CoreKind} from '../../../packages/rcre/src/types';
 
 describe('DataProvider', () => {
@@ -68,6 +69,201 @@ describe('DataProvider', () => {
                 });
             });
         });
+    });
+
+    it('computer Task Queue', () => {
+        let dataProvider = new DataProvider([
+            {
+                mode: 'ajax',
+                namespace: 'API1',
+                config: {
+                    url: '/api1.json'
+                }
+            },
+            {
+                mode: 'ajax',
+                namespace: 'API2',
+                config: {
+                    url: '/api2.json'
+                },
+                requiredParams: ['API1', 'API5']
+            },
+            {
+                mode: 'ajax',
+                namespace: 'API3',
+                config: {
+                    url: '/api3.json'
+                },
+                requiredParams: ['API2', 'API6']
+            },
+            {
+                mode: 'ajax',
+                namespace: 'API4',
+                config: {
+                    url: '/api4.json'
+                },
+                requiredParams: ['API2', 'API6']
+            },
+            {
+                mode: 'ajax',
+                namespace: 'API5',
+                config: {}
+            },
+            {
+                mode: 'ajax',
+                namespace: 'API6',
+                config: {},
+                requiredParams: ['API5']
+            }
+        ]);
+
+        expect(dataProvider.taskQueue).toEqual([['API1', 'API5'], ['API2', 'API6'], ['API3', 'API4']]);
+    });
+
+    it('repeat namespace deps kind 1', () => {
+        let dataProvider = new DataProvider([
+            {
+                mode: 'ajax',
+                namespace: 'API1',
+                config: {
+                    url: '/api1.json'
+                }
+            },
+            {
+                mode: 'ajax',
+                namespace: 'API2',
+                config: {
+                    url: '/api2.json'
+                },
+                requiredParams: ['API1', 'API5']
+            },
+            {
+                mode: 'ajax',
+                namespace: 'API3',
+                config: {
+                    url: '/api3.json'
+                },
+                requiredParams: ['API1', 'API2', 'API6']
+            },
+            {
+                mode: 'ajax',
+                namespace: 'API4',
+                config: {
+                    url: '/api4.json'
+                },
+                requiredParams: ['API2', 'API6']
+            },
+            {
+                mode: 'ajax',
+                namespace: 'API5',
+                config: {}
+            },
+            {
+                mode: 'ajax',
+                namespace: 'API6',
+                config: {},
+                requiredParams: ['API5']
+            }
+        ]);
+
+        expect(dataProvider.taskQueue).toEqual([['API1', 'API5'], ['API2', 'API6'], ['API3', 'API4']]);
+    });
+
+    it('repeat namespace deps kind 2', () => {
+        let dataProvider = new DataProvider([
+            {
+                mode: 'ajax',
+                namespace: 'API1',
+                config: {
+                    url: '/api1.json'
+                }
+            },
+            {
+                mode: 'ajax',
+                namespace: 'API2',
+                config: {
+                    url: '/api2.json'
+                },
+                requiredParams: ['API1', 'API5']
+            },
+            {
+                mode: 'ajax',
+                namespace: 'API3',
+                config: {
+                    url: '/api3.json'
+                },
+                requiredParams: ['API1', 'API2', 'API6']
+            },
+            {
+                mode: 'ajax',
+                namespace: 'API4',
+                config: {
+                    url: '/api4.json'
+                },
+                requiredParams: ['API2', 'API6', 'API5', 'API3']
+            },
+            {
+                mode: 'ajax',
+                namespace: 'API5',
+                config: {}
+            },
+            {
+                mode: 'ajax',
+                namespace: 'API6',
+                config: {},
+                requiredParams: ['API5']
+            }
+        ]);
+
+        expect(dataProvider.taskQueue).toEqual([['API1', 'API5'], ['API2', 'API6'], ['API3'], ['API4']]);
+    });
+
+    it('circular deps', () => {
+        expect(() => new DataProvider([
+            {
+                mode: 'ajax',
+                namespace: 'API1',
+                config: {
+                    url: '/api1.json'
+                }
+            },
+            {
+                mode: 'ajax',
+                namespace: 'API2',
+                config: {
+                    url: '/api2.json'
+                },
+                requiredParams: ['API1', 'API5']
+            },
+            {
+                mode: 'ajax',
+                namespace: 'API3',
+                config: {
+                    url: '/api3.json'
+                },
+                requiredParams: ['API1', 'API2', 'API6']
+            },
+            {
+                mode: 'ajax',
+                namespace: 'API4',
+                config: {
+                    url: '/api4.json'
+                },
+                requiredParams: ['API2', 'API6', 'API5', 'API3']
+            },
+            {
+                mode: 'ajax',
+                namespace: 'API5',
+                config: {},
+                requiredParams: ['API4']
+            },
+            {
+                mode: 'ajax',
+                namespace: 'API6',
+                config: {},
+                requiredParams: ['API5']
+            }
+        ])).toThrow('DataProvider: 发现循环依赖的dataProvider. API1->API2->API3->API4->API5->API2');
     });
 
     it('requiredParams', () => {
@@ -697,7 +893,7 @@ describe('DataProvider', () => {
 
             let util = new RCRETestUtil(config);
             util.setContainer('test');
-            
+
             let username = util.getComponentByName('username');
             let strict = util.getComponentByName('strict');
             let loose = util.getComponentByName('loose');

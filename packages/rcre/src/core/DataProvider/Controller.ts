@@ -1,7 +1,7 @@
 import {RootState} from '../../data/reducers';
 import {ProviderSourceConfig, runTimeType} from '../../types';
 import {containerActionCreators} from '../Container/action';
-import {isEqual, isPlainObject, remove, isEmpty, get, has} from 'lodash';
+import {isEqual, isPlainObject, isEmpty, get, has} from 'lodash';
 import {ContainerProps} from '../Container/Container';
 import {RunTimeContextCollection} from '../context';
 import {getRuntimeContext, isPromise} from '../util/util';
@@ -179,7 +179,8 @@ export class DataProvider {
     }
 
     public computeRequestGroup(providerList: ProviderSourceConfig[]) {
-        let taskQueue = [];
+        let roads: string[] = [];
+        let taskQueue: string[][] = [];
 
         for (let i = 0; i < providerList.length; i++) {
             let provider = providerList[i];
@@ -195,52 +196,50 @@ export class DataProvider {
 
             if (requiredParams.length === 0 && provider.namespace) {
                 let key = provider.namespace;
-
-                let queue = [key];
                 let paths = {};
-                this.getRequestTaskQueue(key, this.dependencies[key].beDep, queue, paths);
-                taskQueue.push(queue);
+                this.getRequestTaskQueue(key, this.dependencies[key].beDep, key, paths, roads);
+            }
+        }
+
+        roads.sort((prev, next) => {
+            return next.split('->').length - prev.split('->').length;
+        });
+
+        let activeStep = {};
+        for (let road of roads) {
+            let step = road.split('->');
+
+            for (let i = 0; i < step.length; i ++) {
+                if (!taskQueue[i]) {
+                    taskQueue[i] = [];
+                }
+
+                if (!taskQueue[i].includes(step[i]) && !activeStep[step[i]]) {
+                    activeStep[step[i]] = true;
+                    taskQueue[i].push(step[i]);
+                }
             }
         }
 
         this.taskQueue = taskQueue;
     }
 
-    public getRequestTaskQueue(from: string, deps: string[], taskQueue: string[], paths: { [key: string]: boolean }) {
+    public getRequestTaskQueue(key: string, deps: string[], road: string, paths: { [key: string]: boolean }, roads: string[]) {
         if (deps.length === 0) {
+            roads.push(road);
             return;
         }
 
-        deps = deps.slice();
-        while (deps.length > 0) {
-            let nextProvider = deps.shift();
+        for (let nextProvider of deps) {
+            let existPaths = road.split('->');
 
-            if (!nextProvider) {
-                break;
+            if (existPaths.includes(nextProvider)) {
+                throw new Error(`DataProvider: 发现循环依赖的dataProvider. ${road + '->' + nextProvider}`);
             }
 
-            let dep = this.dependencies[nextProvider].dep;
+            let nextRoad = road + '->' + nextProvider;
 
-            remove(dep, d => d === from);
-
-            if (dep.length > 0) {
-                continue;
-            }
-
-            if (paths[nextProvider]) {
-                let f = this.dependencies[nextProvider].beDep.join(',');
-
-                console.error(`DataProvider: 发现循环依赖的dataProvider. ${f} <--> ${nextProvider};`);
-                console.log(this.dependencies);
-                continue;
-            }
-
-            if (!taskQueue.includes(nextProvider)) {
-                taskQueue.push(nextProvider);
-                paths[nextProvider] = true;
-            }
-
-            this.getRequestTaskQueue(nextProvider, this.dependencies[nextProvider].dep, taskQueue, paths);
+            this.getRequestTaskQueue(nextProvider, this.dependencies[nextProvider].beDep, nextRoad, paths, roads);
         }
     }
 
@@ -508,33 +507,8 @@ export class DataProvider {
     ) {
         let runTime = this.getRunTime(model, props, context);
         let retCache = {};
-
-        let execTask: string[][] = [];
-        let execIndex = 0;
-        let maxQueueSize = 1;
+        let execTask = this.taskQueue;
         let isProgress = false;
-
-        // 生成请求队列
-        while (execIndex < maxQueueSize) {
-            for (let i = 0; i < this.taskQueue.length; i++) {
-                let task = this.taskQueue[i];
-
-                if (task.length > maxQueueSize) {
-                    maxQueueSize = task.length;
-                }
-
-                if (!execTask[execIndex]) {
-                    execTask[execIndex] = [];
-                }
-
-                let exec = task[execIndex];
-                if (exec) {
-                    execTask[execIndex].push(exec);
-                }
-            }
-
-            execIndex++;
-        }
 
         // 并发发送请求
         for (let i = 0; i < execTask.length; i++) {
