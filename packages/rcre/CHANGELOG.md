@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.21.5](https://github.com/andycall/RCRE/compare/v0.21.4...v0.21.5) (2019-05-15)
+
+
+### Bug Fixes
+
+* fix dataProvider deps analyse algorith ([bb588a8](https://github.com/andycall/RCRE/commit/bb588a8))
+
+
+
+
+
 ## [0.21.4](https://github.com/andycall/RCRE/compare/v0.21.3...v0.21.4) (2019-05-13)
 
 
