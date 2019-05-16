@@ -56,13 +56,8 @@ const siteConfig = {
 
     /* Colors for website */
     colors: {
-        primaryColor: '#111',
+        primaryColor: '#1E1D22',
         secondaryColor: '#111',
-        grayDarker: '#333',
-        gray: '#555',
-        grayLighter: '#888',
-        accentColor: '#785BA3',
-        actionColor: '#008cf2',
     },
 
     editUrl: 'https://github.com/andycall/RCRE/edit/master/docs/',

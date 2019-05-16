@@ -28,7 +28,7 @@ h6 {
 
 .splash {
     /* min-height: 700px; */
-    background: linear-gradient(#111, #222);
+    background: linear-gradient(rgb(4, 6, 22), #111);
     text-align: center;
     color: white;
     position: relative;
@@ -159,7 +159,7 @@ h6 {
 
 footer.nav-footer {
     box-shadow: none;
-    background: $primaryColor;
+    background: $ primaryColor;
     font-size: 15px;
 }
 
@@ -200,7 +200,7 @@ nav.toc .toggleNav .navGroup.navGroupActive h3 {
 a.learnmore {
     display: inline-block;
     margin-top: 10px;
-    color: $actionColor;
+    color: $ actionColor;
 }
 
 a.learnmore:hover {
@@ -208,11 +208,11 @@ a.learnmore:hover {
 }
 
 .post a:not(.button) {
-    color: $actionColor;
+    color: $ actionColor;
 }
 
 nav.toc .toggleNav ul li a.navItemActive {
-    color: $actionColor;
+    color: $ actionColor;
     opacity: 1;
 }
 
@@ -233,7 +233,7 @@ pre code {
 }
 
 .mainContainer article a {
-    color: $actionColor;
+    color: $ actionColor;
 }
 
 .mainContainer article a:hover {
@@ -289,7 +289,7 @@ footer iframe {
         margin: 0;
     }
 
-    footer .sitemap>div {
+    footer .sitemap > div {
         padding: 20px;
     }
 
