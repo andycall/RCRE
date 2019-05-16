@@ -51,7 +51,7 @@ class HomeSplash extends React.Component {
                 <div className="inner">
                     <ProjectTitle siteConfig={siteConfig}/>
                     <PromoSection>
-                        <a className="btn primary" href={docUrl('overview')}>Getting Started</a>
+                        <a className="btn primary" href={docUrl('overview')}>GET STARTED</a>
                         <a className="btn ghost" href={'https://github.com/andycall/RCRE'}>Github</a>
                     </PromoSection>
                 </div>
