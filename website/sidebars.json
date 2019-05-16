@@ -27,12 +27,11 @@
             "automatic-api/condition",
             "automatic-api/response-rewrite",
             "automatic-api/serial-and-parallel-api",
-            "automatic-api/api-loading-state",
-            "automatic-api/extend-data-provider"
+            "automatic-api/api-loading-state"
         ],
         "Tasks": [
+            "tasks/pass-task",
             "tasks/handle-task-error",
-            "tasks/task-group",
             "tasks/custom-tasks"
         ],
         "Automatic Form": [

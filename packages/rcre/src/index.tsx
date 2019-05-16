@@ -22,6 +22,7 @@ export * from './core/Service/api';
 export * from './core/Events';
 export * from './core/Events/dataProviderEvent';
 export * from './core/DataCustomer/index';
+export * from './core/DataProvider/index';
 export * from './core/util/componentLoader';
 export * from './core/util/stringToPath';
 export * from './data/events';

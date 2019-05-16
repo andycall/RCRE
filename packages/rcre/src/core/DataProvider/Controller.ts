@@ -13,6 +13,9 @@ import {AjaxAdaptor} from './applications/ajax';
 import {CookieAdaptor} from './applications/cookie';
 import {LocalStorageAdaptor} from './applications/localstorage';
 
+export * from './adaptors/async';
+export * from './adaptors/sync';
+
 // TODO autoInterval
 
 export interface ProviderActions {

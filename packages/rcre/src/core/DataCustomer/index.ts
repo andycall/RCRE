@@ -305,3 +305,5 @@ DataCustomer.registerCustomerInstance('location', locationCustomer);
 DataCustomer.registerCustomerInstance('pass', passCustomer);
 DataCustomer.registerCustomerInstance('submit', submitCustomer);
 DataCustomer.registerCustomerInstance('request', submitCustomer);
+
+export const Task = DataCustomer;
