@@ -1,4 +1,4 @@
-![](https://user-images.githubusercontent.com/4409743/56594977-5c989180-6620-11e9-8a52-33f399294579.png)
+![](https://user-images.githubusercontent.com/4409743/57827197-0e1e8300-77d9-11e9-9346-166363aeebcd.png)
 
 [![CircleCI](https://circleci.com/gh/andycall/RCRE.svg?style=svg)](https://circleci.com/gh/andycall/RCRE)
 [![Stable Release](https://img.shields.io/npm/v/rcre.svg)](https://npm.im/rcre)
@@ -23,7 +23,7 @@ RCRE provide 5 powerful features that help you build your application right.
 3. Always keep your state immutable and not easy to break it.
 4. State change trigger form validation automatically.
 5. A task controller can help you separate complex user interactions into pure small tasks and assemble them with a simple config.
-
+wesd]sd
 
 ## Getting Started
 

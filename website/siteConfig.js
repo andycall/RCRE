@@ -22,7 +22,7 @@ const users = [
 
 const siteConfig = {
     title: 'RCRE', // Title for your website.
-    tagline: 'Build complex applications without tears',
+    tagline: 'Build complex applications without pain',
     url: 'https://andycall.github.io', // Your website URL
     baseUrl: '/RCRE/', // Base URL for your project */
     // Used for publishing and more
