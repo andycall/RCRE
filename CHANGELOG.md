@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.21.8](https://github.com/andycall/RCRE/compare/v0.21.7...v0.21.8) (2019-05-21)
+
+
+### Bug Fixes
+
+* fix formItem validating status did not match component life circle ([5230bb6](https://github.com/andycall/RCRE/commit/5230bb6))
+
+
+
+
+
 ## [0.21.7](https://github.com/andycall/RCRE/compare/v0.21.6...v0.21.7) (2019-05-21)
 
 
