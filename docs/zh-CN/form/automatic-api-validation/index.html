@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="zh-CN"><head><meta charSet="utf-8"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><title>Automatic API Validation · RCRE</title><meta name="viewport" content="width=device-width"/><meta name="generator" content="Docusaurus"/><meta name="description" content="Build complex applications without pain"/><meta name="docsearch:language" content="zh-CN"/><meta property="og:title" content="Automatic API Validation · RCRE"/><meta property="og:type" content="website"/><meta property="og:url" content="https://andycall.github.io/RCRE/"/><meta property="og:description" content="Build complex applications without pain"/><meta property="og:image" content="https://andycall.github.io/RCRE/img/undraw_online.svg"/><meta name="twitter:card" content="summary"/><meta name="twitter:image" content="https://andycall.github.io/RCRE/img/undraw_tweetstorm.svg"/><link rel="shortcut icon" href="/RCRE/undefined"/><link rel="stylesheet" href="https://cdn.jsdelivr.net/docsearch.js/1/docsearch.min.css"/><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css"/><script>
+<!DOCTYPE html><html lang="zh-CN"><head><meta charSet="utf-8"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><title>Automatic API Validation · RCRE</title><meta name="viewport" content="width=device-width"/><meta name="generator" content="Docusaurus"/><meta name="description" content="&lt;p&gt;Verification can also be verified through the interface, using the apiRule attribute to do this.&lt;/p&gt;
+"/><meta name="docsearch:language" content="zh-CN"/><meta property="og:title" content="Automatic API Validation · RCRE"/><meta property="og:type" content="website"/><meta property="og:url" content="https://andycall.github.io/RCRE/"/><meta property="og:description" content="&lt;p&gt;Verification can also be verified through the interface, using the apiRule attribute to do this.&lt;/p&gt;
+"/><meta property="og:image" content="https://andycall.github.io/RCRE/img/undraw_online.svg"/><meta name="twitter:card" content="summary"/><meta name="twitter:image" content="https://andycall.github.io/RCRE/img/undraw_tweetstorm.svg"/><link rel="shortcut icon" href="/RCRE/undefined"/><link rel="stylesheet" href="https://cdn.jsdelivr.net/docsearch.js/1/docsearch.min.css"/><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css"/><script>
               (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
               (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
               m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
@@ -74,7 +76,50 @@
                 };
               }
             });
-        </script></nav></div><div class="container mainContainer"><div class="wrapper"><div class="post"><header class="postHeader"><a class="edit-page-link button" href="https://github.com/andycall/RCRE/edit/master/docs/form/automatic-api-validation.md" target="_blank" rel="noreferrer noopener">Edit</a><h1 class="postHeaderTitle">Automatic API Validation</h1></header><article><div><span></span></div></article></div><div class="docs-prevnext"><a class="docs-prev button" href="/RCRE/docs/zh-CN/form/read-form-state"><span class="arrow-prev">← </span><span>Read Form State</span></a><a class="docs-next button" href="/RCRE/docs/zh-CN/recipes/use-with-redux"><span>Use With Redux</span><span class="arrow-next"> →</span></a></div></div></div><nav class="onPageNav"></nav></div><footer class="nav-footer" id="footer"><section class="sitemap"><div><h5>Docs</h5><a href="/RCRE/docs/zh-CN/overview">Getting Started</a><a href="/RCRE/docs/zh-CN/doc2.html">Guides</a></div><div><h5>Community</h5></div><div><h5>More</h5><a href="https://github.com/andycall/RCRE">GitHub</a><a class="github-button" href="https://github.com/andycall/RCRE" data-icon="octicon-star" data-count-href="/andycall/RCRE/stargazers" data-show-count="true" data-count-aria-label="# stargazers on GitHub" aria-label="Star this project on GitHub">Star</a></div></section><section class="copyright">Copyright © 2019 AndyCall</section></footer></div><script type="text/javascript" src="https://cdn.jsdelivr.net/docsearch.js/1/docsearch.min.js"></script><script>
+        </script></nav></div><div class="container mainContainer"><div class="wrapper"><div class="post"><header class="postHeader"><a class="edit-page-link button" href="https://github.com/andycall/RCRE/edit/master/docs/form/automatic-api-validation.md" target="_blank" rel="noreferrer noopener">Edit</a><h1 class="postHeaderTitle">Automatic API Validation</h1></header><article><div><span><p>Verification can also be verified through the interface, using the apiRule attribute to do this.</p>
+<pre><code class="hljs">jsx harmony
+&lt;RCREFormItem
+    required={true}
+    apiRule={{
+        url: &quot;https://zdj1l.sse.codesandbox.io/getUserId&quot;,
+        method: &quot;GET&quot;,
+        data: {
+            // the query params
+            user_name: ({ $args }) =&gt; $args.value
+        },
+        // an pattern to determine the query is correct
+        validate: ({ $output }) =&gt; $output.errno === 0,
+        // read errmsg from the API
+        errmsg: ({ $output }) =&gt; $output.errmsg,
+        // used to set value to Container State from validation API
+        export: {
+            user_id: ({ $output }) =&gt; $output.data.userId
+        }
+    }}
+&gt;
+{({ valid, errmsg, validating }) =&gt; {
+    return (
+    &lt;FormItem
+        required={true}
+        label=&quot;UserName:&quot;
+        hasFeedback={true}
+        validateStatus={
+        validating
+            ? &quot;validating&quot;
+            : valid
+            ? &quot;success&quot;
+            : &quot;error&quot;
+        }
+        help={errmsg}
+        &gt;
+            &lt;ESInput name=&quot;username&quot; debounce={100} /&gt;
+    &lt;/FormItem&gt;
+    );
+}}
+&lt;/RCREFormItem&gt;
+</code></pre>
+<p>Online example: <iframe src="https://codesandbox.io/embed/small-dawn-j4psm?fontsize=14" title="small-dawn-j4psm" style="width:100%; height:500px; border:0; border-radius: 4px; overflow:hidden;" sandbox="allow-modals allow-forms allow-popups allow-scripts allow-same-origin" mark="crwd-mark"></iframe></p>
+</span></div></article></div><div class="docs-prevnext"><a class="docs-prev button" href="/RCRE/docs/zh-CN/form/read-form-state"><span class="arrow-prev">← </span><span>Read Form State</span></a><a class="docs-next button" href="/RCRE/docs/zh-CN/recipes/use-with-redux"><span>Use With Redux</span><span class="arrow-next"> →</span></a></div></div></div><nav class="onPageNav"></nav></div><footer class="nav-footer" id="footer"><section class="sitemap"><div><h5>Docs</h5><a href="/RCRE/docs/zh-CN/overview">Getting Started</a><a href="/RCRE/docs/zh-CN/doc2.html">Guides</a></div><div><h5>Community</h5></div><div><h5>More</h5><a href="https://github.com/andycall/RCRE">GitHub</a><a class="github-button" href="https://github.com/andycall/RCRE" data-icon="octicon-star" data-count-href="/andycall/RCRE/stargazers" data-show-count="true" data-count-aria-label="# stargazers on GitHub" aria-label="Star this project on GitHub">Star</a></div></section><section class="copyright">Copyright © 2019 AndyCall</section></footer></div><script type="text/javascript" src="https://cdn.jsdelivr.net/docsearch.js/1/docsearch.min.js"></script><script>
                 document.addEventListener('keyup', function(e) {
                   if (e.target !== document.body) {
                     return;
