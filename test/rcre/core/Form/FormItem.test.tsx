@@ -1326,7 +1326,7 @@ describe('FormItem', () => {
     });
 
     it('Container component updates will also trigger FormItem revalidation with validation property', async () => {
-        filter.setFilter('isUserValid', (username: any) => {
+        filter.setFilter('isUserValidWithValidation', (username: any) => {
             if (!username) {
                 return {
                     isValid: false,
@@ -1360,7 +1360,7 @@ describe('FormItem', () => {
                         dataSource: [1, 2, 3, 4, 5],
                         control: {
                             type: 'formItem',
-                            validation: '#ES{isUserValid($data.username)}',
+                            validation: '#ES{isUserValidWithValidation($data.username)}',
                             control: {
                                 type: 'input',
                                 name: 'username.#ES{$index}'
