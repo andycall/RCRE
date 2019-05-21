@@ -7,7 +7,7 @@ import {createChild} from '../util/createChild';
 class JSONFormItem extends React.PureComponent<RCREFormItemProps> {
     static getComponentParseOptions() {
         return {
-            blackList: ['filterRule', 'filterErrMsg']
+            blackList: ['filterRule', 'filterErrMsg', 'validation']
         };
     }
 

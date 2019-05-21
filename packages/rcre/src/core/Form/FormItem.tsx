@@ -25,6 +25,7 @@ export interface FormItemProps {
     filterRule?: any;
     isTextFormItem?: boolean;
     filterErrMsg?: any;
+    validation?: (value: any) => {isValid: boolean, errmsg?: string};
     control?: any;
 }
 
@@ -41,7 +42,7 @@ export class RCREFormItem extends React.PureComponent<RCREFormItemProps, {}> {
 
     static getComponentParseOptions() {
         return {
-            blackList: ['filterRule', 'filterErrMsg']
+            blackList: ['filterRule', 'filterErrMsg', 'validation']
         };
     }
 
@@ -124,15 +125,21 @@ export class RCREFormItem extends React.PureComponent<RCREFormItemProps, {}> {
 
         let isRequiredChanged = prevProps.required !== this.props.required;
         let isRuleChanged = !isEqual(prevRules, nextRules);
-        let isFilterRuleChanged;
 
-        if (prevProps.filterRule && this.props.filterRule) {
-            let oldFilterRule = this.validFilterRule(prevProps.filterRule, null, prevRunTime, prevProps.filterErrMsg);
-            let nextFilterRule = this.validFilterRule(this.props.filterRule, null, nextRunTime, this.props.filterErrMsg);
-            isFilterRuleChanged = !isEqual(oldFilterRule, nextFilterRule);
-        }
+        // let isFilterRuleChanged;
+        // if (prevProps.filterRule && this.props.filterRule) {
+        //     let oldFilterRule = this.validFilterRule(prevProps.filterRule, null, prevRunTime, prevProps.filterErrMsg);
+        //     let nextFilterRule = this.validFilterRule(this.props.filterRule, null, nextRunTime, this.props.filterErrMsg);
+        //     isFilterRuleChanged = !isEqual(oldFilterRule, nextFilterRule);
+        // }
 
-        if (isRequiredChanged || isRuleChanged || isFilterRuleChanged) {
+        // if (prevProps.validation && this.props.validation) {
+        //     let oldStatus = this.runValidation(prevProps.validation, null, prevRunTime);
+        //     let nextStatus = this.runValidation(this.props.validation, null, nextRunTime);
+        //     isFilterRuleChanged = !isEqual(oldStatus, nextStatus);
+        // }
+
+        if (isRequiredChanged || isRuleChanged) {
             let names = Object.keys(this.controlElements);
             for (let name of names) {
                 let element = this.controlElements[name];
@@ -323,6 +330,33 @@ export class RCREFormItem extends React.PureComponent<RCREFormItemProps, {}> {
         };
     }
 
+    private runValidation = (validation: any, data: any, runTime: RunTimeType): {isValid: boolean, errmsg: string} => {
+        let stats = parseExpressionString(validation, {
+            ...runTime,
+            $args: {
+                value: data
+            }
+        });
+
+        if (!stats) {
+            console.error('RCREFormItem: your validation function did return an object with inValid property');
+            return {
+                isValid: false,
+                errmsg: 'validation exec failed'
+            };
+        }
+
+        if (typeof stats === 'object' && !stats.hasOwnProperty('isValid')) {
+            console.error('RCREFormItem: validation should return an object with inValid property');
+            return {
+                isValid: false,
+                errmsg: ''
+            };
+        }
+
+        return stats;
+    }
+
     public validateFormItem = async (
         formItemName: string,
         data: any,
@@ -386,6 +420,12 @@ export class RCREFormItem extends React.PureComponent<RCREFormItemProps, {}> {
 
         if (isValid && isExpression(filterRule)) {
             let ret = this.validFilterRule(filterRule!, data, runTime, this.props.filterErrMsg);
+            isValid = ret.isValid;
+            errmsg = ret.errmsg;
+        }
+
+        if (isValid && isExpression(this.props.validation)) {
+            let ret = this.runValidation(this.props.validation, data, runTime);
             isValid = ret.isValid;
             errmsg = ret.errmsg;
         }

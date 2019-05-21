@@ -1651,4 +1651,48 @@ describe('FormItem', () => {
         expect(formStatus.control.username.valid).toBe(false);
         expect(formStatus.control.username.errorMsg).toBe('长度不能大于10');
     });
+
+    it('Form validation property', async () => {
+        let config = {
+            body: [{
+                type: 'container',
+                model: 'demo',
+                children: [{
+                    type: 'form',
+                    name: 'test',
+                    children: [{
+                        type: 'formItem',
+                        validation: ({$args}: any) => {
+                            return {
+                                isValid: $args.value === '12345',
+                                errmsg: 'error'
+                            };
+                        },
+                        control: {
+                            type: 'input',
+                            name: 'username'
+                        }
+                    }]
+                }]
+            }]
+        };
+
+        let test = new RCRETestUtil(config);
+        test.setContainer('demo');
+        await test.triggerFormValidate('test');
+
+        let formState = test.getFormState('test');
+        expect(formState.valid).toBe(false);
+
+        let input = test.getComponentByName('username');
+        test.setData(input, 'helloworld');
+
+        formState = test.getFormState('test');
+        expect(formState.valid).toBe(false);
+
+        test.setData(input, '12345');
+        formState = test.getFormState('test');
+
+        expect(formState.valid).toBe(true);
+    });
 });
