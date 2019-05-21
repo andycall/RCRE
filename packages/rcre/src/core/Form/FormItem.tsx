@@ -31,10 +31,11 @@ export interface FormItemProps {
 
 export type RCREFormItemProps = FormItemProps & BasicProps;
 
-export class RCREFormItem extends React.PureComponent<RCREFormItemProps, {}> {
+export class RCREFormItem extends React.PureComponent<RCREFormItemProps, {
+    validating: boolean;
+}> {
     static contextType = FormContext as any;
     context: FormContextType;
-    private isApiValidate: boolean;
     private isUnMounted?: boolean;
     public readonly controlElements: {
         [name: string]: ElementsInfo;
@@ -49,7 +50,9 @@ export class RCREFormItem extends React.PureComponent<RCREFormItemProps, {}> {
     constructor(props: RCREFormItemProps) {
         super(props);
 
-        this.isApiValidate = false;
+        this.state = {
+            validating: false
+        };
         this.isUnMounted = false;
         this.controlElements = {};
     }
@@ -192,7 +195,7 @@ export class RCREFormItem extends React.PureComponent<RCREFormItemProps, {}> {
     }
 
     private apiValidate = async (apiRule: ApiRule, formItemName: string, value: any): Promise<boolean> => {
-        if (this.isApiValidate) {
+        if (this.state.validating) {
             return true;
         }
 
@@ -233,7 +236,9 @@ export class RCREFormItem extends React.PureComponent<RCREFormItemProps, {}> {
 
         this.props.rcreContext.dataProviderEvent.addToList(url);
 
-        this.isApiValidate = true;
+        this.setState({
+            validating: true
+        });
 
         let ret = await request(url, {
             url: url,
@@ -242,7 +247,9 @@ export class RCREFormItem extends React.PureComponent<RCREFormItemProps, {}> {
             formSubmit: apiRule.formSubmit
         }, runTime.$global.proxy);
 
-        this.isApiValidate = false;
+        this.setState({
+            validating: false
+        });
 
         // 如果这个时候直接unmount，会有异常
         if (this.isUnMounted) {
@@ -447,7 +454,6 @@ export class RCREFormItem extends React.PureComponent<RCREFormItemProps, {}> {
                 try {
                     return await this.apiValidate(apiRule, formItemName, data);
                 } catch (err) {
-                    this.isApiValidate = false;
                     let apiFailedMsg = apiRule!.errmsg || err.message;
 
                     if (isExpression(apiFailedMsg)) {
@@ -464,6 +470,10 @@ export class RCREFormItem extends React.PureComponent<RCREFormItemProps, {}> {
                         status: 'error',
                         required: required,
                         errorMsg: apiFailedMsg || '验证接口调用失败'
+                    });
+
+                    this.setState({
+                        validating: false
                     });
                     return false;
                 }
@@ -486,7 +496,8 @@ export class RCREFormItem extends React.PureComponent<RCREFormItemProps, {}> {
 
     private handleChange = (name: string, data: any) => {
         // 输入值改变，需要重置API请求锁
-        this.isApiValidate = false;
+        console.log('validate');
+        // this.isApiValidate = false;
         this.props.containerContext.$setData(name, data);
         this.validateFormItem(name, data);
     }
@@ -560,7 +571,7 @@ export class RCREFormItem extends React.PureComponent<RCREFormItemProps, {}> {
             $formItem: {
                 valid: formItemStatus.valid,
                 errmsg: formItemStatus.errmsg,
-                validating: this.isApiValidate
+                validating: this.state.validating
             },
             isUnderFormItem: true
         };
