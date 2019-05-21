@@ -70,6 +70,7 @@
         "build": "node scripts/rollup/build.js",
         "testMockServer": "node test/__mock__/server.js &",
         "test": "jest --env=jsdom -c ./jest.config.json --silent --verbose",
+        "publish": "lerna publish --conventional-commits",
         "commit": "npx git-cz"
     },
     "husky": {

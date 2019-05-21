@@ -1320,7 +1320,69 @@ describe('FormItem', () => {
         test.setData(firstUserName, '123456');
 
         formState = test.getFormState('form2');
-        
+
+        expect(formState.valid).toBe(true);
+        expect(formState.control).toMatchSnapshot();
+    });
+
+    it('Container component updates will also trigger FormItem revalidation with validation property', async () => {
+        filter.setFilter('isUserValid', (username: any) => {
+            if (!username) {
+                return {
+                    isValid: false,
+                    errmsg: ''
+                };
+            }
+
+            let keys = Object.keys(username);
+            if (keys.some(key => !!username[key])) {
+                return {
+                    isValid: true,
+                    errmsg: ''
+                };
+            }
+
+            return {
+                isValid: false,
+                errmsg: ''
+            };
+        });
+
+        let config = {
+            body: [{
+                type: 'container',
+                model: 'demo',
+                children: [{
+                    type: 'form',
+                    name: 'form2',
+                    children: [{
+                        type: 'foreach',
+                        dataSource: [1, 2, 3, 4, 5],
+                        control: {
+                            type: 'formItem',
+                            validation: '#ES{isUserValid($data.username)}',
+                            control: {
+                                type: 'input',
+                                name: 'username.#ES{$index}'
+                            }
+                        }
+                    }]
+                }]
+            }]
+        };
+
+        let test = new RCRETestUtil(config);
+        test.setContainer('demo');
+        await test.triggerFormValidate('form2');
+        let formState = test.getFormState('form2');
+        expect(formState.valid).toBe(false);
+        expect(formState.control).toMatchSnapshot();
+
+        let firstUserName = test.getComponentByName('username.0');
+        test.setData(firstUserName, '123456');
+
+        formState = test.getFormState('form2');
+
         expect(formState.valid).toBe(true);
         expect(formState.control).toMatchSnapshot();
     });

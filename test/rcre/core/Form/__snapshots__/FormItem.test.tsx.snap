@@ -90,6 +90,96 @@ Object {
 }
 `;
 
+exports[`FormItem Container component updates will also trigger FormItem revalidation with validation property 1`] = `
+Object {
+  "username.0": Object {
+    "errorMsg": "",
+    "formItemName": "username.0",
+    "required": undefined,
+    "rules": undefined,
+    "status": "error",
+    "valid": false,
+  },
+  "username.1": Object {
+    "errorMsg": "",
+    "formItemName": "username.1",
+    "required": undefined,
+    "rules": undefined,
+    "status": "error",
+    "valid": false,
+  },
+  "username.2": Object {
+    "errorMsg": "",
+    "formItemName": "username.2",
+    "required": undefined,
+    "rules": undefined,
+    "status": "error",
+    "valid": false,
+  },
+  "username.3": Object {
+    "errorMsg": "",
+    "formItemName": "username.3",
+    "required": undefined,
+    "rules": undefined,
+    "status": "error",
+    "valid": false,
+  },
+  "username.4": Object {
+    "errorMsg": "",
+    "formItemName": "username.4",
+    "required": undefined,
+    "rules": undefined,
+    "status": "error",
+    "valid": false,
+  },
+}
+`;
+
+exports[`FormItem Container component updates will also trigger FormItem revalidation with validation property 2`] = `
+Object {
+  "username.0": Object {
+    "errorMsg": "",
+    "formItemName": "username.0",
+    "required": undefined,
+    "rules": undefined,
+    "status": "success",
+    "valid": true,
+  },
+  "username.1": Object {
+    "errorMsg": "",
+    "formItemName": "username.1",
+    "required": undefined,
+    "rules": undefined,
+    "status": "success",
+    "valid": true,
+  },
+  "username.2": Object {
+    "errorMsg": "",
+    "formItemName": "username.2",
+    "required": undefined,
+    "rules": undefined,
+    "status": "success",
+    "valid": true,
+  },
+  "username.3": Object {
+    "errorMsg": "",
+    "formItemName": "username.3",
+    "required": undefined,
+    "rules": undefined,
+    "status": "success",
+    "valid": true,
+  },
+  "username.4": Object {
+    "errorMsg": "",
+    "formItemName": "username.4",
+    "required": undefined,
+    "rules": undefined,
+    "status": "success",
+    "valid": true,
+  },
+}
+`;
+
 exports[`FormItem FormItem contains filterRule to be verified at initialization time 1`] = `
 Object {
   "errorMsg": "got something wrong",

@@ -128,21 +128,36 @@ export class RCREFormItem extends React.PureComponent<RCREFormItemProps, {
 
         let isRequiredChanged = prevProps.required !== this.props.required;
         let isRuleChanged = !isEqual(prevRules, nextRules);
+        let isFilterRuleChanged = false;
 
-        // let isFilterRuleChanged;
-        // if (prevProps.filterRule && this.props.filterRule) {
-        //     let oldFilterRule = this.validFilterRule(prevProps.filterRule, null, prevRunTime, prevProps.filterErrMsg);
-        //     let nextFilterRule = this.validFilterRule(this.props.filterRule, null, nextRunTime, this.props.filterErrMsg);
-        //     isFilterRuleChanged = !isEqual(oldFilterRule, nextFilterRule);
-        // }
+        let controlledNames = Object.keys(this.controlElements);
 
-        // if (prevProps.validation && this.props.validation) {
-        //     let oldStatus = this.runValidation(prevProps.validation, null, prevRunTime);
-        //     let nextStatus = this.runValidation(this.props.validation, null, nextRunTime);
-        //     isFilterRuleChanged = !isEqual(oldStatus, nextStatus);
-        // }
+        for (let name of controlledNames) {
+            let prevValue = prevProps.containerContext.$getData(name);
+            let nextValue = this.props.containerContext.$getData(name);
 
-        if (isRequiredChanged || isRuleChanged) {
+            if (prevProps.filterRule && this.props.filterRule) {
+                let prevValidateResult = this.validFilterRule(prevProps.filterRule, prevValue, prevRunTime, prevProps.filterErrMsg);
+                let nextValidateResult = this.validFilterRule(this.props.filterRule, nextValue, nextRunTime, this.props.filterErrMsg);
+
+                if (!isEqual(prevValidateResult, nextValidateResult)) {
+                    isFilterRuleChanged = true;
+                    break;
+                }
+            }
+
+            if (prevProps.validation && this.props.validation) {
+                let oldStatus = this.runValidation(prevProps.validation, prevValue, prevRunTime);
+                let nextStatus = this.runValidation(this.props.validation, nextValue, nextRunTime);
+
+                if (!isEqual(oldStatus, nextStatus)) {
+                    isFilterRuleChanged = true;
+                    break;
+                }
+            }
+        }
+
+        if (isRequiredChanged || isRuleChanged || isFilterRuleChanged) {
             let names = Object.keys(this.controlElements);
             for (let name of names) {
                 let element = this.controlElements[name];
@@ -496,10 +511,12 @@ export class RCREFormItem extends React.PureComponent<RCREFormItemProps, {
 
     private handleChange = (name: string, data: any) => {
         // 输入值改变，需要重置API请求锁
-        console.log('validate');
-        // this.isApiValidate = false;
-        this.props.containerContext.$setData(name, data);
-        this.validateFormItem(name, data);
+        this.setState({
+            validating: false
+        }, () => {
+            this.props.containerContext.$setData(name, data);
+            this.validateFormItem(name, data);
+        });
     }
 
     private handleDelete = (name: string) => {
