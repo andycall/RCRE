@@ -9,7 +9,7 @@
 
 ## What is RCRE?
 
-Everyone loves to use React to build apps, it's elegant and wonderful. But React does't tell you how to build a complex web application.
+Everyone loves to use React to build apps, it's elegant and wonderful. But React doesn't tell you how to build a complex web application.
 
 When an application becomes very complex, various issues arise, such as the state of the component, the relationship between the components, how to organize the API request, and how to handle form validation and submission. If you don't have a lot of experience to deal with these issues, your code will get worse and the bug will always be with you.
 
@@ -23,7 +23,6 @@ RCRE provide 5 powerful features that help you build your application right.
 3. Always keep your state immutable and not easy to break it.
 4. State change trigger form validation automatically.
 5. A task controller can help you separate complex user interactions into pure small tasks and assemble them with a simple config.
-wesd]sd
 
 ## Getting Started
 
