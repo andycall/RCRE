@@ -437,4 +437,15 @@ describe('Container State', () => {
         copy = setWith(object, 'a[0][1]', 10);
         expect(copy.a).toEqual([[undefined, 10]]);
     });
+
+    it('[deleteWith] non existent path', () => {
+        let state = {
+            openExp: {
+                a: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+            }
+        };
+        // 删除不存在项
+        let newState = deleteWith(state, 'openExp.a.11.allow_percent');
+        expect(newState).toEqual(state);
+    });
 });

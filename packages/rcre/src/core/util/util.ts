@@ -138,7 +138,7 @@ export function deleteWith<T>(obj: T, path: string): T {
         if (isObject(nextValue)) {
             target[name] = clone(target[name]);
         } else {
-            target[name] = /^\[\d+\]$/.test(pathList[i + 1]) ? [] : {};
+            break;
         }
 
         target = target[name];
