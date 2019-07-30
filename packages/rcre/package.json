@@ -1,7 +1,7 @@
 {
     "name": "rcre",
     "description": "Build complex applications without tears",
-    "version": "0.21.9",
+    "version": "0.21.10",
     "main": "./dist/index.js",
     "typings": "./dist/src/index.d.ts",
     "repository": "https://github.com/andycall/RCRE",
