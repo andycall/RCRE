@@ -4,19 +4,20 @@
  */
 
 import {Reducer} from 'redux';
+import {undo} from '../../data/history';
 import {
-    ASYNC_LOAD_DATA_FAIL,
-    ASYNC_LOAD_DATA_PROGRESS,
-    ASYNC_LOAD_DATA_SUCCESS,
-    RESET_CONTAINER,
-    DATA_CUSTOMER_PASS,
+    RCRE_ASYNC_LOAD_DATA_FAIL,
+    RCRE_ASYNC_LOAD_DATA_PROGRESS,
+    RCRE_ASYNC_LOAD_DATA_SUCCESS,
+    RCRE_RESET_CONTAINER_STORE,
+    RCRE_DATA_CUSTOMER_PASS,
     IContainerAction,
-    SET_DATA,
-    SET_MULTI_DATA,
-    SYNC_LOAD_DATA_FAIL,
-    SYNC_LOAD_DATA_SUCCESS,
-    CLEAR_DATA,
-    DELETE_DATA, INIT_CONTAINER
+    RCRE_SET_DATA,
+    RCRE_SET_MULTI_DATA,
+    RCRE_SYNC_LOAD_DATA_FAIL,
+    RCRE_SYNC_LOAD_DATA_SUCCESS,
+    RCRE_CLEAR_DATA,
+    RCRE_DELETE_DATA, RCRE_INIT_CONTAINER, RCRE_UNDO_STATE
 } from './action';
 import {clone, each, get} from 'lodash';
 import {
@@ -37,7 +38,7 @@ export let containerInitState: IContainerState = Object.freeze({
 export const containerReducer: Reducer<IContainerState> =
     (state: IContainerState = containerInitState, actions: IContainerAction): IContainerState => {
         switch (actions.type) {
-            case INIT_CONTAINER: {
+            case RCRE_INIT_CONTAINER: {
                 let model = actions.payload.model;
                 let data = actions.payload.data;
                 let context = actions.context;
@@ -70,7 +71,7 @@ export const containerReducer: Reducer<IContainerState> =
 
                 return state;
             }
-            case SET_DATA: {
+            case RCRE_SET_DATA: {
                 let name = actions.payload.name;
                 let newValue = actions.payload.value;
                 let context = actions.context;
@@ -122,7 +123,7 @@ export const containerReducer: Reducer<IContainerState> =
 
                 return state;
             }
-            case SET_MULTI_DATA: {
+            case RCRE_SET_MULTI_DATA: {
                 let payload = actions.payload;
                 let model = actions.model;
                 let context = actions.context;
@@ -148,7 +149,7 @@ export const containerReducer: Reducer<IContainerState> =
 
                 return state;
             }
-            case ASYNC_LOAD_DATA_PROGRESS: {
+            case RCRE_ASYNC_LOAD_DATA_PROGRESS: {
                 let payload = actions.payload;
                 let model = payload.model;
 
@@ -162,7 +163,7 @@ export const containerReducer: Reducer<IContainerState> =
 
                 return state;
             }
-            case ASYNC_LOAD_DATA_SUCCESS: {
+            case RCRE_ASYNC_LOAD_DATA_SUCCESS: {
                 let payload = actions.payload;
                 let model = payload.model;
                 let context = payload.context;
@@ -193,7 +194,7 @@ export const containerReducer: Reducer<IContainerState> =
 
                 return state;
             }
-            case ASYNC_LOAD_DATA_FAIL: {
+            case RCRE_ASYNC_LOAD_DATA_FAIL: {
                 let payload = actions.payload;
                 let model = payload.model;
                 let error = payload.error;
@@ -207,7 +208,7 @@ export const containerReducer: Reducer<IContainerState> =
 
                 return state;
             }
-            case SYNC_LOAD_DATA_SUCCESS: {
+            case RCRE_SYNC_LOAD_DATA_SUCCESS: {
                 let payload = actions.payload;
                 let model = payload.model;
                 let data = payload.data;
@@ -236,7 +237,7 @@ export const containerReducer: Reducer<IContainerState> =
 
                 return state;
             }
-            case SYNC_LOAD_DATA_FAIL: {
+            case RCRE_SYNC_LOAD_DATA_FAIL: {
                 let payload = actions.payload;
                 let model = payload.model;
                 let error = payload.error;
@@ -248,7 +249,7 @@ export const containerReducer: Reducer<IContainerState> =
                 state = setWith(state, combineKeys(model, '$error'), error);
                 return state;
             }
-            case DATA_CUSTOMER_PASS: {
+            case RCRE_DATA_CUSTOMER_PASS: {
                 let payload = actions.payload;
                 let model = payload.model;
                 let data = payload.data;
@@ -272,7 +273,7 @@ export const containerReducer: Reducer<IContainerState> =
 
                 return state;
             }
-            case CLEAR_DATA: {
+            case RCRE_CLEAR_DATA: {
                 let delKey = actions.payload.model;
                 let context = actions.payload.context;
                 let node = context.rcre.containerGraph.get(delKey);
@@ -284,12 +285,12 @@ export const containerReducer: Reducer<IContainerState> =
                 state = deleteWith(state, delKey);
                 return state;
             }
-            case RESET_CONTAINER:
+            case RCRE_RESET_CONTAINER_STORE:
                 state = {
                     [TMP_MODEL]: {}
                 };
                 return state;
-            case DELETE_DATA: {
+            case RCRE_DELETE_DATA: {
                 let payload = actions.payload;
                 let name = payload.name;
                 let model = actions.model;
@@ -309,6 +310,15 @@ export const containerReducer: Reducer<IContainerState> =
                 }
 
                 return state;
+            }
+            case RCRE_UNDO_STATE: {
+                let prevState = undo();
+
+                if (!prevState) {
+                    return state;
+                }
+
+                return prevState;
             }
             default:
                 return state;

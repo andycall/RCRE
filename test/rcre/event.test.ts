@@ -20,8 +20,8 @@ describe('Event', () => {
     });
 
     it('add logger', () => {
-        addEventListener('SET_DATA', (action, state) => {
-            expect(action.type).toBe('SET_DATA');
+        addEventListener('RCRE_SET_DATA', (action, state) => {
+            expect(action.type).toBe('RCRE_SET_DATA');
             expect(state.$rcre.container.demo.username).toBe('helloworld');
         });
 
@@ -44,8 +44,8 @@ describe('Event', () => {
     });
 
     it('async middleware', async () => {
-        addEventListener('ASYNC_LOAD_DATA_SUCCESS', (action, state) => {
-            expect(action.type).toBe('ASYNC_LOAD_DATA_SUCCESS');
+        addEventListener('RCRE_ASYNC_LOAD_DATA_SUCCESS', (action, state) => {
+            expect(action.type).toBe('RCRE_ASYNC_LOAD_DATA_SUCCESS');
             expect(state.$rcre.container.demo).toMatchSnapshot();
         });
 
@@ -99,7 +99,7 @@ describe('Event', () => {
 
     it('removeEventListener', () => {
         let setDataOne: ListenerFnItem = (action, state) => {
-            expect(action.type).toBe('SET_DATA');
+            expect(action.type).toBe('RCRE_SET_DATA');
             expect(state.$rcre.container.demo.username).toBe('helloworld');
         };
 
@@ -107,9 +107,9 @@ describe('Event', () => {
             throw new Error('error');
         };
 
-        addEventListener('SET_DATA', setDataOne);
-        addEventListener('SET_DATA', setDataTwo);
-        removeEventListener('SET_DATA', setDataTwo);
+        addEventListener('RCRE_SET_DATA', setDataOne);
+        addEventListener('RCRE_SET_DATA', setDataTwo);
+        removeEventListener('RCRE_SET_DATA', setDataTwo);
 
         let config: any = {
             body: [{
@@ -130,22 +130,22 @@ describe('Event', () => {
     });
 
     it('removeAllEventListenerByEventName', () => {
-        addEventListener('SET_DATA', (action, state) => {
+        addEventListener('RCRE_SET_DATA', (action, state) => {
             throw new Error('error');
         });
-        addEventListener('SET_DATA', (action, state) => {
+        addEventListener('RCRE_SET_DATA', (action, state) => {
             throw new Error('error');
         });
-        addEventListener('SET_DATA', (action, state) => {
+        addEventListener('RCRE_SET_DATA', (action, state) => {
             throw new Error('error');
         });
-        addEventListener('SET_DATA', (action, state) => {
+        addEventListener('RCRE_SET_DATA', (action, state) => {
             throw new Error('error');
         });
-        addEventListener('SET_DATA', (action, state) => {
+        addEventListener('RCRE_SET_DATA', (action, state) => {
             throw new Error('error');
         });
-        removeAllEventListenerByEventName('SET_DATA');
+        removeAllEventListenerByEventName('RCRE_SET_DATA');
 
         let config: any = {
             body: [{

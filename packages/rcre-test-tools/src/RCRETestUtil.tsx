@@ -477,6 +477,7 @@ export class RCRETestUtil {
 
         let container: any = this.getContainer(this.model).instance();
         container.TEST_setData(name, value);
+        this.wrapper.update();
     }
 
     /**

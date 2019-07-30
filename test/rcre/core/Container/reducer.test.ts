@@ -438,7 +438,7 @@ describe('Container State', () => {
         expect(copy.a).toEqual([[undefined, 10]]);
     });
 
-    it('[deleteWith] non existent path', () => {
+    it('[deleteWith] non exist path', () => {
         let state = {
             openExp: {
                 a: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]

@@ -1,11 +1,13 @@
 import {applyMiddleware, createStore, Store, compose, combineReducers} from 'redux';
 import {rcreReducer, RootState} from './reducers';
 import {triggerEvents} from './events';
+import {listenForHistory} from './history';
 
 const composeEnhancers = ((
     window && window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__
 ) || compose)(applyMiddleware(
-    triggerEvents
+    triggerEvents,
+    listenForHistory
 ));
 
 export function createReduxStore(): Store<RootState> {
