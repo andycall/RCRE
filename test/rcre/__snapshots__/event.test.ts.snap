@@ -1,0 +1,13 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Event async middleware 1`] = `
+Object {
+  "$error": null,
+  "$loading": false,
+  "test": Object {
+    "data": "ok",
+    "errno": 0,
+  },
+  "username": "helloworld",
+}
+`;
