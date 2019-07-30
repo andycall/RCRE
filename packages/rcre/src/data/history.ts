@@ -40,6 +40,6 @@ export const listenForHistory = (store: any) => (next: any) => (action: any) => 
     return next(action);
 };
 
-export function getHistory() {
+export function getContainerStateHistory() {
     return history.slice();
 }

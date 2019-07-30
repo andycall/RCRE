@@ -1,6 +1,6 @@
 import {Store} from 'redux';
 import {containerActionCreators} from './Container/action';
-import {getHistory} from '../data/history';
+import {getContainerStateHistory} from '../data/history';
 
 /**
  * 回滚container设置的state
@@ -11,5 +11,5 @@ export function undoRCREContainerState(store: Store<any>) {
 }
 
 export {
-    getHistory
+    getContainerStateHistory
 };
