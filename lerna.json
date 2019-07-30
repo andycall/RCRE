@@ -14,6 +14,6 @@
         "conventionalCommits": true,
         "message": "chore(release): release"
     },
-    "version": "0.21.11",
+    "version": "0.21.12",
     "useWorkspaces": true
 }
