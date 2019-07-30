@@ -29,8 +29,17 @@ export const listenForHistory = (store: any) => (next: any) => (action: any) => 
 
     if (validUNDOAction.includes(type)) {
         let state: RootState = store.getState();
+
+        if (history.length > 100) {
+            history.shift();
+        }
+
         history.push(state.$rcre.container);
     }
 
     return next(action);
 };
+
+export function getHistory() {
+    return history.slice();
+}

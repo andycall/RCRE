@@ -316,8 +316,6 @@ class Container extends React.PureComponent<ConnectContainerProps, {}> {
 
         let childElements = this.props.children;
 
-        console.log('container render', data);
-
         // 通过这样的方式强制子级组件更新
         const context = {
             model: this.props.model,
