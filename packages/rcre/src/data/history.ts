@@ -9,10 +9,19 @@ import {
 import {IContainerState} from '../core/Container/reducer';
 import {RootState} from './reducers';
 
+let historyIndex = 0;
 let history: IContainerState[]  = [];
 
-export function undo() {
-    return history.pop();
+export function undo(state: IContainerState) {
+    history[historyIndex] = state;
+    historyIndex--;
+    return history[historyIndex];
+}
+
+export function forward(state: IContainerState) {
+    history[historyIndex] = state;
+    historyIndex++;
+    return history[historyIndex];
 }
 
 const validUNDOAction = [
@@ -34,7 +43,7 @@ export const listenForHistory = (store: any) => (next: any) => (action: any) => 
             history.shift();
         }
 
-        history.push(state.$rcre.container);
+        history[historyIndex++] = state.$rcre.container;
     }
 
     return next(action);

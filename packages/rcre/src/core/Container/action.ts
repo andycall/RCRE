@@ -18,6 +18,7 @@ export const RCRE_ASYNC_LOAD_DATA_SUCCESS = 'RCRE_ASYNC_LOAD_DATA_SUCCESS';
 export const RCRE_ASYNC_LOAD_DATA_FAIL = 'RCRE_ASYNC_LOAD_DATA_FAIL';
 export const RCRE_DATA_CUSTOMER_PASS = 'RCRE_DATA_CUSTOMER_PASS';
 export const RCRE_UNDO_STATE = 'RCRE_UNDO_STATE';
+export const RCRE_FORWARD_STATE = 'RCRE_FORWARD_STATE';
 export type SET_DATA_PAYLOAD = {
     name: string;
     value: any;
@@ -125,6 +126,9 @@ export type IActions = {
     },
     UNDO_STATE: {
         type: typeof RCRE_UNDO_STATE
+    },
+    FORWARD_STATE: {
+        type: typeof RCRE_FORWARD_STATE
     }
 };
 
@@ -188,5 +192,8 @@ export const containerActionCreators = {
     }),
     undoState: () => ({
         type: RCRE_UNDO_STATE as typeof RCRE_UNDO_STATE
+    }),
+    forwardState: () => ({
+        type: RCRE_FORWARD_STATE as typeof RCRE_FORWARD_STATE
     })
 };

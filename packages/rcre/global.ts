@@ -29,6 +29,11 @@ declare interface Window {
 
 declare var __VERSION__: any;
 
+declare module 'deep-freeze-node' {
+    function freeze(object: object): void;
+    export = freeze;
+}
+
 interface System {
     import (request: string): Promise<any>;
 }

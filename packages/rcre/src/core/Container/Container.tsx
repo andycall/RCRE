@@ -8,6 +8,7 @@ import {
     get,
     isObjectLike,
 } from 'lodash';
+import freeze from 'deep-freeze-node';
 import {
     BasicProps, BindItem,
     ContainerContextType, ContainerNodeOptions, ContainerSetDataOption,
@@ -306,6 +307,10 @@ class Container extends React.PureComponent<ConnectContainerProps, {}> {
         }
 
         let data = this.props.$data;
+
+        if (process.env.NODE_ENV !== 'production') {
+            freeze(data);
+        }
 
         // 初始化的时候，React-Redux无法给予最新的$data
         if (data === undefined) {

@@ -10,6 +10,14 @@ export function undoRCREContainerState(store: Store<any>) {
     store.dispatch(containerActionCreators.undoState());
 }
 
+/**
+ *
+ * @param store
+ */
+export function forwardRCREContainerState(store: Store<any>) {
+    store.dispatch(containerActionCreators.forwardState());
+}
+
 export {
     getContainerStateHistory
 };
