@@ -2,6 +2,7 @@ const path = require('path');
 const typescript = require('rollup-plugin-typescript2');
 const postcss = require('rollup-plugin-postcss');
 const replace = require('rollup-plugin-replace');
+const commonjs = require('rollup-plugin-commonjs');
 const packageJSON = require('../../packages/rcre/package.json');
 
 const workspace = path.join(__dirname, '../../packages');
@@ -87,7 +88,8 @@ function buildConfig() {
                     }),
                     replace({
                         __VERSION__: '\'' + packageJSON.version + '\''
-                    })
+                    }),
+                    commonjs()
                 ],
                 external: external
             },

@@ -58,6 +58,7 @@
         "lerna": "^3.13.1",
         "moxios": "^0.4.0",
         "request": "^2.88.0",
+        "rollup-plugin-commonjs": "^10.0.1",
         "rollup-plugin-postcss": "^2.0.3",
         "rollup-plugin-replace": "^2.2.0",
         "rollup-plugin-typescript2": "^0.19.3",
@@ -92,7 +93,7 @@
         "react-dom": ">=16",
         "react-redux": "^5.0.7",
         "redux": "^3.7.2",
-        "rollup": "^1.6.0",
+        "rollup": "^1.17.0",
         "typescript": "^3.3.3333"
     },
     "config": {
