@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.21.15](https://github.com/andycall/RCRE/compare/v0.21.14...v0.21.15) (2019-08-01)
+
+
+### Bug Fixes
+
+* **rcre:** fix foreach try to mutate original state ([ed0857c](https://github.com/andycall/RCRE/commit/ed0857c))
+
+
+
+
+
 ## [0.21.9](https://github.com/andycall/RCRE/compare/v0.21.8...v0.21.9) (2019-05-21)
 
 
