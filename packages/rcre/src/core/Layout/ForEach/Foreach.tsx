@@ -4,6 +4,7 @@ import {BasicConfig, BasicProps} from '../../../types';
 import {IteratorContext} from '../../context';
 import {componentLoader} from '../../util/componentLoader';
 import {createChild} from '../../util/createChild';
+import {setWith} from '../../util/util';
 
 export interface ForeachProps extends BasicProps {
     /**
@@ -52,8 +53,8 @@ export class Foreach extends React.PureComponent<ForeachProps, {}> {
                                 {
                                     iteratorContext => {
                                         if (iteratorContext.$item && iteratorContext.hasOwnProperty('$index')) {
-                                            source['$parentItem'] = iteratorContext.$item;
-                                            source['$parentIndex'] = iteratorContext.$index;
+                                            source = setWith(source, '$parentItem', iteratorContext.$item);
+                                            source = setWith(source, '$parentIndex', iteratorContext.$index);
                                         }
 
                                         return (
