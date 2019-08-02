@@ -3,6 +3,7 @@ import {mount} from 'enzyme';
 import {clearStore, rcreReducer, JSONRender} from 'rcre';
 import {RCRETestUtil} from 'rcre-test-tools';
 import {combineReducers, createStore} from 'redux';
+import {createContainerStateHistory} from '../../packages/rcre/src/data/history';
 // import {RCRECore} from '../../packages/rcre/src/types';
 // import {RCRENativeAntd} from '../../rcre-components-nativeads-antd/types';
 
@@ -103,9 +104,10 @@ describe('Store', () => {
 
     it('use external redux store', () => {
         let demoReducer = (state: any = {test: '1234'}) => state;
+        const history = createContainerStateHistory();
         let store = createStore(combineReducers({
             demo: demoReducer,
-            $rcre: rcreReducer
+            $rcre: rcreReducer(history)
         }));
         let config = {
             body: [{

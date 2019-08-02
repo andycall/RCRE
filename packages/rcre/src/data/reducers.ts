@@ -13,7 +13,7 @@ export interface RCREState {
     // form: FormState;
 }
 
-const appReducer: Reducer<RootState> = combineReducers<RootState>({
+const appReducer = combineReducers<RootState>({
     container: containerReducer,
     trigger: triggerReducers,
     // form: formReducer

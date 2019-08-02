@@ -4,7 +4,6 @@
  */
 
 import {Reducer} from 'redux';
-import {forward, undo} from '../../data/history';
 import {
     RCRE_ASYNC_LOAD_DATA_FAIL,
     RCRE_ASYNC_LOAD_DATA_PROGRESS,
@@ -17,7 +16,7 @@ import {
     RCRE_SYNC_LOAD_DATA_FAIL,
     RCRE_SYNC_LOAD_DATA_SUCCESS,
     RCRE_CLEAR_DATA,
-    RCRE_DELETE_DATA, RCRE_INIT_CONTAINER, RCRE_UNDO_STATE, RCRE_FORWARD_STATE
+    RCRE_DELETE_DATA, RCRE_INIT_CONTAINER
 } from './action';
 import {clone, each, get} from 'lodash';
 import {
@@ -289,6 +288,7 @@ export const containerReducer: Reducer<IContainerState> =
                 state = {
                     [TMP_MODEL]: {}
                 };
+                Object.freeze(state);
                 return state;
             case RCRE_DELETE_DATA: {
                 let payload = actions.payload;
@@ -310,24 +310,6 @@ export const containerReducer: Reducer<IContainerState> =
                 }
 
                 return state;
-            }
-            case RCRE_UNDO_STATE: {
-                let prevState = undo(state);
-
-                if (!prevState) {
-                    return state;
-                }
-
-                return prevState;
-            }
-            case RCRE_FORWARD_STATE: {
-                let nextState = forward(state);
-
-                if (!nextState) {
-                    return state;
-                }
-
-                return nextState;
             }
             default:
                 return state;

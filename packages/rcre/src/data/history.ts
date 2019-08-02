@@ -1,28 +1,5 @@
-import {
-    RCRE_ASYNC_LOAD_DATA_FAIL,
-    RCRE_ASYNC_LOAD_DATA_SUCCESS,
-    RCRE_DELETE_DATA,
-    RCRE_SET_DATA,
-    RCRE_SET_MULTI_DATA,
-    RCRE_DATA_CUSTOMER_PASS
-} from '../core/Container/action';
-import {IContainerState} from '../core/Container/reducer';
-import {RootState} from './reducers';
-
-let historyIndex = 0;
-let history: IContainerState[]  = [];
-
-export function undo(state: IContainerState) {
-    history[historyIndex] = state;
-    historyIndex--;
-    return history[historyIndex];
-}
-
-export function forward(state: IContainerState) {
-    history[historyIndex] = state;
-    historyIndex++;
-    return history[historyIndex];
-}
+import {AnyAction, Reducer} from 'redux';
+import {RCRE_ASYNC_LOAD_DATA_FAIL, RCRE_ASYNC_LOAD_DATA_SUCCESS, RCRE_DATA_CUSTOMER_PASS, RCRE_DELETE_DATA, RCRE_REDO_STATE, RCRE_SET_DATA, RCRE_SET_MULTI_DATA, RCRE_UNDO_STATE} from '../core/Container/action';
 
 const validUNDOAction = [
     RCRE_SET_DATA,
@@ -33,22 +10,79 @@ const validUNDOAction = [
     RCRE_DATA_CUSTOMER_PASS
 ];
 
-export const listenForHistory = (store: any) => (next: any) => (action: any) => {
-    let type = action.type;
+export class ContainerStateHistory<T> {
+    private historyIndex: number;
+    private history: T[];
 
-    if (validUNDOAction.includes(type)) {
-        let state: RootState = store.getState();
+    constructor() {
+        this.history = [];
+        this.historyIndex = 0;
 
-        if (history.length > 100) {
-            history.shift();
-        }
-
-        history[historyIndex++] = state.$rcre.container;
+        this.canRedoContainerState = this.canRedoContainerState.bind(this);
+        this.canUndoContainerState = this.canUndoContainerState.bind(this);
     }
 
-    return next(action);
-};
+    undo(state: T): T {
+        this.history[this.historyIndex] = state;
+        this.historyIndex--;
+        return this.history[this.historyIndex];
+    }
 
-export function getContainerStateHistory() {
-    return history.slice();
+    forward(state: T) {
+        this.history[this.historyIndex] = state;
+        this.historyIndex++;
+        return this.history[this.historyIndex];
+    }
+
+    middleware(state: T, action: AnyAction) {
+        if (validUNDOAction.includes(action.type)) {
+            if (this.history.length > 100) {
+                this.history.shift();
+            }
+
+            this.history[this.historyIndex++] = state;
+        }
+    }
+
+    canUndoContainerState(): boolean {
+        return this.historyIndex > 0;
+    }
+
+    canRedoContainerState(): boolean {
+        return this.historyIndex < this.history.length - 1;
+    }
+}
+
+export function createContainerStateHistory<T>() {
+    return new ContainerStateHistory<T>();
+}
+
+export function undoable<T, A>(reducer: Reducer<T>, externalHistory?: ContainerStateHistory<T>): Reducer<T> {
+    let history = externalHistory || new ContainerStateHistory<T>();
+
+    return (state, action) => {
+        switch (action.type) {
+            case RCRE_UNDO_STATE: {
+                let prevState = history.undo(state);
+                if (!prevState) {
+                    return state;
+                }
+
+                return prevState;
+            }
+            case RCRE_REDO_STATE: {
+                let nextState = history.forward(state);
+
+                if (!nextState) {
+                    return state;
+                }
+
+                return nextState;
+            }
+            default: {
+                history.middleware(state, action);
+                return reducer(state, action);
+            }
+        }
+    };
 }

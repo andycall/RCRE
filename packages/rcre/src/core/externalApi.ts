@@ -1,6 +1,6 @@
 import {Store} from 'redux';
 import {containerActionCreators} from './Container/action';
-import {getContainerStateHistory} from '../data/history';
+import {undoable, createContainerStateHistory} from '../data/history';
 
 /**
  * 回滚container设置的state
@@ -14,10 +14,11 @@ export function undoRCREContainerState(store: Store<any>) {
  *
  * @param store
  */
-export function forwardRCREContainerState(store: Store<any>) {
-    store.dispatch(containerActionCreators.forwardState());
+export function redoRCREContainerState(store: Store<any>) {
+    store.dispatch(containerActionCreators.redoState());
 }
 
 export {
-    getContainerStateHistory
+    undoable,
+    createContainerStateHistory
 };
