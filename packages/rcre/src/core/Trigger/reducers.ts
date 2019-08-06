@@ -6,7 +6,7 @@ export type TriggerState = any;
 
 export const triggerInitState: TriggerState = {};
 
-export const triggerReducers: (history: any) => Reducer<TriggerState> = history => (state: TriggerState = triggerInitState, actions: ITriggerAction): TriggerState => {
+export const triggerReducers: Reducer<TriggerState> = (state: TriggerState = triggerInitState, actions: ITriggerAction): TriggerState => {
     switch (actions.type) {
         case TRIGGER_SET_DATA: {
             let payload = actions.payload;
