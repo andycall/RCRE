@@ -1,5 +1,4 @@
 import React from 'react';
-import createReactContext from 'create-react-context';
 import {createStore} from 'redux';
 import URL from 'url';
 import {DataCustomer} from './DataCustomer/index';
@@ -13,7 +12,7 @@ import {
     TriggerContextType, FormItemContextType
 } from '../types';
 
-export const RCREContext = createReactContext<RCREContextType>({
+export const RCREContext = React.createContext<RCREContextType>({
     $global: {},
     $location: URL.parse(''),
     lang: '',
@@ -31,7 +30,7 @@ export const RCREContext = createReactContext<RCREContextType>({
 // @ts-ignore
 RCREContext.displayName = 'RCREContext';
 
-export const ContainerContext = createReactContext<ContainerContextType>({
+export const ContainerContext = React.createContext<ContainerContextType>({
     model: '',
     $data: {},
     $parent: null,
@@ -48,17 +47,18 @@ export const ContainerContext = createReactContext<ContainerContextType>({
 // @ts-ignore
 ContainerContext.displayName = 'ContainerContext';
 
-export const TriggerContext = createReactContext<TriggerContextType>({
+export const TriggerContext = React.createContext<TriggerContextType>({
     eventHandle: async (eventName, args, options) => {
     },
     execTask: async (eventName, args) => {
+        console.log('exec', eventName);
     },
     $trigger: null
 });
 // @ts-ignore
 TriggerContext.displayName = 'TriggerContext';
 
-export const FormContext = createReactContext<FormContextType>({
+export const FormContext = React.createContext<FormContextType>({
     $form: null as any,
     $setFormItem: payload => {},
     $getFormItem: formItemName => ({
@@ -79,7 +79,7 @@ export const FormContext = createReactContext<FormContextType>({
 // @ts-ignore
 FormContext.displayName = 'FormContext';
 
-export const FormItemContext = createReactContext<FormItemContextType>({
+export const FormItemContext = React.createContext<FormItemContextType>({
     $validateFormItem: (name: string, value: any) => {},
     $handleBlur: () => {},
     $deleteFormItem: () => {},
@@ -137,7 +137,7 @@ export const withIteratorContext: any = (Component: any) => (
     )
 );
 
-export const IteratorContext = createReactContext<IteratorContextType>({
+export const IteratorContext = React.createContext<IteratorContextType>({
     $item: null,
     $index: -1
 });

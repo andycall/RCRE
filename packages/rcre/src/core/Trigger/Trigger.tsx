@@ -233,6 +233,7 @@ export class RCRETrigger<Config extends BasicConfig> extends React.Component<Tri
     }
 
     private execTask = async (targetTask: string, params: any, options?: ExecTaskOptions) => {
+        console.log('execTask');
         let event: TriggerEventItem = {
             event: '__INTENAL__',
             targetTask: targetTask,

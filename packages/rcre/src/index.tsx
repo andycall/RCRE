@@ -43,7 +43,6 @@ export function clearStore() {
     }
 }
 
-
 export {
     createChild,
     filter,

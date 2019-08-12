@@ -1,31 +1,20 @@
-import React from 'react';
+import React, {useContext} from 'react';
 import {ContainerProps, RCREContainer} from '../core/Container/Container';
 import {ContainerContext, RCREContext, IteratorContext, TriggerContext} from '../core/context';
 
-export class Container extends React.PureComponent<ContainerProps, {}> {
-    render() {
-        return (
-            <RCREContext.Consumer>
-                {rcreContext => <ContainerContext.Consumer>
-                    {containerContext => <IteratorContext.Consumer>
-                        {iteratorContext => <TriggerContext.Consumer>
-                            {triggerContext => {
-                                return (
-                                    <RCREContainer
-                                        {...this.props}
-                                        containerContext={containerContext}
-                                        iteratorContext={iteratorContext}
-                                        rcreContext={rcreContext}
-                                        triggerContext={triggerContext}
-                                    >
-                                        {this.props.children}
-                                    </RCREContainer>
-                                );
-                            }}
-                        </TriggerContext.Consumer>}
-                    </IteratorContext.Consumer>}
-                </ContainerContext.Consumer>}
-            </RCREContext.Consumer>
-        );
-    }
+export function Container(props: ContainerProps) {
+    let rcreContext = useContext(RCREContext);
+    let containerContext = useContext(ContainerContext);
+    let iteratorContext = useContext(IteratorContext);
+    let triggerContext = useContext(TriggerContext);
+
+    return (
+        <RCREContainer
+            {...props}
+            rcreContext={rcreContext}
+            iteratorContext={iteratorContext}
+            containerContext={containerContext}
+            triggerContext={triggerContext}
+        />
+    );
 }
