@@ -18,7 +18,7 @@
         "dist"
     ],
     "dependencies": {
-        "axios": "^0.16.2",
+        "axios": "^0.21.1",
         "bowser": "1.9.4",
         "classnames": "^2.2.5",
         "create-react-context": "^0.2.3",
